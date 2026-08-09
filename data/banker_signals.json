@@ -72,7 +72,13 @@
       "source": "seed"
     },
     { "id": "fr-champagne", "region": "\\bchampagne\\b", "source": "seed" },
-    { "id": "fr-sauternes", "region": "\\bsauternes\\b|\\bbarsac\\b", "source": "seed" },
+    {
+      "id": "fr-sauternes",
+      "region": "\\bsauternes\\b|\\bbarsac\\b",
+      "exclude": "blanc\\s*sec",
+      "note": "Sweet only. Sauternes AOC is a sweet wine by law, so the dry wine of a Sauternes château is not Sauternes at all — it is Bordeaux Blanc, which is how the real corpus labels the one it pours (2024 P3, 'Château Rieussec R de Rieussec, 2021. Bordeaux Blanc Sec'). A label reading 'Sauternes Blanc Sec' therefore either means that dry wine or is mislabelled, and neither is the botrytis benchmark this signal stands for. Reviewer attempt #457 on gen_p1_F2_1786071913239: 'in here we've got a Sauternes blanc sec. Instead of this you typically would see a Bordeaux blanc, which is going to have a little bit more oak usage and a little bit more typicity.' No wine in the 540-wine corpus matches this exclude, so it removes nothing the Institute has poured.",
+      "source": "seed"
+    },
     {
       "id": "fr-bordeaux",
       "region": "\\bmedoc\\b|pauillac|margaux|saint-?julien|saint-?estephe|saint-?emilion|\\bpomerol\\b|pessac|\\bgraves\\b|\\bbordeaux\\b",
@@ -94,7 +100,8 @@
       "id": "fr-alsace-noble",
       "region": "\\balsace\\b",
       "variety": "riesling|gewurztraminer|pinot gris|muscat|pinot blanc",
-      "note": "EK-0131: in Alsace only the noble grapes anchor. Sylvaner and Auxerrois are curveballs and are deliberately absent from the variety gate.",
+      "exclude": "vendanges?\\s*tardives?|selection\\s*de\\s*grains\\s*nobles|\\bsgn\\b|late\\s*harvest",
+      "note": "EK-0131: in Alsace only the noble grapes anchor. Sylvaner and Auxerrois are curveballs and are deliberately absent from the variety gate. The exclude carries that same idea one step further, to STYLE: this signal stands for the dry varietal Alsace a candidate can place cold, and a Vendanges Tardives or SGN is a sweet late-harvest wine that happens to share the region and the grape. Reviewer attempt #474 on gen_p1_any_1786046784601 called a Schoffit Rangen de Thann Pinot Gris Vendanges Tardives obscure while the table read it a banker on 'Alsace' + 'pinot gris'. Checked against the corpus: the single VT the Institute pours (2011 P1, Rolly Gassmann Pinot Gris VT) sits in an ALL-Alsace flight beside a dry Muscat and a dry Riesling, so the region is still anchored twice over and the question's verdict does not change.",
       "source": "seed"
     },
     {
@@ -188,6 +195,8 @@
       "id": "za-stellenbosch",
       "region": "stellenbosch",
       "variety": "cabernet|chenin|syrah|shiraz",
+      "exclude": "late\\s*harvest|\\bnoble\\s*late\\b",
+      "note": "Same style argument as fr-alsace-noble: the signal stands for dry Stellenbosch Cabernet, Chenin and Syrah, and a Noble Late Harvest Chenin is a dessert wine sharing the region and the grape. The corpus pours exactly one (2022 P3, Ken Forrester 'T Noble Late Harvest Chenin Blanc') and it appears on Paper 3 among sweet wines, where it is the subject rather than the route to the country.",
       "source": "seed"
     },
     {
