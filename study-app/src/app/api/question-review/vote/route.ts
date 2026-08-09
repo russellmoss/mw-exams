@@ -24,6 +24,7 @@ import {
   sanitizeReviewTags,
   sanitizeReviewNote,
   isReviewVerdict,
+  staleBufferedIds,
 } from "@/lib/question-review";
 
 export const runtime = "nodejs";
@@ -35,7 +36,15 @@ export async function POST(request: Request) {
   if (gate instanceof Response) return gate;
 
   const body = await request.json().catch(() => ({}));
-  const { questionId, verdict, tags: rawTags, note: rawNote } = body as Record<string, unknown>;
+  const {
+    questionId,
+    verdict,
+    tags: rawTags,
+    note: rawNote,
+    // The ids the client is holding in its local buffer, so the response can tell it which have
+    // stopped being servable since it fetched them. See staleBufferedIds.
+    buffered: rawBuffered,
+  } = body as Record<string, unknown>;
 
   if (typeof questionId !== "string" || !questionId) {
     return Response.json({ error: "Missing questionId" }, { status: 400 });
@@ -103,10 +112,16 @@ export async function POST(request: Request) {
     // Blocks ride back on every vote so the client can tell, without a second round-trip, that this
     // vote was the last one in its paper × family block and the completion interstitial is due.
     const filter = await getReviewFilter(gate.id);
-    const [progress, blocks, spendToday] = await Promise.all([
+    // `drop` reconciles the client's buffer against a corpus that is being fixed WHILE the reviewer
+    // works — the fixes are being made because of these very votes, so mid-session quarantines are
+    // the norm here, not an edge case. Without it the buffer only grows and a question retired ten
+    // seconds ago is still dealt to them.
+    const buffered = Array.isArray(rawBuffered) ? (rawBuffered as unknown[]).filter((x): x is string => typeof x === "string") : [];
+    const [progress, blocks, spendToday, drop] = await Promise.all([
       getReviewProgress(gate.id),
       getReviewBlocks(gate.id, filter),
       getReviewSpendToday(gate.id),
+      staleBufferedIds(gate.id, buffered),
     ]);
 
     return Response.json({
@@ -117,6 +132,7 @@ export async function POST(request: Request) {
       progress,
       blocks,
       spendToday,
+      drop,
     });
   } catch (err) {
     console.error("question-review vote error:", err);
