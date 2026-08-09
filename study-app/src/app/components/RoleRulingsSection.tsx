@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
 // RoleRulingsSection — the "Banker / curveball rulings" card on /admin (migration 069).
@@ -91,19 +91,26 @@ export function RoleRulingsSection() {
   const [error, setError] = useState<string | null>(null);
   const [selectedRepairs, setSelectedRepairs] = useState<number[]>([]);
 
-  const load = async () => {
-    try {
-      const res = await fetch("/api/admin/role-rulings", { cache: "no-store" });
-      if (!res.ok) return;
-      setData(await res.json());
-    } catch {
-      /* transient — the card just stays as it was */
-    }
-  };
+  // Promise-callback style rather than async/await, matching /review's loadQueue and for the same
+  // reason: every setState then lands in a `.then`, which keeps it out of the synchronous effect tick
+  // that React — and the react-hooks/set-state-in-effect lint rule — objects to. An `await` here reads
+  // identically and fails CI.
+  const load = useCallback(
+    () =>
+      fetch("/api/admin/role-rulings", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((json) => {
+          if (json) setData(json);
+        })
+        .catch(() => {
+          /* transient — the card just stays as it was */
+        }),
+    []
+  );
 
   useEffect(() => {
     void load();
-  }, []);
+  }, [load]);
 
   const act = async (action: string, body: Record<string, unknown> = {}) => {
     setBusy(action);
