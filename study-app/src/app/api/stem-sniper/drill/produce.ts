@@ -7,6 +7,7 @@ import {
   type ProgressEmitter,
 } from "@/lib/question-engine";
 import { deriveStemKey, persistStemKey } from "@/lib/stem-answer-key";
+import { STEM_SNIPER_QUARANTINE } from "../quarantine";
 
 /**
  * The Stem Sniper drill producer, shared by both routes that serve one:
@@ -77,6 +78,10 @@ async function pickBankedDrill(paper: number | null, family: string | null, vari
       AND q.review_state = 'kept'
       -- Live Tasting questions (migration 041) belong to one user's session, never the drill pool.
       AND q.scope = 'pool'
+      -- Serve-pool quarantine: individual banked questions a reviewer rejected for a fault the
+      -- answer-key derivation can't see (e.g. curveball density). An empty list means every row
+      -- passes (x <> ALL of an empty array is true), so this filters nothing when nothing is listed.
+      AND q.question_id <> ALL(${STEM_SNIPER_QUARANTINE})
       AND (${paper}::int IS NULL OR q.paper = ${paper}::int)
       AND (${family}::text IS NULL OR q.family = ${family}::text)
       AND (
