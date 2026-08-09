@@ -4,7 +4,7 @@ import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { scorePredictions } from "../src/lib/stem-scoring.ts";
-import { scopeHeaderProblems, varietyFamilyProblems } from "../src/lib/stem-answer-key.mjs";
+import { scopeHeaderProblems, varietyFamilyProblems, sameVarietyProblems } from "../src/lib/stem-answer-key.mjs";
 
 let pass = 0, fail = 0;
 const ok = (name, cond) => { if (cond) { pass++; } else { fail++; console.log("  FAIL:", name); } };
@@ -269,6 +269,64 @@ const bordeauxStem =
 {
   const ground = [{ slot: 4, varieties: [], region: "Douro", country: "Portugal" }];
   ok("V7 no-variety wine not flagged by family rule", varietyFamilyProblems(bordeauxStem, ground).length === 0);
+}
+
+// --- Same-variety flight consistency (EK-0040, R2) ---
+// W1. THE FLAGGED DEFECT (gen_p3_F1_...): a hedged "same single, or predominant, grape variety" stem
+// over a Sémillon-dominant Sauternes + a 100%-Chenin Coteaux du Layon — different predominant grapes.
+{
+  const stem =
+    "Wines 1 and 2 are made from the same single, or predominant, grape variety. " +
+    "a) Identify the grape variety or varieties, giving your reasons. (10 marks)";
+  const ground = [
+    { slot: 1, varieties: ["Semillon", "Sauvignon Blanc"], region: "Sauternes, Bordeaux", country: "France" },
+    { slot: 2, varieties: ["Chenin Blanc"], region: "Coteaux du Layon, Loire", country: "France" },
+  ];
+  const p = sameVarietyProblems(stem, ground);
+  ok("W1 Sauternes vs Coteaux du Layon 'same/predominant variety' = flagged", p.length === 1 && /W2/.test(p[0]) && /Chenin Blanc/.test(p[0]));
+}
+// W2. VALID: a genuine same-variety flight (all predominantly Grenache) is clean — and the hedge's
+// intended case, a Châteauneuf blend beside a McLaren Vale varietal Grenache, must NOT be flagged.
+{
+  const stem = "Wines 1 to 3 are made from the same single, or predominant, grape variety. Identify it. (15 marks)";
+  const ground = [
+    { slot: 1, varieties: ["Grenache", "Syrah", "Mourvèdre"], region: "Châteauneuf-du-Pape", country: "France" },
+    { slot: 2, varieties: ["Grenache"], region: "McLaren Vale", country: "Australia" },
+    { slot: 3, varieties: ["Garnacha"], region: "Priorat", country: "Spain" },
+  ];
+  ok("W2 all predominantly Grenache (synonyms folded) = clean", sameVarietyProblems(stem, ground).length === 0);
+}
+// W3. NO FALSE POSITIVE: a "different grape variety" stem carries no same-variety promise.
+{
+  const stem = "Wines 1 and 2 are each made from a different single grape variety. Identify each. (2 x 5 marks)";
+  const ground = [
+    { slot: 1, varieties: ["Semillon"], region: "Sauternes", country: "France" },
+    { slot: 2, varieties: ["Chenin Blanc"], region: "Coteaux du Layon", country: "France" },
+  ];
+  ok("W3 'different variety' stem = clean", sameVarietyProblems(stem, ground).length === 0);
+}
+// W4. SUBSET-SCOPED: a per-pair "same single grape variety" claim is not flight-wide, so an unlike
+// wine outside the pair must not be read as a contradiction.
+{
+  const stem =
+    "Wines 1-4 are from four different countries and two different grape varieties. 1 & 2 are a pair " +
+    "and 3 & 4 are a pair. Each pair is from the same single grape variety.";
+  const ground = [
+    { slot: 1, varieties: ["Chardonnay"], region: "Burgundy", country: "France" },
+    { slot: 2, varieties: ["Chardonnay"], region: "Margaret River", country: "Australia" },
+    { slot: 3, varieties: ["Riesling"], region: "Mosel", country: "Germany" },
+    { slot: 4, varieties: ["Riesling"], region: "Clare Valley", country: "Australia" },
+  ];
+  ok("W4 subset-scoped same-variety stem = clean", sameVarietyProblems(stem, ground).length === 0);
+}
+// W5. NO PROMISE: a stem that names no variety premise at all is never checked.
+{
+  const stem = "Wines 1 and 2 are both sweet white wines from France. Compare them. (25 marks)";
+  const ground = [
+    { slot: 1, varieties: ["Semillon"], region: "Sauternes", country: "France" },
+    { slot: 2, varieties: ["Chenin Blanc"], region: "Coteaux du Layon", country: "France" },
+  ];
+  ok("W5 no variety premise = clean", sameVarietyProblems(stem, ground).length === 0);
 }
 
 console.log(`\nstem-scoring tests: ${pass} passed, ${fail} failed.`);

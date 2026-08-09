@@ -12,7 +12,12 @@
 // Grape colour classification for the colour-conflict veto below. question-rules.mjs is the app's
 // single source of truth for grape-name detection and is itself pure (no fs / no DB), so importing
 // it keeps this module's contract intact.
-import { WHITE_GRAPE_INDICATORS, RED_GRAPE_INDICATORS } from "./question-rules.mjs";
+import {
+  WHITE_GRAPE_INDICATORS,
+  RED_GRAPE_INDICATORS,
+  canonVariety,
+  subsetScopedStem,
+} from "./question-rules.mjs";
 
 // ---------- normalization (pure, data-free) ----------
 export const norm = (s) =>
@@ -104,6 +109,23 @@ function promisesSingleVarietyPerWine(stem) {
   return /\bsingle (?:grape )?variet(?:y|ies)\b/.test(n) || /\bone (?:grape )?variet(?:y|ies)\b/.test(n);
 }
 
+// True when the stem promises the flight shares ONE grape variety across ALL wines — a "same variety"
+// premise. It must catch two shapes that the narrower isSameVarietyFlight() below (used only for
+// scope-header suppression) missed:
+//   • the plain "same (single) (grape) variety"; and
+//   • the comma-hedged "same single, or predominant, grape variety" — norm() collapses the
+//     ", or predominant," so the interrupting words no longer defeat the match.
+// The "or predominant" hedge only concedes that a wine MAY be a blend named by its dominant grape
+// (EK-0040, matching question-validator's rule (3)); it still promises the SAME grape is predominant
+// in EVERY wine. It does NOT license a flight of genuinely different varieties (Sémillon-dominant
+// Sauternes beside a 100%-Chenin-Blanc Coteaux du Layon). Only the fixed filler vocabulary is allowed
+// between "same" and "variet", so this never over-matches unrelated prose.
+function promisesSameVariety(stem) {
+  return /\bsame (?:(?:single|or|predominant|principal|dominant|main|grape) ){0,5}variet/.test(
+    norm(stem)
+  );
+}
+
 // ---------- Scope-header / tariff consistency (EK-0172, "R-SCOPE") ----------
 // A sub-question's SCOPE HEADER must agree with the TARIFF form. Across the real exam (2011–2025,
 // P1–P3) the IMW keeps two clean shapes and never mixes them:
@@ -137,7 +159,7 @@ const SINGLE_TARIFF = /\b\d+\s*marks?\b/i;
 // True when the stem says the flight shares ONE variety (a same-variety flight) — the single case a
 // shared-scope "identify the grape variety" header is legitimately paired with a single mark block.
 function isSameVarietyFlight(stem) {
-  return /\bsame (?:single )?(?:grape )?variet/i.test(stem || "");
+  return promisesSameVariety(stem || "");
 }
 
 // The first tariff appearing in `seg`: { multiplied: boolean }, or null when the segment has none.
@@ -245,6 +267,36 @@ export function varietyFamilyProblems(stem, ground) {
     }
   }
   return out;
+}
+
+// ---------- Same-Variety Flight Consistency (EK-0040 "R2") ----------
+// A stem promising the flight is made from "the same single, or predominant, grape variety" claims
+// that ONE grape is (at least) the predominant variety of EVERY wine. It is contradicted when the
+// wines' PREDOMINANT (first-listed) grapes are not all the same variety — a Sauternes (Sémillon-
+// dominant Sémillon/Sauvignon Blanc blend) beside a Coteaux du Layon (100% Chenin Blanc) share no
+// predominant grape and break that promise. This is the stem-contradicts-wines fault Question Review
+// flagged on gen_p3_F1_1785859729985, which slipped through because the "or predominant" phrasing was
+// treated purely as a per-wine blend hedge, so the cross-flight same-variety check never ran.
+//
+// Comparison is canonicalised (Shiraz=Syrah, "grenache blend"→Grenache, …) so a Châteauneuf beside a
+// McLaren Vale Grenache — the exact comparison the hedge is meant to ALLOW — still reads as one grape.
+// Skipped when the stem is SUBSET-scoped (per-pair / "wines 1-3 … wine 4 is a blend" claims are not
+// flight-wide). Pure (stem + keyed ground in, messages out) so the offline backfill, the live builder
+// and the tests run the SAME rule.
+export function sameVarietyProblems(stem, ground) {
+  if (!promisesSameVariety(stem || "")) return [];
+  const g = ground || [];
+  if (subsetScopedStem(stem || "", g.length)) return [];
+  const keyed = g.filter((w) => (w.varieties || []).length);
+  if (keyed.length < 2) return [];
+  const base = canonVariety(keyed[0].varieties[0]);
+  const offender = keyed.find((w) => canonVariety(w.varieties[0]) !== base);
+  if (!offender) return [];
+  return [
+    `same-variety stem contradiction (the stem states the wines are from the same single, or ` +
+      `predominant, grape variety, but W${offender.slot}'s predominant grape "${offender.varieties[0]}" ` +
+      `differs from W${keyed[0].slot}'s "${keyed[0].varieties[0]}")`,
+  ];
 }
 
 const STYLE_CAT_FALLBACK = {
@@ -529,6 +581,11 @@ export function createAnswerKeyBuilder(data) {
     // is a Bordeaux variety; a wine keyed outside the family (e.g. Touriga Franca) contradicts it.
     // Hard fault, same treatment as the checks above (validated=false → dropped from serve paths).
     for (const p of varietyFamilyProblems(r.question_text || "", ground)) problems.push(p);
+    // Same-variety flight consistency (EK-0040, R2): a "same single, or predominant, grape variety"
+    // stem promises one grape is predominant in every wine; wines with different predominant grapes
+    // (Sémillon-dominant Sauternes vs 100%-Chenin Coteaux du Layon) contradict it. Hard fault, same
+    // treatment as the checks above (validated=false → dropped from serve paths).
+    for (const p of sameVarietyProblems(r.question_text || "", ground)) problems.push(p);
     const plausible = plausibleFor(ground);
     const seenPl = new Set(plausible.map((p) => `${norm(p.variety)}|${norm(p.region)}`));
     for (const c of curatedConfusables) {
