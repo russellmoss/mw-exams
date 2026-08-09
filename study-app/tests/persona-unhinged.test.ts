@@ -10,6 +10,7 @@ import {
   resolvePersonaFor,
 } from "@/lib/personas";
 import { LEGACY_ELEVENLABS_VOICE_ID } from "@/lib/voices";
+import { buildRestyleSystem } from "@/lib/persona-restyle";
 
 const appDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // bypassSurfaceGate, because Unhinged is pinned neutral on EVERY surface at generation time — the
@@ -117,5 +118,39 @@ describe("Unhinged — the delivery", () => {
       expect(src, rel).toMatch(/hasGrokKey/);
       expect(src, rel).toMatch(/unhinged:/);
     }
+  });
+});
+
+describe("the restyle brief keeps its two halves apart", () => {
+  // Both halves are load-bearing and they pull against each other. Measured, on the live model:
+  //  - constraints alone → it added one line in the voice and reproduced the body VERBATIM, which
+  //    satisfies every frozen rule and completely fails the job;
+  //  - saturation alone → it restyled the headings (`### Overall Assessment` came back bolded),
+  //    which the fingerprint gate rejects wholesale, so the candidate silently got the Tutor.
+  // Hence the brief names what is frozen and what must change as two separate lists.
+  const brief = buildRestyleSystem("unhinged", "grading", "Mike");
+
+  it("freezes the scaffolding the gate checks", () => {
+    expect(brief).toMatch(/WHAT IS FROZEN, AND WHAT MUST CHANGE/);
+    expect(brief).toMatch(/Every heading, character for character/i);
+    expect(brief).toMatch(/The NUMBER of list items/);
+  });
+
+  it("demands the prose actually change", () => {
+    expect(brief).toMatch(/MUST CHANGE — the prose, all of it/);
+    expect(brief).toMatch(/Passing a sentence through unchanged is a failure/i);
+  });
+
+  it("supplies the candidate's name only when there is one", () => {
+    expect(brief).toMatch(/THE CANDIDATE'S NAME IS \*\*Mike\*\*/);
+    expect(buildRestyleSystem("unhinged", "grading", null)).not.toMatch(/CANDIDATE'S NAME/);
+  });
+
+  it("bans the stock phrases the model kept parroting", () => {
+    // Given examples, it reused the same three every run until the voice read like a form letter.
+    const v = personaBlock("unhinged", "chat", { bypassSurfaceGate: true });
+    expect(v).toMatch(/illustrative, not a script/i);
+    expect(v).toMatch(/now banned/i);
+    expect(v).toMatch(/Never use the same epithet twice in one piece/i);
   });
 });
