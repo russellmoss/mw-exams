@@ -4,6 +4,7 @@ import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { scorePredictions } from "../src/lib/stem-scoring.ts";
+import { scopeHeaderProblems } from "../src/lib/stem-answer-key.mjs";
 
 let pass = 0, fail = 0;
 const ok = (name, cond) => { if (cond) { pass++; } else { fail++; console.log("  FAIL:", name); } };
@@ -161,6 +162,58 @@ try {
   }
 } catch (e) {
   console.log("  (skipped real-key test:", e.message, ")");
+}
+
+// --- Scope-header / tariff consistency (EK-0172, R-SCOPE) ---
+// S1. THE FLAGGED DEFECT: a "with reference to all three wines" header over a "3 × 5 marks" per-wine
+// grape-variety ask, on a DIFFERENT-variety flight — must be flagged.
+{
+  const stem =
+    "Wines 4 to 6 are from three different countries and are each made from a different single grape variety. " +
+    "With reference to all three wines: a) Identify the grape variety for each wine. (3 x 5 marks) " +
+    "Then for each wine: b) Identify the origin as closely as possible. (3 x 8 marks) " +
+    "c) Comment on the style, quality, and commercial position of the wine. (3 x 12 marks)";
+  const p = scopeHeaderProblems(stem);
+  ok("S1 shared header + multiplied per-wine tariff = flagged", p.length === 1 && /shared-scope header/.test(p[0]));
+}
+// S2. VALID: a shared header paired with a SINGLE mark block (one attribute the whole flight shares).
+{
+  const stem =
+    "Wines 1 to 3 are made from the same grape variety. With reference to all three wines: " +
+    "Identify the grape variety. (15 marks)";
+  ok("S2 shared header + single block = clean", scopeHeaderProblems(stem).length === 0);
+}
+// S3. VALID: the CORRECTED form of S1 — a per-wine header paired with a multiplied tariff.
+{
+  const stem =
+    "Wines 4 to 6 are each made from a different single grape variety. " +
+    "For each wine: a) Identify the grape variety. (3 x 5 marks) " +
+    "b) Identify the origin as closely as possible. (3 x 8 marks)";
+  ok("S3 per-wine header + multiplied tariff = clean", scopeHeaderProblems(stem).length === 0);
+}
+// S4. VALID SAME-VARIETY FLIGHT: a shared header may sit over a multiplied tariff when the flight
+// explicitly shares ONE variety (the marks then multiply for a per-wine comparison, not identification).
+{
+  const stem =
+    "Wines 1 to 3 are all made from the same single grape variety. " +
+    "With reference to all three wines, comment on quality. (3 x 10 marks)";
+  ok("S4 same-variety flight + multiplied = clean", scopeHeaderProblems(stem).length === 0);
+}
+// S5. INVERSE: a "for each wine" header over a single mark block — equally inconsistent.
+{
+  const stem = "For each wine: identify the grape variety and origin. (15 marks)";
+  const p = scopeHeaderProblems(stem);
+  ok("S5 per-wine header + single block = flagged", p.length === 1 && /per-wine header/.test(p[0]));
+}
+// S6. NO FALSE POSITIVE: an in-ask "for each wine" (not a leading header) must not be read as a header.
+{
+  const stem = "With reference to all three wines: identify the grape variety for each wine. (15 marks)";
+  ok("S6 in-ask 'for each wine' not treated as header", scopeHeaderProblems(stem).length === 0);
+}
+// S7. NO FALSE POSITIVE: no scope header at all → nothing to check.
+{
+  const stem = "Wine 1 is a premium white. Identify the grape variety and origin. (25 marks)";
+  ok("S7 no scope header = clean", scopeHeaderProblems(stem).length === 0);
 }
 
 console.log(`\nstem-scoring tests: ${pass} passed, ${fail} failed.`);

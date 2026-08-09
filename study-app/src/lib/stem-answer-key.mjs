@@ -104,6 +104,93 @@ function promisesSingleVarietyPerWine(stem) {
   return /\bsingle (?:grape )?variet(?:y|ies)\b/.test(n) || /\bone (?:grape )?variet(?:y|ies)\b/.test(n);
 }
 
+// ---------- Scope-header / tariff consistency (EK-0172, "R-SCOPE") ----------
+// A sub-question's SCOPE HEADER must agree with the TARIFF form. Across the real exam (2011–2025,
+// P1–P3) the IMW keeps two clean shapes and never mixes them:
+//   • a SHARED-answer header ("With reference to all three wines: Identify the grape variety") pairs
+//     with a SINGLE mark block (e.g. "15 marks") — one attribute the whole flight shares; and
+//   • a PER-WINE header ("For each wine: Identify the grape variety") pairs with a MULTIPLIED tariff
+//     (e.g. "3 × 5 marks") — a separate call per wine.
+// A "with reference to all N wines" header over a MULTIPLIED per-wine tariff (or a "for each wine"
+// header over a SINGLE mark block) is structurally invalid. A generated stem shipped the first of
+// these — a "With reference to all three wines" header over a "3 × 5 marks" grape-variety ask on a
+// flight whose wines are each a DIFFERENT variety. Prompt guidance alone (EK-0064) did not stop it, so
+// it is gated here on the same DERIVED key that gates both the generation retry loop and the serve
+// path (a fault sets validated=false → dropped), matching the country-diversity / single-variety rules.
+
+// A SHARED-scope header: "with reference to all three wines", "with reference to both wines",
+// "with reference to the wines". Deliberately NOT "with reference to each wine" / "for each wine"
+// (per-wine), and NOT "with reference to each of the wines" (per-wine) — those name a per-wine ask.
+const SHARED_SCOPE_HEADER =
+  /with reference to\s+(?:all\s+|both\s+)?(?:the\s+)?(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)?\s*wines\b/gi;
+
+// A PER-WINE scope header, matched ONLY where it LEADS a clause (sentence / colon boundary, or after
+// "then"), so a "for each wine" that sits INSIDE an ask ("identify the grape variety for each wine")
+// is not mistaken for a header.
+const PER_WINE_HEADER = /(?:^|[.;:]\s*|\bthen\s+)for each (?:of the )?wines?\b/gi;
+
+// Tariff forms. A MULTIPLIED tariff ("3 × 5 marks", "6 x 7 marks", "2 * 8 mark") vs a SINGLE mark
+// block ("15 marks"). × / x / * are all seen as the multiplier glyph in real and generated stems.
+const MULTIPLIED_TARIFF = /\b\d+\s*[×x*]\s*\d+\s*marks?\b/i;
+const SINGLE_TARIFF = /\b\d+\s*marks?\b/i;
+
+// True when the stem says the flight shares ONE variety (a same-variety flight) — the single case a
+// shared-scope "identify the grape variety" header is legitimately paired with a single mark block.
+function isSameVarietyFlight(stem) {
+  return /\bsame (?:single )?(?:grape )?variet/i.test(stem || "");
+}
+
+// The first tariff appearing in `seg`: { multiplied: boolean }, or null when the segment has none.
+// Whichever tariff starts EARLIEST governs the header's own sub-question (a later multiplied tariff
+// belonging to a following sub-question does not count — segments are bounded at the next header).
+function firstTariff(seg) {
+  const m = seg.match(MULTIPLIED_TARIFF);
+  const s = seg.match(SINGLE_TARIFF);
+  const mi = m ? m.index : Infinity;
+  const si = s ? s.index : Infinity;
+  if (mi === Infinity && si === Infinity) return null;
+  return { multiplied: mi <= si };
+}
+
+// Structural faults where a scope header disagrees with its tariff. Pure (stem string in, messages
+// out). Exported so the offline backfill and any live validator run the SAME rule.
+export function scopeHeaderProblems(stem) {
+  const out = [];
+  if (!stem) return out;
+  const sameVariety = isSameVarietyFlight(stem);
+  const mk = (kind) => (m) => ({ i: m.index, end: m.index + m[0].length, text: m[0].trim(), kind });
+  const headers = [
+    ...[...stem.matchAll(SHARED_SCOPE_HEADER)].map(mk("shared")),
+    ...[...stem.matchAll(PER_WINE_HEADER)].map(mk("perwine")),
+  ].sort((a, b) => a.i - b.i);
+  // A header governs the text up to the NEXT header (so its tariff is not read from a later section).
+  const nextStart = (h) => {
+    const nx = headers.find((x) => x.i > h.i);
+    return nx ? nx.i : stem.length;
+  };
+  let flaggedShared = false;
+  let flaggedPerWine = false;
+  for (const h of headers) {
+    const t = firstTariff(stem.slice(h.end, nextStart(h)));
+    if (!t) continue;
+    if (h.kind === "shared" && t.multiplied && !sameVariety && !flaggedShared) {
+      out.push(
+        `scope-header mismatch (the shared-scope header "${h.text}" governs a multiplied per-wine ` +
+          `tariff; a "with reference to all wines" header must pair with a single mark block, or the ` +
+          `header must read "for each wine")`
+      );
+      flaggedShared = true;
+    } else if (h.kind === "perwine" && !t.multiplied && !flaggedPerWine) {
+      out.push(
+        `scope-header mismatch (a "for each wine" per-wine header governs a single mark block; a ` +
+          `per-wine ask must pair with a multiplied tariff)`
+      );
+      flaggedPerWine = true;
+    }
+  }
+  return out;
+}
+
 const STYLE_CAT_FALLBACK = {
   sparkling: "Sparkling",
   fortified: "Fortified",
@@ -378,6 +465,10 @@ export function createAnswerKeyBuilder(data) {
         );
       }
     }
+    // Scope-header / tariff consistency (EK-0172, R-SCOPE): a shared-scope header over a multiplied
+    // per-wine tariff (or a per-wine header over a single mark block) is structurally invalid. Hard
+    // fault, same treatment as the checks above (validated=false → dropped from serve paths).
+    for (const p of scopeHeaderProblems(r.question_text || "")) problems.push(p);
     const plausible = plausibleFor(ground);
     const seenPl = new Set(plausible.map((p) => `${norm(p.variety)}|${norm(p.region)}`));
     for (const c of curatedConfusables) {
