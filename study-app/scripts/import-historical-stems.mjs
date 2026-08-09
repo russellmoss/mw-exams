@@ -112,7 +112,17 @@ if (REDO && already.length) {
     (await sql`
       /* theory-mode-guard: all-modes -- an attempt in ANY mode means a candidate answered this
          question; the point is to REFUSE to regenerate it, so narrowing by mode could only let a
-         real attempt slip through and be destroyed. */
+         real attempt slip through and be destroyed. The refusal is also load-bearing mechanically:
+         user_attempts carries an FK to generated_questions, so the DELETE below would abort mid-way
+         on any referenced row (after the key/producer deletes already ran — verified 2026-08-09).
+
+         Review-carrier rows (source='question_review', written by a reviewer down-vote) hit this
+         guard too. Do NOT carve them out here — the delete would still be FK-blocked. The procedure
+         that works, mirroring wine-swap.ts's retire-not-delete: copy the row to
+         '<id>_retired_<date>' with is_retired=true and a 'Superseded by <id>' repair note, move the
+         question's user_attempts + question_reviews + wine_role_rulings rows onto the copy, then run
+         --redo — the original id is unreferenced and regenerates cleanly, and the regenerated
+         question re-enters the reviewers' queues because their votes now live on the retired copy. */
       SELECT DISTINCT question_id FROM user_attempts WHERE question_id = ANY(${candidates})
     `).map((r) => r.question_id)
   );
