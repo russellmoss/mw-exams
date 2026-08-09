@@ -69,7 +69,10 @@ const byRule = {};
 // question-validator.ts), so GROUND_TRUTH_INDEPENDENT_RULES — which is derived from that layer — cannot
 // name it. Enumerate it here so unkeyed rows are still gated on it; without this the very question the
 // rule was written for (gen_p1_F4_1786073249209, unkeyed) would have its violation filtered away.
-const STEM_ONLY_INDEPENDENT_RULES = ["scope_header_ask_mismatch"];
+// stem-shape (checkStemShape, also validator-side) is the same class — stem text only — and MUST be
+// enforceable unkeyed: a stem full of the generator's reasoning is exactly the draft whose key never
+// resolves, so gating it on a key would exempt the rows that have the defect.
+const STEM_ONLY_INDEPENDENT_RULES = ["scope_header_ask_mismatch", "stem-shape"];
 
 // The rules an UNKEYED row is actually evaluated on: the ground-truth-independent set, the stem-only
 // independent rules above, plus the serve gate (which runs on every row regardless of key). A flag

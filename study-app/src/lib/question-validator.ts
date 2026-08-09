@@ -11,6 +11,7 @@ import {
   stemSniperScoringModel as _stemSniperScoringModel,
   canonCountry,
   canonVariety,
+  checkStemShape,
   colourFromAppellation,
   detectPrimaryVariety,
   expandMarkTokens,
@@ -4102,6 +4103,15 @@ export function validateQuestion(
   // these are unsatisfiable rather than merely wrong on a fixed stem.
   const stemFixed = q.stemIsAuthoritative === true;
   if (!stemFixed) {
+    // R-STEM-SHAPE — the stem must be an exam question, not the generator reasoning about writing
+    // one. checkStemShape already guards remediation drafts; until now the AUDIT had no purpose-built
+    // stem rule, so a reasoning-filled stem in the bank was caught only indirectly, by the part
+    // extractor exploding into hundreds of part-task-repertoire violations. Measured before wiring:
+    // zero hits on the servable bank, zero on the 162 historical stems (tests/stem-shape.test.ts).
+    const stemShape = checkStemShape(q.questionText);
+    if (!stemShape.ok) {
+      violations.push({ rule: "stem-shape", severity: "hard", detail: stemShape.problem! });
+    }
     violations.push(...stemPreannouncesDiscriminator(q.questionText));
     violations.push(...idMarkAllocationViolations(q));
     violations.push(...flightWineCountViolations(q));
