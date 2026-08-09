@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-09 — incremental: 1 feedback item(s) processed → 0 new entries.**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0178).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 3 new entries (EK-0175, EK-0176, EK-0177).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 0 new entries.**
@@ -1435,6 +1436,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 433 | 87 | P1/F1 | accept | auto | four-country all-New-World Chardonnay flight (Argentina/Australia/Chile/NZ) has no Burgundian anchor and four curveballs — already fully covered by the Old-World-anchor and banker rules | EK-0169, EK-0029, EK-0034, EK-0097 |
 | 464 | 104 | P1/F3 | accept | auto | P1 Bordeaux-vs-CdP white blend pair is corpus-attested and correctly tariffed, but Beaucastel Blanc was keyed and answered as the estate's RED — the `blanc` exclusion in the colour resolver plus a grape-only label-conflict guard let it through | EK-0175, EK-0176, EK-0177, EK-0061, EK-0156, EK-0155, EK-0074 |
 | 467 | 107 | P1/F4 | accept | auto | collective 'with reference to all four wines' header + pooled 16-mark tariff used for four DIFFERENT varieties; corpus always pairs distinct-variety asks with a per-wine header and `4 x 8` multiplier | EK-0178, EK-0172, EK-0147, EK-0041 |
+| 473 | 113 | P1/F4 | accept | auto | Third report of the same scope-header defect — collective 'with reference to all three wines' header on a per-wine variety ask (even with the correct 3 x 5 multiplier tariff); already covered, reinforces the case for validator enforcement | EK-0172, EK-0178 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
