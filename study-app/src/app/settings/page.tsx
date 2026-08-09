@@ -53,6 +53,15 @@ export default function SettingsPage() {
   const [elevenSaving, setElevenSaving] = useState(false);
   const [elevenDeleting, setElevenDeleting] = useState(false);
   const [elevenError, setElevenError] = useState<string | null>(null);
+  const [grokKey, setGrokKey] = useState("");
+  const [grokKeyInfo, setGrokKeyInfo] = useState<{
+    hasKey: boolean;
+    keyHint: string | null;
+    usingServerKey?: boolean;
+  } | null>(null);
+  const [grokSaving, setGrokSaving] = useState(false);
+  const [grokDeleting, setGrokDeleting] = useState(false);
+  const [grokError, setGrokError] = useState<string | null>(null);
   const [elevenSuccess, setElevenSuccess] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [soundLoading, setSoundLoading] = useState(false);
@@ -190,6 +199,10 @@ export default function SettingsPage() {
       fetch("/api/user/api-key?provider=elevenlabs")
         .then((r) => r.ok ? r.json() : null)
         .then((data) => { if (data) setElevenKeyInfo(data); })
+        .catch(() => {});
+      fetch("/api/user/api-key?provider=grok")
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { if (data) setGrokKeyInfo(data); })
         .catch(() => {});
       fetch("/api/user/api-key")
         .then((r) => r.ok ? r.json() : null)
@@ -331,6 +344,50 @@ export default function SettingsPage() {
       setElevenError("Failed to remove key");
     } finally {
       setElevenDeleting(false);
+    }
+  };
+
+  const handleGrokSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setGrokError(null);
+    setGrokSaving(true);
+    try {
+      const res = await fetch("/api/user/api-key", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey: grokKey, provider: "grok" }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setGrokError(data.error || "Couldn't save that key.");
+        return;
+      }
+      setGrokKey("");
+      setGrokKeyInfo({ hasKey: true, keyHint: data.keyHint ?? null });
+      // The persona picker is gated on hasGrokKey, which comes from auth-context.
+      await refresh();
+    } catch {
+      setGrokError("Network error — try again.");
+    } finally {
+      setGrokSaving(false);
+    }
+  };
+
+  const handleGrokDelete = async () => {
+    setGrokDeleting(true);
+    setGrokError(null);
+    try {
+      const res = await fetch("/api/user/api-key?provider=grok", { method: "DELETE" });
+      if (res.ok) {
+        setGrokKeyInfo({ hasKey: false, keyHint: null });
+        await refresh();
+      } else {
+        setGrokError("Failed to remove key");
+      }
+    } catch {
+      setGrokError("Failed to remove key");
+    } finally {
+      setGrokDeleting(false);
     }
   };
 
@@ -981,6 +1038,102 @@ export default function SettingsPage() {
             </form>
           </section>
 
+          {/* xAI (Grok) — optional, and gates exactly one thing: the Unhinged persona. Framed as a
+              capability rather than a gap, like the ElevenLabs section above. */}
+          <section className="bg-card rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-2">xAI (Grok) API Key</h2>
+            <p className="text-sm text-muted mb-6">
+              Optional. Unlocks the <strong className="text-foreground">Unhinged</strong> voice, which
+              is written by Grok rather than Claude. Claude still does all the marking either way.
+              {grokKeyInfo?.usingServerKey || user?.isAdmin
+                ? " As an admin, the server key is used as a fallback if you don't set your own."
+                : " Every other voice works without it."}
+            </p>
+
+            {grokKeyInfo && (
+              <div
+                className={`rounded-lg p-4 mb-6 ${
+                  grokKeyInfo.hasKey
+                    ? "bg-success/10 border border-success/30"
+                    : grokKeyInfo.usingServerKey
+                      ? "bg-accent/10 border border-accent/30"
+                      : "bg-background border border-border"
+                }`}
+              >
+                {grokKeyInfo.hasKey ? (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Unhinged available</p>
+                      <p className="text-xs text-muted mt-0.5">Key ending in {grokKeyInfo.keyHint}</p>
+                    </div>
+                    <button
+                      onClick={handleGrokDelete}
+                      disabled={grokDeleting}
+                      className="text-xs text-fail hover:text-fail/80 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      {grokDeleting ? "Removing..." : "Remove key"}
+                    </button>
+                  </div>
+                ) : grokKeyInfo.usingServerKey ? (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Using server key (admin fallback)</p>
+                    <p className="text-xs text-muted mt-0.5">You can optionally set your own key below.</p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Unhinged is unavailable</p>
+                    <p className="text-xs text-muted mt-0.5">
+                      Add a key below to unlock it. Nothing else changes.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {grokError && (
+              <div className="bg-fail/10 border border-fail/30 rounded-lg p-3 mb-4">
+                <p className="text-sm text-fail">{grokError}</p>
+              </div>
+            )}
+
+            <form onSubmit={handleGrokSave} className="space-y-4">
+              <div>
+                <label htmlFor="grokKey" className="block text-sm font-medium text-foreground mb-1.5">
+                  {grokKeyInfo?.hasKey ? "Replace xAI key" : "xAI key"}
+                </label>
+                <input
+                  id="grokKey"
+                  type="password"
+                  value={grokKey}
+                  onChange={(e) => setGrokKey(e.target.value)}
+                  placeholder="xai-..."
+                  className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors font-mono text-sm"
+                />
+                <p className="text-xs text-muted mt-1.5">
+                  Get one from{" "}
+                  <a
+                    href="https://console.x.ai/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-accent hover:underline"
+                  >
+                    console.x.ai
+                  </a>
+                  . Encrypted at rest, never exposed to other users, and only used to write the
+                  Unhinged voice on your behalf.
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={grokSaving || !grokKey.trim()}
+                className="px-6 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {grokSaving ? "Validating & saving..." : grokKeyInfo?.hasKey ? "Replace key" : "Save key"}
+              </button>
+            </form>
+          </section>
+
           {/* Voice — the persona every LLM surface speaks in (migration 068) */}
           <section className="bg-card rounded-xl border border-border p-6">
             <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Voice</h2>
@@ -996,7 +1149,16 @@ export default function SettingsPage() {
               every last point are checked against the original afterwards, and if a single number
               or finding moved, the re-wording is thrown away and you get the plain version.
             </p>
-            <PersonaPicker value={persona} onChange={savePersona} disabled={personaSaving} />
+            <PersonaPicker
+              value={persona}
+              onChange={savePersona}
+              disabled={personaSaving}
+              unavailable={
+                user?.hasGrokKey
+                  ? undefined
+                  : { unhinged: "Needs an xAI (Grok) key — add one in the xAI section above." }
+              }
+            />
           </section>
 
           {/* Study Defaults — the onboarding choices: question source + reasoning stream */}

@@ -1,0 +1,78 @@
+# remediate-nightly.yml — put a bounded number of quarantined questions BACK, every night.
+#
+# The review loop only ever subtracted. A reviewer bins a question, the analysis accepts the critique,
+# a rule ships, the corpus sweep quarantines every other question with the same defect — and all of
+# that is removal. 282 quarantined questions were sitting in a state nothing would ever bring back,
+# while the servable pool shrank toward the point where a reviewer sees repeats. scripts/
+# remediate-questions.mjs has always been able to fix this — regenerate the same paper × family
+# through the hardened pipeline, gate on the validator AND the key builder, retry until valid, build
+# the model answer, archive the old row — and nothing has ever run it. This runs it.
+#
+# The regenerated question is a NEW row taking the table defaults (status='approved',
+# review_state='kept', scope='pool'), so it re-enters the candidate pool AND the review queue with no
+# votes against it. That is the loop closing: the defect a reviewer found becomes a rule, the rule
+# retires the questions carrying it, and this replaces them with ones that pass the rule they failed.
+#
+# IT SPENDS REAL MONEY — a generation, wine enrichment (Tavily), a key build and a model answer per
+# question, retried until valid. Hence the cap, which is the whole design of this workflow. LIMIT is an
+# input on manual runs and a small fixed number on the schedule; do not raise the scheduled figure
+# without pricing it first (scripts/optimize-costs and the model_usage table). At 5/night the backlog
+# drains over about two months, which is the right pace for something whose output a human still has to
+# review — it is not a race to empty the queue, it is a trickle that keeps the pool from shrinking.
+#
+# Creates no deployment, so it costs nothing against the Hobby-plan quota.
+
+name: remediate-nightly
+
+on:
+  schedule:
+    - cron: "20 7 * * *" # daily, 07:20 UTC — after question-audit-daily (06:40) has set the flags
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "How many quarantined questions to regenerate (each one spends)"
+        required: false
+        default: "5"
+
+permissions:
+  contents: read
+
+# Never two at once: both passes select the same quarantined rows, so a second run would regenerate
+# questions the first is already mid-way through replacing.
+concurrency:
+  group: remediate
+  cancel-in-progress: false
+
+jobs:
+  remediate:
+    runs-on: ubuntu-latest
+    # Generation + enrichment + key build + model answer, retried, times LIMIT. Five is comfortable in
+    # this budget; a larger manual run may need it raised.
+    timeout-minutes: 60
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+      VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install app dependencies
+        working-directory: study-app
+        run: npm ci
+
+      # ts-loader is mandatory: this script imports .ts modules whose own imports are extensionless.
+      # Without it the run dies before doing any work — the same failure that took the nightly audit
+      # dark on 2026-08-07.
+      - name: Remediate
+        working-directory: study-app
+        run: |
+          LIMIT="${{ github.event.inputs.limit || '5' }}"
+          echo "remediating up to $LIMIT quarantined question(s)"
+          node --import ./scripts/ts-loader.mjs scripts/remediate-questions.mjs --apply --limit="$LIMIT"

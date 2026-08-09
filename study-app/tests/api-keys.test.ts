@@ -210,7 +210,7 @@ describe("Google sign-ups are held to the same requirement", () => {
   });
 
   it("reports all three providers, with the admin fallback applied per provider", () => {
-    expect(me).toMatch(/provider IN \('anthropic', 'tavily', 'elevenlabs'\)/);
+    expect(me).toMatch(/provider IN \('anthropic', 'tavily', 'elevenlabs', 'grok'\)/);
     expect(me).toMatch(/hasTavilyKey/);
     expect(me).toMatch(/hasVoiceKey/);
     // Per-provider, so an admin missing one is not treated as missing all three.

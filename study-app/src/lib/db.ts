@@ -5,6 +5,7 @@ import { detectPrimaryVariety } from "./question-rules.mjs";
 import {
   deriveQuestionType,
   deriveCurveball,
+  type Curveball,
   deriveFlightPriceBand,
   deriveFlightSize,
 } from "./bank-health/derive";
@@ -320,7 +321,10 @@ export async function saveGeneratedQuestion(q: {
   // stay accurate for every new row. Re-derived here from the exact stem/wines/metadata being stored,
   // using the same logic migration 026 used to backfill the historical rows.
   const questionType = deriveQuestionType(q.questionText);
-  const curveball = deriveCurveball(q.metadata);
+  // Prefer the MEASURED level the caller computed from the flight (isBanker over the wines) over
+  // deriveCurveball's metadata read, which looks for keys nothing writes and so answers "low" for
+  // everything. Kept as the fallback for callers that supply no level.
+  const curveball = (q.curveballLevel as Curveball | null) ?? deriveCurveball(q.metadata);
   const priceBand = deriveFlightPriceBand(q.wines);
   const flightSize = deriveFlightSize(q.wines);
   // Producer Spread review flag (migration 032). Computed ONLY for a fresh pending item, against the

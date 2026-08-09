@@ -3,6 +3,10 @@ import { join } from "path";
 import { neon } from "@neondatabase/serverless";
 import { getEndorsedExemplars } from "@/lib/db";
 import { paperScopeProse } from "@/lib/paper-scope";
+// The SAME banker/curveball table the validator enforces (data/banker_signals.json). Rendered into
+// the banker-minimum section below so the generator builds flights against the rule it is judged by,
+// instead of against a prose paraphrase that could disagree with it.
+import { renderBankerCalibration } from "@/lib/banker-signals";
 
 const TARGET_DISTRIBUTIONS: Record<string, Record<number, number>> = {
   F1: { 2: 44, 3: 32, 4: 12, 5: 8, 6: 4 },
@@ -677,6 +681,9 @@ BAD: Montlouis sparkling + Bourgogne Blanc + Hermitage Blanc + Deiss field blend
 GOOD: Puligny-Montrachet 1er Cru + Sancerre + Hermitage Blanc + Deiss field blend (2 bankers, 1 curveball)
 GOOD: Chablis Grand Cru + Pouilly-Fumé + Condrieu + Jurançon Sec (2 bankers, 1 curveball)
 
+### The exact banker calibration the validator applies
+${renderBankerCalibration()}
+
 ## F4 (MIXED BREADTH) WINE SELECTION — QUALITY TIER CAP
 F4 "grab bag" questions test VARIETAL IDENTIFICATION and REGIONAL TYPICITY, not quality prestige. The 10-year MW corpus consistently uses mid-tier, regional-identity wines for this question family — not icon cuvées or prestige bottlings.
 
@@ -747,6 +754,11 @@ WORKED ILLEGAL SHAPES (each is auto-rejected — do not emit them):
 **CURVEBALL FLIGHTS SHIFT MARKS OFF IDENTIFICATION.** When the flight is curveball-heavy (obscure varieties or origins few candidates could name), the real exam does not stake 10 marks per wine on identification the examiner knows will mostly fail — it drops identification to ~5-6 marks per wine (sometimes skipping the variety ask entirely) and moves the weight onto style, method of production and quality, which a strong candidate CAN earn on an unfamiliar wine. Reviewer-attested pattern (2026-08 review corpus): a mostly-curveball flight carrying 10/25 per wine on identification reads as unrealistic and gets binned. A banker-anchored flight keeps the normal 8-15 identification weighting FOR ITS BANKER AND OTHER REACHABLE WINES ONLY — the banker's presence does NOT license a flat, flight-wide identification tariff.
 
 **THE ID TARIFF IS PER-WINE, NOT FLAT — an unreachable-origin wine is downweighted even inside a banker-anchored flight (EK-0165).** Do not price identification highly on any individual wine whose origin is effectively unreachable — an origin with no precedent as a primary identification target (e.g. a Canary Islands DO such as Ycoden-Daute-Isora, made from Listán Blanco) or a variety a well-prepared candidate would not encounter in normal study. Even when the flight contains a strong banker, that ONE wine's identification sub-part must be capped at ~5-6 marks or omitted entirely, with the freed marks redistributed to that wine's style, method of production, quality and commercial-positioning sub-parts (where a candidate can still earn from the glass regardless of whether they reach the appellation). Concretely: if you have flagged a wine as a curveball with an unusual/unprecedented origin in your reasoning, you MUST NOT then hand it the same 10-15-mark identification part as the banker — a same-country whites flight of Rías Baixas Albariño (banker) + premium old-vine Rueda Verdejo + Canary Islands Listán Blanco should give the Albariño a normal ID weighting but suppress the Canaries wine's ID to ~5 marks and pay the rest on style/quality/commercial. The model geometry is 2019 Paper 1 Q3 (curveballs with origin suppressed — "do not spend time thinking about the wine's specific origin" — and the full weight of marks on winemaking, style and commercial).
+
+**IF ANY WINE THE PART ADDRESSES IS A BLEND, THE ASK MUST BE HEDGED (blocking validator).** "a) Identify the grape variety." demands ONE grape. If the part addresses a Bordeaux, a Châteauneuf, a Rioja, a Champagne, a Douro field blend, a Southern Rhône GSM, a Valpolicella, a Provence rosé or anything else made from two or more grapes, write the exam's own hedge instead: **"Identify the grape variety or varieties"**. The real papers print it as "grape variety(ies)" (2018 P2 Q1) and "grape variety/ies" (2023 P3 Q1) — this is the corpus's wording, not a softening of the ask.
+- The test is SCOPED to the slots the part addresses. "For each wine 1-3: a) Identify the grape variety." over a flight whose wine 4 is a blend is CORRECT and is exactly what 2022 P2 Q1 does — wines 1-3 are monovarietal and wine 4 has its own parts.
+- A qualified ask needs no hedge: "Identify the principal / predominant / dominant grape variety" already concedes the blend and is real exam wording ("Name the dominant grape variety", 2017 P3 Q4).
+- The same applies to the STEM. Never assert "made from the same single grape variety" or "each from a different, single grape variety" over a flight containing a blend — use the exam's hedge, "the same single, or predominant, grape variety" (2015 P2 Q2, 2022 P2 Q5, 2025 P2 Q1 and Q3).
 
 **SINGLE-WINE FLIGHTS ARE A RARE CURVEBALL — NEVER ask for variety or origin (blocking validator).** A one-wine question almost never appears (Paper 3 only, roughly 1 question in 20), and when it does the lone wine is a big CURVEBALL (e.g. a Georgian Qvevri, an orange wine). Do NOT ask the candidate to identify the grape variety or the region/origin — the answer would be unguessable and the exam does not test it. Ask instead for STYLE, how the wine was made, QUALITY evaluation, or COMMERCIAL / global-positioning evaluation. Prefer a 2+ wine flight; only draw a single wine when it is a genuine curveball framed this way. Also NEVER build the hybrid structure where wines 1–2 share a sub-part block and wine 3 gets its own private block — either present the shared wines as an explicit paired comparison, or give the whole flight the same sub-parts.
 

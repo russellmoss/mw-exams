@@ -11,7 +11,7 @@
 import { useState } from "react";
 
 interface Provider {
-  id: "anthropic" | "tavily" | "elevenlabs";
+  id: "anthropic" | "tavily" | "elevenlabs" | "grok";
   label: string;
   placeholder: string;
   required: boolean;
@@ -50,6 +50,16 @@ const PROVIDERS: Provider[] = [
     hrefLabel: "Get a key from ElevenLabs",
     note: "Copy the key that starts sk_, not the shorter key ID beside it — the key is shown only once.",
   },
+  {
+    id: "grok",
+    label: "xAI (Grok) API Key",
+    placeholder: "xai-...",
+    required: false,
+    why: "Only for the Unhinged persona, which is written by Grok rather than Claude. Every other voice, and all of the marking, works without it.",
+    href: "https://console.x.ai/",
+    hrefLabel: "Get a key from the xAI Console",
+    note: "Unhinged is deliberately abusive and swears at you personally. Without this key it falls back to the standard voice.",
+  },
 ];
 
 export function ApiKeySetup({
@@ -57,7 +67,7 @@ export function ApiKeySetup({
   have,
   onSaved,
 }: {
-  have: { anthropic: boolean; tavily: boolean; elevenlabs: boolean };
+  have: { anthropic: boolean; tavily: boolean; elevenlabs: boolean; grok: boolean };
   onSaved: () => Promise<void> | void;
 }) {
   const [values, setValues] = useState<Record<string, string>>({});
@@ -109,7 +119,7 @@ export function ApiKeySetup({
                 <p className="text-sm font-medium text-foreground">
                   {p.label}{" "}
                   <span className={`font-normal ${p.required ? "text-accent" : "text-muted"}`}>
-                    {p.required ? "(required)" : "(optional — for voice)"}
+                    {p.required ? "(required)" : "(optional)"}
                   </span>
                 </p>
                 <p className="text-xs text-muted mt-1 leading-relaxed">{p.why}</p>

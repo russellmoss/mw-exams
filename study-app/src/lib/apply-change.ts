@@ -34,11 +34,22 @@ export const GEN_PATHS = [
   // allow-list, so such a fix could be recommended and never written. Now that the analysis sees
   // the verbatim grading output, scoring accepts are far more likely — and still PR-gated.
   "study-app/src/lib/prompts/marking-principles.ts", "study-app/src/lib/prompts/funnelling.ts",
+  // The banker calibration is rendered INTO the generation prompt as well as enforced by the
+  // validator, so it is in scope for both Kinds — a "the generator keeps picking curveballs" fix and
+  // a "the validator mis-classifies this wine" fix are the same edit to the same file.
+  "data/banker_signals.json", "study-app/public/data/banker_signals.json",
   // Generation-rule changes ship with tests too (same rationale as VALIDATOR_PATHS).
   "study-app/tests/",
 ];
 export const VALIDATOR_PATHS = [
   "study-app/src/lib/question-validator.ts", "study-app/scripts/audit-questions.mjs",
+  // The banker/curveball calibration. It is a DATA file rather than part of the validator source
+  // precisely so an upheld reviewer role ruling has something small and mechanical to edit; it must
+  // therefore be inside the validator scope, or every such fix trips the out-of-scope guard.
+  // public/data is the prebuild copy (scripts/sync-stem-data.mjs) — listed so a PR can refresh it in
+  // the same commit rather than leaving the deployed calibration one build behind the source.
+  "data/banker_signals.json", "study-app/public/data/banker_signals.json",
+  "study-app/src/lib/banker-signals.ts",
   "study-app/src/lib/question-engine.ts", "study-app/src/lib/tasting-validators.ts",
   "study-app/src/app/api/get-question/", "study-app/src/lib/prompts/question-generation-prompt.ts",
   "study-app/src/lib/db.ts",

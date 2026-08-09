@@ -23,7 +23,9 @@ import {
   getReviewSpendToday,
   sanitizeReviewTags,
   sanitizeReviewNote,
+  sanitizeRoleOverrides,
   isReviewVerdict,
+  staleBufferedIds,
 } from "@/lib/question-review";
 
 export const runtime = "nodejs";
@@ -35,7 +37,17 @@ export async function POST(request: Request) {
   if (gate instanceof Response) return gate;
 
   const body = await request.json().catch(() => ({}));
-  const { questionId, verdict, tags: rawTags, note: rawNote } = body as Record<string, unknown>;
+  const {
+    questionId,
+    verdict,
+    tags: rawTags,
+    note: rawNote,
+    // The ids the client is holding in its local buffer, so the response can tell it which have
+    // stopped being servable since it fetched them. See staleBufferedIds.
+    buffered: rawBuffered,
+    roleOverrides: rawRoles,
+    wines: rawWines,
+  } = body as Record<string, unknown>;
 
   if (typeof questionId !== "string" || !questionId) {
     return Response.json({ error: "Missing questionId" }, { status: 400 });
@@ -46,6 +58,21 @@ export async function POST(request: Request) {
 
   const tags = sanitizeReviewTags(rawTags);
   const note = sanitizeReviewNote(rawNote);
+  const roleOverrides = sanitizeRoleOverrides(rawRoles);
+  // The wine labels come from the client only so a dispute can NAME the bottle in the feedback text
+  // and in the ruling row. They are never trusted for anything that decides an outcome — the
+  // adjudicator re-reads the wines from the question, and the slot number is what joins the two.
+  const wines = Array.isArray(rawWines)
+    ? (rawWines as Record<string, unknown>[])
+        .map((w) => ({
+          slot: Number(w.slot),
+          label: String(w.label ?? "").slice(0, 300),
+          variety: w.variety ? String(w.variety).slice(0, 120) : null,
+          region: w.region ? String(w.region).slice(0, 120) : null,
+          country: w.country ? String(w.country).slice(0, 120) : null,
+        }))
+        .filter((w) => Number.isInteger(w.slot))
+    : [];
 
   // A thumbs-down MUST say why. This is the whole point of the surface: an unexplained rejection
   // tells the feedback loop that something is wrong and nothing about what, which is the one input
@@ -66,6 +93,8 @@ export async function POST(request: Request) {
       verdict,
       tags,
       note,
+      roleOverrides,
+      wines,
       route: "/review",
     });
 
@@ -103,10 +132,16 @@ export async function POST(request: Request) {
     // Blocks ride back on every vote so the client can tell, without a second round-trip, that this
     // vote was the last one in its paper × family block and the completion interstitial is due.
     const filter = await getReviewFilter(gate.id);
-    const [progress, blocks, spendToday] = await Promise.all([
+    // `drop` reconciles the client's buffer against a corpus that is being fixed WHILE the reviewer
+    // works — the fixes are being made because of these very votes, so mid-session quarantines are
+    // the norm here, not an edge case. Without it the buffer only grows and a question retired ten
+    // seconds ago is still dealt to them.
+    const buffered = Array.isArray(rawBuffered) ? (rawBuffered as unknown[]).filter((x): x is string => typeof x === "string") : [];
+    const [progress, blocks, spendToday, drop] = await Promise.all([
       getReviewProgress(gate.id),
       getReviewBlocks(gate.id, filter),
       getReviewSpendToday(gate.id),
+      staleBufferedIds(gate.id, buffered),
     ]);
 
     return Response.json({
@@ -117,6 +152,7 @@ export async function POST(request: Request) {
       progress,
       blocks,
       spendToday,
+      drop,
     });
   } catch (err) {
     console.error("question-review vote error:", err);

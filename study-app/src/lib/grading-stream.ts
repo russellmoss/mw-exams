@@ -3,12 +3,7 @@ import { requireApiKey } from "@/lib/api-key";
 import { normalizeDictatedTerms, type Substitution } from "@/lib/dictation-normalizer";
 import { selectModel, type ModelTier } from "@/lib/model-selector";
 import { restyleForPersona } from "@/lib/persona-restyle";
-import {
-  DEFAULT_PERSONA,
-  gradedRestyleEnabled,
-  type PersonaId,
-  type PersonaSurface,
-} from "@/lib/personas";
+import { needsRestyle, type PersonaId, type PersonaSurface } from "@/lib/personas";
 import { thinkingFrame, withThinking } from "@/lib/thinking-stream";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { loadWineTerms } from "@/lib/wine-terms";
@@ -117,9 +112,7 @@ export async function streamGradedResponse(
         for (const frame of options.initialFrames ?? []) send(frame);
 
         const willRestyle =
-          !!options.restyle &&
-          options.restyle.persona !== DEFAULT_PERSONA &&
-          gradedRestyleEnabled(options.restyle.surface);
+          !!options.restyle && needsRestyle(options.restyle.persona, options.restyle.surface);
 
         let fullText = "";
         for await (const event of stream) {
@@ -159,6 +152,7 @@ export async function streamGradedResponse(
             surface: options.restyle!.surface,
             client,
             apiKey: runtime.apiKey,
+            userId: runtime.user.id,
             usage: {
               taskType: `${options.taskType}_persona_restyle`,
               source: runtime.source,

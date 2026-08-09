@@ -16,7 +16,7 @@
 // Reads ground_truth from stem_answer_keys (already-resolved variety/region/country/is_blend per wine).
 import { readFileSync } from "fs";
 import { neon } from "@neondatabase/serverless";
-import { validateQuestion } from "../src/lib/question-validator.ts";
+import { validateQuestion, applyWineProfiles } from "../src/lib/question-validator.ts";
 import { GROUND_TRUTH_INDEPENDENT_RULES } from "../src/lib/question-rules.mjs";
 // The serve-time bank gate, imported so the sweep can enforce exactly what the serve path enforces
 // rather than an approximation of it. See the SERVE-GATE PARITY note below.
@@ -55,13 +55,24 @@ if (apply) {
 // validated by any rule beyond the five in the serve gate.
 const rows = await sql`
   SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, g.wines, g.model_answer,
-         g.wine_profiles, g.metadata->>'source' AS source, k.ground_truth, k.validated
+         g.wine_profiles, g.metadata->>'source' AS source, g.invalid_reasons, k.ground_truth, k.validated
   FROM generated_questions g LEFT JOIN stem_answer_keys k ON k.question_id = g.question_id
   WHERE (g.metadata->>'archived') IS DISTINCT FROM 'true'
   ORDER BY g.paper, g.family`;
 
-let hardCount = 0, softCount = 0, quarantined = 0, setScored = 0, unkeyed = 0;
+let hardCount = 0, softCount = 0, quarantined = 0, setScored = 0, unkeyed = 0, unkeyedCleared = 0;
 const byRule = {};
+
+// The rules an UNKEYED row is actually evaluated on: the ground-truth-independent set, plus the serve
+// gate (which runs on every row regardless of key). A flag naming only these is one this pass could
+// have re-set, so finding the row clean is real evidence the flag is stale. A flag naming anything
+// else was written by an evaluation this pass cannot reproduce, and is left alone.
+const UNKEYED_EVALUATED_RULES = new Set([...GROUND_TRUTH_INDEPENDENT_RULES, "serve-gate"]);
+
+function clearableUnkeyed(reasons) {
+  if (!Array.isArray(reasons) || reasons.length === 0) return false;
+  return reasons.every((x) => x && typeof x.rule === "string" && UNKEYED_EVALUATED_RULES.has(x.rule));
+}
 for (const r of rows) {
   const gt = typeof r.ground_truth === "string" ? JSON.parse(r.ground_truth) : r.ground_truth;
   const raw = typeof r.wines === "string" ? JSON.parse(r.wines) : r.wines;
@@ -71,13 +82,22 @@ for (const r of rows) {
   // rule layer are bare labels. Everything the rules infer from a key is simply absent.
   const hasKey = !!gt;
   if (!hasKey) unkeyed++;
+  const existingReasons =
+    typeof r.invalid_reasons === "string" ? JSON.parse(r.invalid_reasons) : r.invalid_reasons;
   // Zip the raw label back onto each resolved key wine, by slot. A slot holding the generator's
   // deliberation instead of a wine still resolves to a plausible-looking key (a paragraph mentioning
   // "Amontillado" and "Spain" keys as Palomino/Jerez/Spain), so the shape rule is the only one that
   // can see the defect — and it needs the string ground_truth discarded.
-  const wines = hasKey
-    ? gt.map((w) => (bySlot.has(w.slot) ? { ...w, fullText: bySlot.get(w.slot) } : w))
-    : rawWines.map((w) => ({ slot: w.slot, fullText: w.fullText }));
+  // wine_profiles was in this SELECT but never read, so the sweep judged every wine on the key alone
+  // while auditAndQuarantineQuestion had at least been zipping the colour on — the two audits were
+  // looking at different wines. applyWineProfiles is now the single place that merges the enrichment
+  // in (colour, and the full grape list the key reduces to a dominant grape), used by both.
+  const wines = applyWineProfiles(
+    hasKey
+      ? gt.map((w) => (bySlot.has(w.slot) ? { ...w, fullText: bySlot.get(w.slot) } : w))
+      : rawWines.map((w) => ({ slot: w.slot, varieties: [], region: "", fullText: w.fullText })),
+    r.wine_profiles
+  );
   const res = validateQuestion({
     questionId: r.question_id, paper: r.paper, family: r.family,
     questionText: r.question_text, totalMarks: r.total_marks, wines,
@@ -154,15 +174,40 @@ for (const r of rows) {
       }
       quarantined++;
     }
-  } else if (apply && !scoped && hasKey) {
+    // A dry run REPORTS what it would clear (see the CLEAR lines below) but writes nothing: the
+    // condition deliberately does not test `apply`, so `--apply` and a dry run agree on the verdict
+    // and differ only in whether it is executed. Reviewing an un-quarantine before running it was
+    // impossible while this branch was gated on `apply` — which is how the 60-row limbo went unnoticed.
+  } else if (!scoped && (hasKey || clearableUnkeyed(existingReasons))) {
     // Clean now — clear any stale VALIDATOR flag so a fixed/regenerated question returns to service.
     //
-    // Only for KEYED rows. On an unkeyed row "clean" means clean on eight rules out of thirty, which
-    // is not evidence that a flag set by a full evaluation is stale — un-quarantining on that basis
-    // would return genuinely broken questions to service. Same reasoning as scoped mode.
+    // KEYED ROWS, plus the one unkeyed case where "clean" actually means something. On an unkeyed row
+    // "clean" is normally clean on eight rules out of thirty, which is no evidence that a flag set by a
+    // full evaluation is stale — un-quarantining on that basis would return genuinely broken questions
+    // to service. Same reasoning as scoped mode.
+    //
+    // But the quarantine side does NOT respect that boundary: the serve-gate check below runs on every
+    // row, keyed or not, so an unkeyed question can be flagged by a rule we CAN re-evaluate and then
+    // never released by a branch that refuses to look at it. R-OW-ANCHOR did exactly that on
+    // 2026-08-09 — it matched "cabernet sauvignon" against the Sauvignon Blanc home region, quarantined
+    // an unkeyed Napa + Western Cape Cabernet pair, and the fix could not free it; the row had to be
+    // cleared by hand, and 60 unkeyed rows were sitting in the same limbo.
+    //
+    // So: an unkeyed row is clearable when EVERY reason on it names a rule this pass actually
+    // evaluated. That keeps the original argument intact (a flag we cannot reproduce is never cleared
+    // on partial evidence) while closing the asymmetry — we only release what we could have re-set.
     // Feedback quarantines (rule 'feedback-question', set by apply-change.ts) are preserved: they
     // encode defects the rules can't see, and this script now runs nightly (question-audit-daily.yml)
     // — clearing them here would silently un-quarantine every user-reported bad question each night.
+    if (!hasKey && Array.isArray(existingReasons) && existingReasons.length) {
+      unkeyedCleared++;
+      console.log(
+        `CLEAR ${r.question_id}  (unkeyed; stale flag${existingReasons.length > 1 ? "s" : ""}: ${existingReasons.map((x) => x.rule).join(", ")})${apply ? "" : "  [dry run]"}`
+      );
+    }
+    // Guarded, not `continue`d — the soft tally at the bottom of the loop still has to run for this
+    // row, or a dry run reports a different soft count than the same pass with --apply.
+    if (apply) {
     await sql`
       UPDATE generated_questions SET invalid_reasons = NULL
       WHERE question_id = ${r.question_id} AND invalid_reasons IS NOT NULL
@@ -187,6 +232,7 @@ for (const r of rows) {
         WHERE question_id = ${r.question_id} AND invalid_reasons IS NOT NULL
           AND invalid_reasons::text NOT LIKE '%feedback-question%'`;
     }
+    }
   }
   if (!hard.length && res.violations.length) softCount++;
 }
@@ -196,6 +242,7 @@ console.log(`questions audited:   ${rows.length}`);
 console.log(
   `  of which unkeyed:  ${unkeyed}  (evaluated on the ${GROUND_TRUTH_INDEPENDENT_RULES.length} ground-truth-independent rules + the serve gate only)`
 );
+if (unkeyedCleared) console.log(`  stale flags cleared on unkeyed rows: ${unkeyedCleared}`);
 console.log(`HARD violations:     ${hardCount}  (${Math.round((hardCount / rows.length) * 100)}%)`);
 console.log(`soft-only:           ${softCount}`);
 console.log(`set-scored flights:  ${setScored}  (same-variety → origin-pool scoring, not per-wine)`);

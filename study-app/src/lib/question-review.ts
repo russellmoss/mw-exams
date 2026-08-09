@@ -32,8 +32,10 @@ import {
   type ReviewVerdictReport,
   type ReviewerStanding,
   type Disagreement,
+  type RoleOverride,
+  type WineRole,
 } from "@/lib/question-review-shared";
-import type { Violation } from "@/lib/question-validator";
+import { matchingBankerSignal, type AuditWine, type Violation } from "@/lib/question-validator";
 
 // The client half. Re-exported so server code has a single import site, while client components
 // import from question-review-shared directly — this module reaches the database, and anything a
@@ -74,6 +76,19 @@ function servableWhere(alias = "generated_questions"): string {
   `;
 }
 const SERVABLE_WHERE = servableWhere();
+
+// ── "Has this reviewer already ruled on it?" ─────────────────────────────────────────────────────
+//
+// A SUPERSEDED row does not count as a ruling. Those rows are written by carryReviewsForward(): when
+// a question is repaired, the rebuilt question gets a NEW id, and the predecessor's votes are copied
+// onto it — marked superseded — purely so the link survives. Without this predicate that copy would
+// read as "already ruled on" and the repaired question would never reach the reviewer it was rebuilt
+// for, which is the one outcome that would make the whole repair loop pointless.
+//
+// Written once and used by the queue, the countdown, the blocks and the standings for the same reason
+// servableWhere() is: four copies of this predicate that disagree would mean a reviewer's "N to go"
+// never reaches zero, or reaches it while repaired questions are still waiting for them.
+const NOT_YET_RULED = "superseded_at IS NULL";
 
 // ── Queue order ──────────────────────────────────────────────────────────────────────────────────
 //
@@ -164,7 +179,7 @@ export async function getReviewBlocks(
       count(*) FILTER (WHERE r.verdict = 'skip')      AS skipped
     FROM generated_questions g
     LEFT JOIN question_reviews r
-      ON r.question_id = g.question_id AND r.reviewer_id = $1
+      ON r.question_id = g.question_id AND r.reviewer_id = $1 AND r.${NOT_YET_RULED}
     WHERE ${servableWhere("g")}
       ${filterClause("g", "$2", "$3")}
     GROUP BY g.paper, g.family
@@ -197,13 +212,19 @@ export async function getReviewBlocks(
  * reviewer's own down-vote can get its question quarantined by the analysis that follows, which
  * removes it from the servable set. Counting only the servable set would make `done` fall as the
  * reviewer works — a progress bar that runs backwards while you use it.
+ *
+ * A REPAIR ADDS WORK WITHOUT TAKING CREDIT AWAY. The rebuilt question is a new id, so it lands in
+ * `remaining`; the reviewer's original vote stays live on the retired predecessor and keeps counting
+ * toward `done`. The carried-forward copy on the new id is superseded and counts as neither. Marking
+ * the original superseded instead would take one off `done` AND add one to `remaining` — docking a
+ * reviewer two questions of apparent progress for work they really did.
  */
 export async function getReviewProgress(reviewerId: number): Promise<ReviewProgress> {
   const sql = db();
   const rows = await sql.query(
     `
     WITH mine AS (
-      SELECT verdict FROM question_reviews WHERE reviewer_id = $1
+      SELECT verdict FROM question_reviews WHERE reviewer_id = $1 AND ${NOT_YET_RULED}
     ),
     left_to_do AS (
       SELECT 1 FROM generated_questions
@@ -211,6 +232,7 @@ export async function getReviewProgress(reviewerId: number): Promise<ReviewProgr
         AND NOT EXISTS (
           SELECT 1 FROM question_reviews r
           WHERE r.question_id = generated_questions.question_id AND r.reviewer_id = $1
+            AND r.${NOT_YET_RULED}
         )
     )
     SELECT
@@ -249,12 +271,13 @@ export async function getReviewerStandings(): Promise<ReviewerStanding[]> {
   const rows = await sql.query(
     `
     SELECT u.id, u.name,
-      (SELECT count(*) FROM question_reviews r WHERE r.reviewer_id = u.id) AS done,
+      (SELECT count(*) FROM question_reviews r WHERE r.reviewer_id = u.id AND r.${NOT_YET_RULED}) AS done,
       (SELECT count(*) FROM generated_questions g
         WHERE ${servableWhere("g")}
           AND NOT EXISTS (
             SELECT 1 FROM question_reviews r2
             WHERE r2.question_id = g.question_id AND r2.reviewer_id = u.id
+              AND r2.${NOT_YET_RULED}
           )
       ) AS remaining
     FROM users u
@@ -316,6 +339,7 @@ function parseJson<T>(v: unknown, fallback: T): T {
 
 function toCard(q: GeneratedQuestion, groundTruth: unknown[] | undefined): ReviewCard {
   const wines = parseJson<Record<string, unknown>[]>(q.wines, []);
+  const repairCount = Number((q as unknown as Record<string, unknown>).repair_count ?? 0);
   // The answer key carries the resolved variety/region and the banker/curveball role (migration 064
   // and #118). Zipping it in by slot is what turns "Wine 3: some label" into something a reviewer
   // can rule on without opening a second surface.
@@ -344,6 +368,19 @@ function toCard(q: GeneratedQuestion, groundTruth: unknown[] | undefined): Revie
       const keyVarieties = Array.isArray(key?.varieties)
         ? (key.varieties as unknown[]).map(String).filter(Boolean)
         : [];
+      const region = (key?.region as string) ?? (w.region as string) ?? null;
+      const country = (key?.country as string) ?? (w.country as string) ?? null;
+      // The signal table's own read on this wine, and WHICH line produced it. Shown when the answer
+      // key carries no role (the generator and the classifier disagreed, so nothing was stamped) —
+      // which is exactly the wine a reviewer most needs to rule on. Rendering a blank chip there
+      // hides the disagreement instead of surfacing it.
+      const signal = matchingBankerSignal({
+        slot,
+        varieties: keyVarieties,
+        region: region ?? "",
+        country: country ?? "",
+        fullText: text,
+      } as AuditWine);
       return {
         slot,
         text,
@@ -351,10 +388,12 @@ function toCard(q: GeneratedQuestion, groundTruth: unknown[] | undefined): Revie
           keyVarieties.length > 0
             ? keyVarieties.join(" / ")
             : ((w.variety as string) ?? null),
-        region: (key?.region as string) ?? (w.region as string) ?? null,
-        country: (key?.country as string) ?? (w.country as string) ?? null,
+        region,
+        country,
         vintage: (w.vintage as string) ?? (vintageMatch ? vintageMatch[0] : null),
         role: (key?.role as string) ?? null,
+        derivedRole: (signal ? "banker" : "curveball") as WineRole,
+        bankerSignalId: signal?.id ?? null,
       };
     }),
     reasoningTrace: q.reasoning_trace ?? null,
@@ -364,6 +403,16 @@ function toCard(q: GeneratedQuestion, groundTruth: unknown[] | undefined): Revie
     curveball: q.curveball_level ?? null,
     createdAt: q.created_at ? String(q.created_at) : null,
     verdict: verdictFromGroundTruth(q, groundTruth),
+    repair:
+      repairCount > 0
+        ? {
+            count: repairCount,
+            at: (q as unknown as Record<string, unknown>).last_repaired_at
+              ? String((q as unknown as Record<string, unknown>).last_repaired_at)
+              : null,
+            note: ((q as unknown as Record<string, unknown>).last_repair_note as string) ?? null,
+          }
+        : null,
   };
 }
 
@@ -381,6 +430,7 @@ export async function getReviewQueue(
   filter: ReviewFilter = DEFAULT_REVIEW_FILTER
 ): Promise<ReviewCard[]> {
   const sql = db();
+  const want = Math.max(1, Math.min(50, limit));
   const rows = (await sql.query(
     `
     SELECT * FROM generated_questions
@@ -389,17 +439,125 @@ export async function getReviewQueue(
       AND NOT EXISTS (
         SELECT 1 FROM question_reviews r
         WHERE r.question_id = generated_questions.question_id AND r.reviewer_id = $1
+          AND r.${NOT_YET_RULED}
       )
     ${queueOrder(filter.order, "$1")}
     LIMIT $4
     `,
-    [reviewerId, filter.papers, filter.families, Math.max(1, Math.min(50, limit))]
+    // Over-fetch, because the serve gate below drops rows the SQL predicate cannot see. Twice the page
+    // is ample: the gate rejects a few percent of the servable set, so a short page only happens if a
+    // whole batch of neighbours is bad, and the next fetch picks up where this one stopped anyway.
+    [reviewerId, filter.papers, filter.families, want * 2]
   )) as unknown as GeneratedQuestion[];
 
-  if (rows.length === 0) return [];
+  const page = await applyServeGate(rows, want);
+  if (page.length === 0) return [];
   // One key fetch for the whole page, not one per card.
-  const keys = await getAnswerKeyGroundTruths(rows.map((q) => q.question_id));
-  return rows.map((q) => toCard(q, keys.get(q.question_id)));
+  const keys = await getAnswerKeyGroundTruths(page.map((q) => q.question_id));
+  return page.map((q) => toCard(q, keys.get(q.question_id)));
+}
+
+/**
+ * Run the SERVE GATE over a page of queue candidates, and quarantine what it refuses.
+ *
+ * The reviewer's queue selects on DATABASE COLUMNS (servableWhere above) while the candidate's study
+ * path additionally runs bankedServeRejection in-process on every question it is about to serve. So
+ * the two disagreed by exactly the questions the gate refuses: a reviewer could be handed a flight no
+ * candidate could ever be shown, and spend a vote ruling on it. Closing that by running the same gate
+ * here is item 3 of the 2026-08-09 sweep review.
+ *
+ * IT QUARANTINES RATHER THAN JUST SKIPPING, and that is what keeps the countdown honest. The block
+ * standings and the "N to go" counter are SQL COUNTs over the same predicate; if this filtered the page
+ * in memory and left the rows servable, the counter would include questions the queue would never hand
+ * over and a reviewer's remaining count would never reach zero — the precise drift servableWhere()'s
+ * comment exists to prevent. Writing invalid_reasons removes the row from BOTH, and from the
+ * candidate-facing pool that was already refusing it at serve time. It is the same write the nightly
+ * sweep makes, applied lazily to the handful of rows someone is about to look at.
+ *
+ * Safe against a bad rule in the way the sweep is: audit-questions.mjs --apply clears a flag whose rule
+ * has stopped firing, so a false positive here is undone by the next pass rather than being permanent
+ * (the un-quarantine now reaches unkeyed rows too, which is how the R-OW-ANCHOR/Cabernet false positive
+ * would have been released without hand-editing).
+ */
+async function applyServeGate(
+  candidates: GeneratedQuestion[],
+  want: number
+): Promise<GeneratedQuestion[]> {
+  // Imported HERE, not at module scope. bankedServeRejection lives in question-engine, a 3,000-line
+  // module that pulls the pipeline context, the appellation resolver and the whole generation stack in
+  // behind it. A static import made every consumer of question-review pay for that — the vote route,
+  // the prefs route and the shared helpers, none of which run the gate — and it showed up as the
+  // composeReviewFeedback test timing out at five seconds on the import alone. Deferring it to the one
+  // function that actually needs it keeps the weight on the queue path, where it is unavoidable.
+  //
+  // Still the SAME function the candidate serve path runs, never a reimplementation: the reviewer and
+  // the candidate must not be shown different sets.
+  const { bankedServeRejection } = await import("@/lib/question-engine");
+  const sql = db();
+  const kept: GeneratedQuestion[] = [];
+  for (const q of candidates) {
+    if (kept.length >= want) break; // stop gating once the page is full — the rest are next fetch's
+    let reason: string | null = null;
+    try {
+      reason = bankedServeRejection(q);
+    } catch (err) {
+      // A throwing rule must not take the review surface down with it. Treat as servable and let the
+      // corpus sweep, which runs the same gate with logging, be the one to rule on it.
+      console.error(`[review] serve gate threw on ${q.question_id}:`, err);
+    }
+    if (!reason) {
+      kept.push(q);
+      continue;
+    }
+    console.log(`[review] serve gate refused ${q.question_id}: ${reason}`);
+    // MERGE, matching the scoped path in audit-questions.mjs: another rule may already have recorded a
+    // reason on this row and quarantining for the gate must not erase it.
+    const payload = JSON.stringify([{ rule: "serve-gate", severity: "hard", detail: reason }]);
+    await sql`
+      UPDATE generated_questions SET invalid_reasons = (
+        SELECT jsonb_agg(DISTINCT v) FROM jsonb_array_elements(
+          (CASE WHEN jsonb_typeof(invalid_reasons) = 'array' THEN invalid_reasons ELSE '[]'::jsonb END)
+          || ${payload}::jsonb) v)
+      WHERE question_id = ${q.question_id}`;
+  }
+  return kept;
+}
+
+/**
+ * Of the question ids a reviewer is holding in their local buffer, which are no longer servable.
+ *
+ * THE BUFFER GOES STALE THE MOMENT THE CORPUS IMPROVES, and that is the whole problem this solves.
+ * The client fetches a page of twelve and tops it up when it runs down to four; the top-up merges by
+ * id and only ever ADDS. So a question quarantined mid-session — by a rule that just merged, by the
+ * corpus sweep, by the serve gate on someone else's fetch — stays in the reviewer's hand and gets
+ * shown to them anyway. During a live session the corpus is being fixed underneath them precisely
+ * because of the votes they are casting, which is the moment a stale buffer is most likely and most
+ * annoying: they get handed the very defect they just reported, one card later.
+ *
+ * Called on every vote, so the buffer reconciles continuously rather than at a page refresh. One
+ * indexed lookup over at most a page of ids.
+ *
+ * Returns ids to DROP. Anything unrecognised is dropped too — a question archived out of the table
+ * cannot be reviewed either.
+ */
+export async function staleBufferedIds(reviewerId: number, ids: string[]): Promise<string[]> {
+  const wanted = [...new Set(ids)].filter((id) => typeof id === "string" && id).slice(0, 100);
+  if (wanted.length === 0) return [];
+  const sql = db();
+  const rows = (await sql.query(
+    `
+    SELECT question_id FROM generated_questions
+    WHERE question_id = ANY($2)
+      AND ${SERVABLE_WHERE}
+      AND NOT EXISTS (
+        SELECT 1 FROM question_reviews r
+        WHERE r.question_id = generated_questions.question_id AND r.reviewer_id = $1
+      )
+    `,
+    [reviewerId, wanted]
+  )) as unknown as { question_id: string }[];
+  const stillGood = new Set(rows.map((r) => r.question_id));
+  return wanted.filter((id) => !stillGood.has(id));
 }
 
 // ── Recording a vote ─────────────────────────────────────────────────────────────────────────────
@@ -424,14 +582,35 @@ export function composeReviewFeedback(params: {
   reviewerName: string;
   tags: string[] | null;
   note: string | null;
+  roleOverrides?: RoleOverride[] | null;
+  wines?: { slot: number; label: string }[];
 }): string {
-  const { reviewerName, tags, note } = params;
+  const { reviewerName, tags, note, roleOverrides, wines } = params;
   const lines = [
     `[Question Review] ${reviewerName} reviewed this banked question directly (not as a candidate ` +
       `attempt) and rejected it.`,
   ];
   if (tags && tags.length > 0) {
     lines.push(`Fault(s) identified: ${tags.map((t) => REVIEW_REASON_LABELS[t] ?? t).join(", ")}.`);
+  }
+  // The role disputes are stated as an EXPLICIT, itemised claim rather than left inside the prose,
+  // and they are labelled as a distinct kind of assertion. The analyzer's job on a role dispute is
+  // not the same as its job on "the stem is vague": it has to rule on a specific, checkable claim
+  // about one wine's standing in the exam, against a table it can be shown. Burying that in a
+  // paragraph is how it previously got adjudicated as a general complaint about difficulty.
+  if (roleOverrides && roleOverrides.length > 0) {
+    const labelFor = (slot: number) =>
+      wines?.find((w) => w.slot === slot)?.label ?? `wine ${slot}`;
+    lines.push(
+      "",
+      "ROLE DISPUTE — the reviewer disagrees with how these wines are classified for flight balance:"
+    );
+    for (const o of roleOverrides) {
+      lines.push(
+        `- Wine ${o.slot} (${labelFor(o.slot)}): the system reads this as a ${o.keyed.toUpperCase()}; ` +
+          `${reviewerName} says it is a ${o.reviewer.toUpperCase()}.`
+      );
+    }
   }
   if (note) lines.push("", note);
   return lines.join("\n");
@@ -460,14 +639,20 @@ export async function recordReviewVote(params: {
   tags: string[] | null;
   note: string | null;
   route: string;
+  /** Per-wine banker/curveball corrections. Independent of the verdict — see the module note. */
+  roleOverrides?: RoleOverride[] | null;
+  /** The card's wines, so a dispute can name the bottle rather than only its slot. */
+  wines?: { slot: number; label: string; variety: string | null; region: string | null; country: string | null }[];
 }): Promise<RecordedVote> {
   const { reviewerId, reviewerName, questionId, verdict, tags, note, route } = params;
+  const roleOverrides = params.roleOverrides ?? null;
+  const wines = params.wines ?? [];
   const sql = db();
 
   let attemptId: number | null = null;
 
   if (verdict === "down") {
-    const text = composeReviewFeedback({ reviewerName, tags, note });
+    const text = composeReviewFeedback({ reviewerName, tags, note, roleOverrides, wines });
     // A fresh 'full' row per down-vote. Unlike recordTabFeedback we never attach to or fork an
     // existing attempt: the reviewer did not sit this question, so hanging an expert ruling off some
     // candidate's attempt would mis-attribute it in the admin queue and in History.
@@ -491,21 +676,67 @@ export async function recordReviewVote(params: {
 
   const rows = await sql`
     INSERT INTO question_reviews (
-      question_id, reviewer_id, verdict, reason_tags, reason_note, attempt_id
+      question_id, reviewer_id, verdict, reason_tags, reason_note, attempt_id, role_overrides
     ) VALUES (
       ${questionId}, ${reviewerId}, ${verdict},
-      ${tags ? JSON.stringify(tags) : null}::jsonb, ${note}, ${attemptId}
+      ${tags ? JSON.stringify(tags) : null}::jsonb, ${note}, ${attemptId},
+      ${roleOverrides ? JSON.stringify(roleOverrides) : null}::jsonb
     )
     ON CONFLICT (question_id, reviewer_id) DO UPDATE SET
       verdict     = EXCLUDED.verdict,
       reason_tags = EXCLUDED.reason_tags,
       reason_note = EXCLUDED.reason_note,
+      role_overrides = EXCLUDED.role_overrides,
       -- COALESCE, not EXCLUDED: a re-vote to 'up' must not orphan the attempt whose analysis is
       -- already running (or already decided) from the earlier down-vote.
       attempt_id  = COALESCE(EXCLUDED.attempt_id, question_reviews.attempt_id),
+      -- Casting a fresh vote is what un-supersedes the row. A repaired question is put back in the
+      -- queue by marking the old vote superseded; ruling on it again is the reviewer discharging
+      -- exactly that, so the marker must clear here or the question would be served forever.
+      superseded_at = NULL,
+      superseded_reason = NULL,
       updated_at  = NOW()
     RETURNING id
   `;
+
+  const reviewId = rows[0].id as number;
+
+  // ── The role claims, as their own adjudicable rows ─────────────────────────────────────────────
+  //
+  // Written for EVERY verdict, not only 'down'. A reviewer can approve a question whose wines are
+  // right but whose keyed roles are wrong, and that correction is worth exactly as much to the
+  // generator as a rejection — arguably more, since it arrives uncontaminated by a complaint about
+  // something else.
+  //
+  // They land at verdict='pending'. A down-vote's analysis adjudicates them inline for free (the
+  // prompt already has the flight in front of it); anything else is picked up by the batch
+  // adjudicator. Nothing here spends money.
+  if (roleOverrides && roleOverrides.length > 0) {
+    for (const o of roleOverrides) {
+      const w = wines.find((x) => x.slot === o.slot);
+      await sql`
+        INSERT INTO wine_role_rulings (
+          review_id, attempt_id, reviewer_id, question_id, slot,
+          wine_label, variety, region, country, keyed_role, claimed_role
+        ) VALUES (
+          ${reviewId}, ${attemptId}, ${reviewerId}, ${questionId}, ${o.slot},
+          ${w?.label ?? null}, ${w?.variety ?? null}, ${w?.region ?? null}, ${w?.country ?? null},
+          ${o.keyed}, ${o.reviewer}
+        )
+        ON CONFLICT (question_id, slot, reviewer_id) DO UPDATE SET
+          review_id    = EXCLUDED.review_id,
+          attempt_id   = COALESCE(EXCLUDED.attempt_id, wine_role_rulings.attempt_id),
+          keyed_role   = EXCLUDED.keyed_role,
+          claimed_role = EXCLUDED.claimed_role,
+          -- A restated claim is re-opened for adjudication: the reviewer may be restating it BECAUSE
+          -- they disagree with how it was ruled last time, and leaving the old verdict in place would
+          -- silently discard the second assertion.
+          verdict      = 'pending',
+          rationale    = NULL,
+          updated_at   = NOW()
+      `;
+    }
+  }
 
   if (verdict === "up") {
     // Endorsement note: the reviewer's own words when they left any, otherwise a plain statement of
@@ -532,7 +763,49 @@ export async function recordReviewVote(params: {
     `;
   }
 
-  return { reviewId: rows[0].id as number, attemptId, revote };
+  return { reviewId, attemptId, revote };
+}
+
+/**
+ * Carry the votes on a repaired question's PREDECESSOR forward onto its replacement.
+ *
+ * A repair mints a new question id (see wine-swap.ts: the old row is retired, never edited in place),
+ * so the rebuilt question enters both reviewers' queues by itself — there is nothing to "resurface".
+ * What is missing is the LINK: without it, the new question arrives looking like any other unseen
+ * card, and the reviewer who rejected its predecessor last week has no way to know that this is the
+ * answer to their complaint.
+ *
+ * So the old votes are COPIED across as superseded rows. Three properties fall out of that:
+ *
+ *  · The originals stay live on the retired question, so nobody's completed count drops. Superseding
+ *    them in place would take a vote off `done` AND add the new question to `remaining` — docking a
+ *    reviewer two questions of apparent progress for work they actually did.
+ *  · A superseded row is ignored by the queue predicate, so the copy does not mark the new question
+ *    as already-ruled-on.
+ *  · The reason travels with it, which is the audit trail from a rebuilt question back to the
+ *    judgement that caused the rebuild.
+ *
+ * Returns how many reviewers' votes were carried forward.
+ */
+export async function carryReviewsForward(
+  fromQuestionId: string,
+  toQuestionId: string,
+  reason: string
+): Promise<number> {
+  const sql = db();
+  const rows = await sql`
+    INSERT INTO question_reviews (
+      question_id, reviewer_id, verdict, reason_tags, reason_note, role_overrides,
+      attempt_id, analysis_id, superseded_at, superseded_reason
+    )
+    SELECT ${toQuestionId}, reviewer_id, verdict, reason_tags, reason_note, role_overrides,
+           attempt_id, analysis_id, NOW(), ${reason.slice(0, 500)}
+    FROM question_reviews
+    WHERE question_id = ${fromQuestionId} AND superseded_at IS NULL
+    ON CONFLICT (question_id, reviewer_id) DO NOTHING
+    RETURNING id
+  `;
+  return rows.length;
 }
 
 /** Attach the analysis id once runFeedbackAnalysis has created it, so the card can deep-link to it. */

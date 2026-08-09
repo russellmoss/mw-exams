@@ -45,6 +45,73 @@ export const REVIEW_REASON_LABELS: Record<string, string> = Object.fromEntries(
   REVIEW_REASON_OPTIONS.map((o) => [o.value, o.label])
 );
 
+// ── Per-wine role disputes ───────────────────────────────────────────────────────────────────────
+//
+// The most repeated judgement these reviewers make is not about the stem, it is about a WINE'S ROLE:
+// "a flight like this would likely have a banker", "three out of four are curveballs, normally you'd
+// see one, two at best". Until now that arrived as prose inside reason_note, was read by a human, and
+// was hand-transcribed into a regex table. Several entries in data/banker_signals.json still carry a
+// reviewer's name in their note because that is how they got there.
+//
+// A role dispute is therefore captured as DATA, per wine, at vote time. It is deliberately independent
+// of the verdict: a reviewer may approve a question whose wines are fine but whose keyed roles are
+// wrong, and that correction is worth just as much to the generator as a rejection.
+//
+// ONLY DISAGREEMENTS ARE STORED. A wine the reviewer left alone records nothing, because "they did not
+// flip it" and "they inspected it and agreed" are different claims and we can only observe the first.
+// Treating silence as endorsement would feed the calibration evidence it has not earned.
+
+export type WineRole = "banker" | "curveball";
+
+export interface RoleOverride {
+  slot: number;
+  /** What the answer key / signal table said at vote time. Snapshotted — the calibration changes. */
+  keyed: WineRole;
+  /** What the reviewer says it is. Always the opposite of `keyed`; equal values are dropped. */
+  reviewer: WineRole;
+}
+
+export function isWineRole(v: unknown): v is WineRole {
+  return v === "banker" || v === "curveball";
+}
+
+/**
+ * Coerce a request body into a clean override list.
+ *
+ * Drops anything malformed, anything for a slot mentioned twice, and — importantly — any entry where
+ * the reviewer's call MATCHES the keyed role. That last one is not defensive tidying: a no-op override
+ * would create a `wine_role_rulings` row asserting a claim nobody made, which then costs an
+ * adjudication and pollutes the calibration evidence.
+ */
+export function sanitizeRoleOverrides(raw: unknown): RoleOverride[] | null {
+  if (!Array.isArray(raw)) return null;
+  const bySlot = new Map<number, RoleOverride>();
+  for (const item of raw) {
+    const r = (item ?? {}) as Record<string, unknown>;
+    const slot = Number(r.slot);
+    if (!Number.isInteger(slot) || slot < 1) continue;
+    if (!isWineRole(r.keyed) || !isWineRole(r.reviewer)) continue;
+    if (r.keyed === r.reviewer) continue;
+    bySlot.set(slot, { slot, keyed: r.keyed, reviewer: r.reviewer });
+  }
+  const out = [...bySlot.values()].sort((a, b) => a.slot - b.slot);
+  return out.length > 0 ? out : null;
+}
+
+/**
+ * The role a card should show for a wine before anyone touches it.
+ *
+ * `role` on the card comes from the answer key where the generator DECLARED it and the classifier
+ * agreed (stem-answer-key.mjs stamps a role only on agreement). Where they disagreed the key holds no
+ * role at all — and a blank chip is exactly the wine a reviewer most needs to rule on, so it falls
+ * back to the derived classification rather than rendering nothing.
+ */
+export function displayedRole(w: { role: string | null; derivedRole?: string | null }): WineRole | null {
+  if (isWineRole(w.role)) return w.role;
+  if (isWineRole(w.derivedRole)) return w.derivedRole;
+  return null;
+}
+
 export const MAX_REVIEW_NOTE_CHARS = 2000;
 
 export function sanitizeReviewTags(tags: unknown): string[] | null {
@@ -192,6 +259,14 @@ export interface ReviewCardWine {
   vintage: string | null;
   /** From the answer key: whether this slot is the flight's banker or its curveball. */
   role: string | null;
+  /**
+   * The signal table's own classification (isBanker), shown when the key holds no role — which
+   * happens precisely when the generator and the classifier disagreed, i.e. on the wines whose role
+   * is most in doubt and most worth a reviewer's call.
+   */
+  derivedRole: WineRole | null;
+  /** Which line of data/banker_signals.json made it a banker. null on a curveball. */
+  bankerSignalId: string | null;
 }
 
 export interface ReviewCard {
@@ -212,6 +287,21 @@ export interface ReviewCard {
   createdAt: string | null;
   /** Live hard/soft validator findings. null = no answer key yet, so no verdict is available. */
   verdict: ReviewVerdictReport | null;
+  /**
+   * Set when this question has been REPAIRED since a reviewer last ruled on it — a wine was swapped
+   * after an upheld role ruling and the question rebuilt around the corrected flight.
+   *
+   * The card must say so. A reviewer handed a question they already rejected, with no indication that
+   * anything moved, will reasonably reject it again on the strength of their own earlier reasoning —
+   * and the repair loop would then read that as "the fix did not work" when what actually happened is
+   * that nobody told them there was a fix.
+   */
+  repair: {
+    count: number;
+    at: string | null;
+    /** Plain-language summary of what changed, e.g. "Wine 3: Somló Furmint → Tokaji Furmint". */
+    note: string | null;
+  } | null;
 }
 
 export interface ReviewProgress {

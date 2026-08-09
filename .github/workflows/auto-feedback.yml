@@ -341,23 +341,13 @@ jobs:
           echo "merged=1" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Rebuild keys + re-audit (CF-2)
-        # An answer-key data/builder change is INERT until stem_answer_keys is rebuilt; a
-        # validator/generation change should re-flag the corpus. Run the matching script against the
-        # live DB (DATABASE_URL is in env; the scripts read it). Non-fatal — never undo a good merge.
-        if: steps.merge.outputs.merged == '1'
-        working-directory: ${{ env.APP_DIR }}
-        run: |
-          CHANGED=$(git diff --name-only HEAD^ HEAD)
-          echo "changed files:"; echo "$CHANGED"
-          if echo "$CHANGED" | grep -qE 'stem_proprietary_blends|stem_style_lexicon|variety_lexicon|appellation_varieties|build-stem-answer-keys'; then
-            echo "Rebuilding stem_answer_keys…"; node scripts/build-stem-answer-keys.mjs || echo "::warning title=key rebuild failed::stem_answer_keys not rebuilt"
-          fi
-          if echo "$CHANGED" | grep -qE 'question-rules|question-validator|audit-questions|question-generation-prompt|get-question'; then
-            # --import ts-loader: question-validator.ts has extensionless .ts imports that Node 24's
-            # native type-stripping cannot resolve. See question-audit-daily.yml for the full note.
-            echo "Re-auditing corpus…"; node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs --apply || echo "::warning title=re-audit failed::corpus not re-audited"
-          fi
+      # NOTE: the "Rebuild keys + re-audit (CF-2)" step that used to live here has MOVED to
+      # .github/workflows/corpus-reaudit.yml, which triggers on the push to master and on the paths it
+      # touched. It was gated on `steps.merge.outputs.merged == '1'` — only when this workflow merged
+      # the change itself — so a PR-gated change skipped it entirely and nothing re-ran after a human
+      # merged the PR. PR-gating is by Kind, and the PR-gated Kinds are `generation` and `validator`:
+      # exactly the changes that exist to re-verdict the corpus. Keying on the push covers both paths
+      # with one mechanism. Do not re-add it here.
 
       # NOTE: no explicit Vercel deploy step. Once "Merge to master" pushes a study-app/ change,
       # Vercel git auto-deploy builds + ships it automatically (single deploy path; see header).
