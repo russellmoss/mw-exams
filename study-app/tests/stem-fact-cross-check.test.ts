@@ -111,6 +111,37 @@ describe("(3) singular-variety stem over a blend", () => {
     expect(hit.detail).toMatch(/grape variety or varieties/);
   });
 
+  it("fires on a singular 'single grape variety' stem over a Morellino di Scansano (attempt #510's appellation)", () => {
+    // The reviewer's point on gen_p2_F2_1786072456006: Morellino di Scansano is Sangiovese only to
+    // the DOCG's 85% floor and is routinely blended up, so a stem promising a single variety over it
+    // is incongruent. The appellation now sits on the blend-convention list alongside Chianti.
+    const res = crossCheckStemFacts(q(
+      "Wines 5 and 6 are from the same country. Each is made from a single grape variety. For each wine: a) Identify the grape variety and origin as closely as possible.",
+      [
+        { slot: 5, varieties: ["Sangiovese"], region: "Morellino di Scansano", country: "Italy", fullText: "Fattoria Le Pupille, Morellino di Scansano, 2021. Tuscany, Italy. (13.5%)" },
+        { slot: 6, varieties: ["Nebbiolo"], region: "Barolo", country: "Italy" },
+      ]
+    ));
+    expect(res.some((v) => v.rule === "stem-fact-singular-variety-blend" && /wine 5/.test(v.detail) && /morellino/i.test(v.detail))).toBe(true);
+  });
+
+  it("MUST NOT fire on the plural real-paper form: 2013 P1 Q1's 'different single grape varieties' over white Rioja", () => {
+    // The regression a plural widening of singularClaim ships: 2013 P1 Q1 prints "different regions
+    // and different single grape varieties" over a López de Heredia Viña Gravonia — a Rioja that
+    // genuinely is 100% Viura. The appellation arm cannot tell a varietal Rioja from a blended one,
+    // so the plural inflection must never reach it. A printed past paper is the one thing no wording
+    // rule may ever reject.
+    const res = crossCheckStemFacts(q(
+      "Wines 1 and 2 are from the same country, but from different regions and different single grape varieties. For each wine: a) Identify the origin, as closely as possible, and grape variety.",
+      [
+        { slot: 1, varieties: [], region: "Rioja", country: "Spain", fullText: "Vina Gravonia, Lopez de Heredia. 2003, Rioja, Spain" },
+        { slot: 2, varieties: ["Albariño"], region: "Rías Baixas", country: "Spain", fullText: "Albarino, Granbazan. 2011, Rias Baixas, Spain" },
+      ],
+      1
+    ));
+    expect(res.some((v) => v.rule === "stem-fact-singular-variety-blend")).toBe(false);
+  });
+
   it("fires on a 'predominantly … grape variety' stem over Port", () => {
     // "also typically port is a blend of many grapes".
     const res = crossCheckStemFacts(q(

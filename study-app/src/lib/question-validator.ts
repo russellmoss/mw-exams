@@ -261,6 +261,11 @@ const MULTI_VARIETY_APPELLATIONS: { name: string; re: RegExp }[] = [
   { name: "Rioja", re: /\brioja\b/ },
   { name: "Bordeaux", re: /\bbordeaux\b/ },
   { name: "Chianti", re: /\bchianti\b/ },
+  // Sangiovese-led but only to the 85% floor, and routinely blended up with Ciliegiolo/Alicante —
+  // the reviewer's point on gen_p2_F2_1786072456006 (attempt #510): a "different, single grape
+  // varieties" stem over a Morellino di Scansano is incongruent with what the DOCG permits. Zero
+  // corpus precedent for the appellation besides.
+  { name: "Morellino di Scansano", re: /\bmorellino\b/ },
 ];
 
 // The dominant grape of a resolved wine, canonicalised so synonyms and accents don't read as different
@@ -508,6 +513,16 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   const hedged = /variety or varieties|variety ies\b|\bor predominant\b/.test(
     stem,
   );
+  // Deliberately the SINGULAR inflection only, unlike R5 next door (question-rules.mjs), which
+  // matches "single grape variet(y|ies)" both ways. R5's blend evidence is key-backed (is_blend /
+  // blend_varieties); this arm also runs blendSignal's APPELLATION arm, which fires on every Rioja,
+  // Bordeaux and Chianti regardless of what the key resolved. Widening this regex to the plural was
+  // tried (attempt #510, a "different, single grape varieties" stem over a Morellino) and measured
+  // against the corpus: it rejects 2013 P1 Q1 — a printed past paper with that exact plural phrasing
+  // over a López de Heredia Gravonia, which really is 100% Viura. The appellation arm cannot tell a
+  // genuinely varietal Rioja from a blended one, so the plural form — the commonest multi-wine
+  // phrasing in real stems — must stay out of its reach. tests/stem-fact-cross-check.test.ts pins
+  // the 2013 shape as a must-pass.
   const singularClaim =
     /\bsingle grape variety\b/.test(stem) ||
     /\bpredominantly\b[a-z ]{0,40}?\bgrape variety\b/.test(stem);
