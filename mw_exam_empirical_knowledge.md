@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0180).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 0 new entries.**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0179).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 0 new entries.**
@@ -1377,6 +1378,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #467 / analysis #107 (accept); corpus `data/exams.json` — 2018 P1 Q1 (four Chardonnays, pooled 20), 2014 P1 Q2 (four Rieslings, pooled 24), 2025 P1 Q2 (four Chardonnays, pooled 16), 2014 P1 Q1 (pooled 16 for the shared country); vs 2016 P1 Q5 (4 x 8), 2015 P1 Q3 (6 x 10), 2018 P1 Q2 (6 x 7), 2023 P1 Q2 (4 x 5)
 - **claim:** The mark-tariff FORM is the other half of the scope-header rule (EK-0172): the IMW pools marks into a single figure only when the flight has one shared answer to argue toward (all-Chardonnay, all-Riesling, one common country), and switches to the per-wine multiplier (`4 x 8 marks`) the moment the stem declares each wine a different variety or origin. A generated stem that says "each made from a different, single grape variety" and then asks "with reference to all four wines: identify the grape variety for each wine (16 marks)" mixes both forms and has no corpus precedent — it promises one integrated answer while marking four. This mismatch has now been reported twice, so it belongs in the validator rather than in prompt guidance alone.
 
+### EK-0180 · "Bordeaux varieties" is a closed set — Touriga Franca does not qualify
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** ledger: attempt #517 / analysis #157 (accept); corpus `data/exams.json` — 2019 P2 Q1 ("Bordeaux varieties": Lussac-Saint-Émilion, Cabernet-based Super-Tuscan, Loire Cabernet Franc, Stellenbosch Bordeaux blend)
+- **claim:** A stem declaring the flight "made from Bordeaux varieties" is a hard, testable premise limited to the six Bordeaux-permitted grapes (Cabernet Sauvignon, Merlot, Cabernet Franc, Malbec, Petit Verdot, Carmenère) and their synonyms. The real 2019 P2 Q1 deployment honours this exactly. Touriga Franca is a Portuguese Douro variety (Touriga Nacional × Marufo) with no ampelographic link to the Bordeaux family, so a Quinta do Crasto Touriga Franca in such a flight contradicts the stem and makes the question factually invalid. Generation must validate variety-FAMILY premises against an explicit variety list, not just per-wine same/different-variety claims (extends EK-0043, EK-0040 R2/R3), and must never justify an inclusion with unsupported "ancient crossing" reasoning.
+
 ---
 
 ## §6 · Question-generation learnings from feedback (the living ledger)
@@ -1446,6 +1452,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 473 | 113 | P1/F4 | accept | auto | Third report of the same scope-header defect — collective 'with reference to all three wines' header on a per-wine variety ask (even with the correct 3 x 5 multiplier tariff); already covered, reinforces the case for validator enforcement | EK-0172, EK-0178 |
 | 500 | 140 | P2/F2 | accept | auto | one banker isn't enough — same-country Italian P2 flights carry one curveball, not three | EK-0179, EK-0029, EK-0162, EK-0097 |
 | 505 | 145 | P2/F2 | accept | auto | Second report of the same defect — four-wine same-country Italian P2 flight (Aglianico del Vulture, Cirò/Gaglioppo, Valpolicella, Montepulciano d'Abruzzo) carries three hard wines against one anchor; attested Italian P2 flights pair Barolo/Chianti/Valpolicella anchors with only one curveball. Fully covered by existing entries. | EK-0179, EK-0029, EK-0162, EK-0097 |
+| 517 | 157 | P2/F3 | accept | auto | "Bordeaux varieties" stem is a closed six-variety set; Touriga Franca in the flight breaks the premise — variety-family premises need list validation | EK-0180, EK-0043, EK-0040 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
