@@ -63,6 +63,8 @@ export interface RunFeedbackAnalysisResult {
   autoRejected?: boolean;
   autoPartial?: boolean;
   autoEndorsed?: boolean;
+  /** How many OTHER questions the analysis's Cohort line retired alongside this one. */
+  cohortQuarantined?: number;
   error?: string;
 }
 
@@ -99,6 +101,114 @@ export function extractRecommendation(text: string): string {
         : /recommendation:\s*\*?\*?endorse/i.test(text)
           ? "endorse"
           : "pending";
+}
+
+/**
+ * Parse the analysis's optional `Cohort:` line — the phrases identifying every OTHER question that
+ * does the same objectionable thing. Empty when the analysis did not emit one, which is most of them.
+ */
+export function extractCohort(text: string): string[] {
+  const line = text.match(/^\s*(?:###\s*)?Cohort:\s*(.+)$/im)?.[1];
+  if (!line) return [];
+  return [...new Set(
+    line
+      .split(",")
+      .map((s) => s.trim().toLowerCase().replace(/^[`"']|[`"'.]$/g, "").trim())
+      // One- and two-character fragments would match half the bank; a phrase this short is a parse
+      // artefact, not an identification.
+      .filter((s) => s.length >= 4)
+      // MULTI-WORD ONLY, and this is the load-bearing guard — not the count cap.
+      //
+      // Checked against production: "brut" matches 51 of 547 servable questions and the cap refuses
+      // it, but "shiraz" matches 20 (3.7%) and would sail under any cap loose enough to allow a real
+      // cohort. A single word is a CATEGORY — a variety, a style, a country. Two words is a thing:
+      // "sparkling shiraz", "black queen". The prompt asks for specificity; this makes it structural,
+      // because the count threshold cannot tell 20-questions-because-specific from
+      // 20-questions-because-it-swallowed-a-grape.
+      //
+      // The cost is a genuine one-word cohort ("lambrusco") not auto-applying. That fails quiet: the
+      // normal rule path still handles it, and nothing is wrongly retired.
+      .filter((s) => /\s/.test(s))
+  )].slice(0, 6);
+}
+
+/**
+ * THE BLAST-RADIUS CEILING. A cohort quarantine is the only thing in this pipeline that lets one
+ * rejection retire questions it was not about, so the cap is what makes it safe to run unattended.
+ *
+ * Sparkling Shiraz — the case this was built for — was 16 of ~570 servable questions, 2.8%. A phrase
+ * that takes out a fifth of the bank is not an identification, it is "brut" or "riesling" escaping
+ * into the matcher, and the right response is to quarantine nothing and let a human look.
+ */
+export const COHORT_MAX_SHARE = 0.12;
+export const COHORT_MAX_ABSOLUTE = 25;
+
+/**
+ * Quarantine every servable question whose wine labels match any cohort phrase.
+ *
+ * Rule `feedback-question`, deliberately: audit-questions.mjs --apply preserves that rule when it
+ * clears stale flags, because it encodes a defect the validator cannot see. A cohort quarantine is
+ * exactly that — nothing in the rule layer knows sparkling Shiraz is over-represented; a reviewer
+ * does. Quarantining also hands these to the remediation pipeline, which regenerates the flight and
+ * returns it to the bank and to the review queue with the offending wine replaced.
+ *
+ * Returns what it did so the caller can log it and so a runaway is visible rather than silent.
+ */
+export async function quarantineCohort(opts: {
+  phrases: string[];
+  reviewerNote: string;
+  sourceQuestionId: string | null;
+  attemptId: number;
+}): Promise<{ quarantined: number; skipped: boolean; matched: number; reason?: string }> {
+  const { phrases } = opts;
+  if (phrases.length === 0) return { quarantined: 0, skipped: false, matched: 0 };
+  const sql = neon(process.env.DATABASE_URL!);
+
+  const servable = (await sql`
+    SELECT COUNT(*)::int AS n FROM generated_questions
+    WHERE status = 'approved' AND invalid_reasons IS NULL AND review_state = 'kept'
+      AND is_retired IS NOT TRUE AND scope = 'pool'
+  `) as { n: number }[];
+  const total = servable[0]?.n ?? 0;
+
+  // Match first, decide second — the count IS the safety check, so it has to be known before writing.
+  const matches = (await sql`
+    SELECT g.question_id FROM generated_questions g
+    WHERE g.status = 'approved' AND g.invalid_reasons IS NULL AND g.review_state = 'kept'
+      AND g.is_retired IS NOT TRUE AND g.scope = 'pool'
+      AND EXISTS (
+        SELECT 1 FROM jsonb_array_elements(
+          CASE WHEN jsonb_typeof(g.wines::jsonb) = 'array' THEN g.wines::jsonb ELSE '[]'::jsonb END
+        ) w
+        WHERE lower(w->>'fullText') LIKE ANY(${phrases.map((p) => `%${p}%`)})
+      )
+  `) as { question_id: string }[];
+
+  const cap = Math.min(COHORT_MAX_ABSOLUTE, Math.floor(total * COHORT_MAX_SHARE));
+  if (matches.length > cap) {
+    const reason =
+      `cohort [${phrases.join(", ")}] matched ${matches.length} of ${total} servable questions ` +
+      `(cap ${cap}) — too broad to apply automatically; quarantined nothing.`;
+    console.warn(`[cohort] ${reason}`);
+    return { quarantined: 0, skipped: true, matched: matches.length, reason };
+  }
+  if (matches.length === 0) return { quarantined: 0, skipped: false, matched: 0 };
+
+  const detail =
+    `Cohort quarantine from attempt ${opts.attemptId}${opts.sourceQuestionId ? ` (${opts.sourceQuestionId})` : ""}: ` +
+    `a reviewer's objection was categorical, not about one question — "${opts.reviewerNote.slice(0, 160)}". ` +
+    `Matched on wine label: ${phrases.join(", ")}. Regenerate via remediation rather than deleting.`;
+  const payload = JSON.stringify([{ rule: "feedback-question", severity: "hard", detail }]);
+
+  await sql`
+    UPDATE generated_questions SET invalid_reasons = (
+      SELECT jsonb_agg(DISTINCT v) FROM jsonb_array_elements(
+        (CASE WHEN jsonb_typeof(invalid_reasons) = 'array' THEN invalid_reasons ELSE '[]'::jsonb END)
+        || ${payload}::jsonb) v)
+    WHERE question_id = ANY(${matches.map((m) => m.question_id)})
+  `;
+  console.log(`[cohort] quarantined ${matches.length} question(s) on [${phrases.join(", ")}]`);
+  return { quarantined: matches.length, skipped: false, matched: matches.length };
 }
 
 /**
@@ -741,7 +851,39 @@ export async function runFeedbackAnalysis(opts: {
       ({ autoApplied, autoRejected, autoPartial, autoEndorsed } = await applyRecommendation(attemptId, recommendation));
     }
 
-    return { status: "complete", analysisId: analysis.id, recommendation, autoApplied, autoRejected, autoPartial, autoEndorsed };
+    // COHORT QUARANTINE — the siblings, not just this one.
+    //
+    // Runs on ACCEPT and PARTIAL only: the analysis has to agree the objection is real before one
+    // rejection is allowed to retire questions it was not about. Independent of the code-change
+    // pipeline deliberately — a rule PR takes hours to write, review, merge and re-audit, and the
+    // reviewer meets the next sibling in seconds. This closes that window; the PR still lands and
+    // stops the generator producing more.
+    //
+    // Best-effort: a failure here must not undo an analysis that has already been applied.
+    let cohortQuarantined = 0;
+    if ((recommendation === "accept" || recommendation === "partial") && !opts.skipAutoApply) {
+      try {
+        const phrases = extractCohort(analysisText);
+        if (phrases.length) {
+          const r = await quarantineCohort({
+            phrases,
+            reviewerNote: feedbackText,
+            sourceQuestionId: (attempt.question_id as string) ?? null,
+            attemptId,
+          });
+          cohortQuarantined = r.quarantined;
+          if (r.skipped) {
+            // Visible in the admin queue rather than only in a log line nobody reads.
+            await sql`UPDATE user_attempts SET feedback_admin_note =
+              concat_ws(' | ', feedback_admin_note, ${`Cohort skipped: ${r.reason}`}) WHERE id = ${attemptId}`;
+          }
+        }
+      } catch (cohortErr) {
+        console.error("[cohort] quarantine failed (non-fatal):", cohortErr);
+      }
+    }
+
+    return { status: "complete", analysisId: analysis.id, recommendation, autoApplied, autoRejected, autoPartial, autoEndorsed, cohortQuarantined };
   } catch (err) {
     // Don't leave the analysis row stuck in 'analyzing' — mark it errored so the
     // sweeper/admin can see it failed (auto_analysis_id is already set, so it won't

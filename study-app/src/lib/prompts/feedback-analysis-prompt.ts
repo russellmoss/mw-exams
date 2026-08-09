@@ -331,6 +331,32 @@ code change, and the Kind line belong.
 **If ACCEPT — Proposed Change:**
 {Specific, actionable change. Name the constraint, the section, and the file/layer it belongs in (see WHERE THE LOGIC LIVES).}
 
+### Cohort (ONLY when the complaint is categorical about a WINE or STYLE)
+A reviewer rejecting "another sparkling Syrah question" is not ruling on one question — they are
+ruling on every question that does the same thing. Until this line existed, each sibling had to be
+found and rejected SEPARATELY: on 2026-08-09 a reviewer binned five sparkling-Shiraz flights in three
+minutes, increasingly angrily, while eleven more sat waiting in his queue.
+
+Emit this line ONLY when the objection is to a wine or style that recurs across questions, and when a
+person reading the label alone could tell which questions are in the cohort:
+
+  Cohort: <2-6 comma-separated lowercase phrases that appear in the WINE LABEL>
+
+Example, for "stop putting sparkling Syrah questions in":
+  Cohort: sparkling shiraz, sparkling syrah, black queen, black shiraz
+
+Rules for this line, all of them load-bearing because it quarantines questions automatically:
+- Phrases match against the wine LABEL text only, case-insensitively, as substrings. Nothing else.
+- EVERY PHRASE MUST BE AT LEAST TWO WORDS. A single word is a category — a grape, a style, a country —
+  and single-word phrases are DISCARDED before they are applied. "shiraz" alone would take out every
+  Barossa red; "sparkling" alone would take out Champagne. "sparkling shiraz" identifies the thing
+  being complained about. Measured against the live bank: "brut" matches 51 questions, "shiraz" 20,
+  "sparkling shiraz" 2.
+- OMIT the line entirely for anything that is not a recurring wine/style objection — a mark
+  allocation, a stem wording, a one-off factual error. Most analyses should NOT emit it.
+- Do not emit it to express "this wine is bad in this flight". Only "this wine should not be
+  appearing in questions at all, or is wildly over-represented".
+
 {End with the Kind line — see CLASSIFY THE FIX.}
 ${roleDisputeSection}
 
