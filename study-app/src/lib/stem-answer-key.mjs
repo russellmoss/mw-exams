@@ -185,6 +185,17 @@ export function createAnswerKeyBuilder(data) {
     // and un-keyed the wine entirely.
     const wrongColour = (vars) => colTrusted && conflictsWithColour(vars, col);
     const usable = (vars) => (vars || []).length && !conflictsWithLabel(vars, explicit) && !wrongColour(vars);
+    // A producer flagship whose NAME does not disclose its grape (Mulderbosch "Faithful Hound" is a
+    // red Bordeaux blend; the producer also make a white "Sauvignon Blanc" under another label) can be
+    // resolved to the producer's other-colour wine by a name-level lookup, then keyed against the paper
+    // without objection because the mis-keyed grape happens to be the paper's colour. When such a
+    // flagship is named on the label AND its known varieties are the WRONG colour for a TRUSTED paper,
+    // the wine itself does not belong on this paper — no candidate is trustworthy. Veto everything so
+    // the wine keys as no-variety and the question is flagged/invalidated rather than silently mis-keyed.
+    if (colTrusted) {
+      const flagship = propList.find(([m]) => norm(ft).includes(m));
+      if (flagship && conflictsWithColour(flagship[1].varieties, col)) return { v: [], src: "colour-conflict" };
+    }
     const e = wp.bank_match ? bankById[wp.bank_match] : null;
     if (e && usable(e.grape_varieties)) return { v: e.grape_varieties, src: "bank" };
     if (usable(wp.grape_varieties)) return { v: wp.grape_varieties, src: "profile" };
