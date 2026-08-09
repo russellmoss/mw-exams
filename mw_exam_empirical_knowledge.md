@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-09 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0183, EK-0184).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0182).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0181).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0180).**
@@ -1395,6 +1396,16 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #577 / analysis #217 (accept); EK-0040 R2 (same-variety hard rule); EK-0043 (name-label cross-check); EK-0155 (appellation resolver registered in the audit processes)
 - **claim:** A served P3 pair declared "wines 1 and 2 are made from the same single, or predominant, grape variety" over Château de Fargues Sauternes (Sémillon-dominant, blended with Sauvignon Blanc) and Coteaux du Layon Saint-Aubin (100% Chenin Blanc by appellation law) — a false premise that makes the question unanswerable. Neither label names a grape, so the EK-0043 name-label scan cannot see the contradiction: R2/R3 must resolve variety from the **appellation** (Coteaux du Layon/Vouvray → Chenin; Sauternes/Barsac → Sémillon-dominant blend; Chablis → Chardonnay) before comparing, exactly as the colour resolver had to for appellation-only names. The pairing itself is sound and corpus-realistic as a botrytis-mechanism comparison — the defect is the same-variety framing, which should be dropped or replaced with a different-variety/mechanism stem.
 
+### EK-0183 · P3 same-variety flights pay 12–18 marks for the shared variety call, not 30
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #581 / analysis #220 (accept); corpus `data/exams.json` — 2025 P3 Q1 (Riesling, 3 wines, 12 marks); 2023 P3 Q4 (Grenache, 3 wines, 18 marks); 2012 P3 Q4 (Muscat, 4 wines, 12 marks); EK-0154; EK-0165
+- **claim:** When a Paper 3 stem declares the flight is all one grape variety, the shared identification call is cheap: the attested band is roughly 12–18 marks for the whole flight (2025 P3 Q1 Riesling 12, 2023 P3 Q4 Grenache 18, 2012 P3 Q4 Muscat 12). A generated three-wine Riesling flight pricing that single shared call at 30 of 75 marks is out of band — it inflates the easiest part of the question (the stem has already given the variety away) and starves style, quality and commercial. This calibrates P3 specifically and does not contradict EK-0154, whose 20–30-mark shared-variety precedents are Paper 1/Paper 2; when a flight is over-tariffed on ID, move the freed marks to the analytical parts (EK-0165).
+
+### EK-0184 · A P3 flight spanning sweetness levels should carry the 2–3 mark 'state the RS (g/L)' ask
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #581 / analysis #220 (accept); EK-0037 (explicit residual-sugar questions on P3 in 7/10 years); EK-0018; EK-0141; EK-0166
+- **claim:** Residual sugar is Paper 3's own analytic readout (EK-0166), asked as a bare 2–3 mark number (EK-0018) in most years (EK-0037). When a generated P3 flight deliberately spans sweetness levels — e.g. an Alsace Vendanges Tardives, a Mosel Auslese and a dry-to-off-dry Australian Riesling — the corpus-realistic shape includes a per-wine 'state the residual sugar in g/L' sub-part, and its absence is a generation gap. Keyed values must sit inside the style's documented band with tolerance widening at the extremes (EK-0141).
+
 ---
 
 ## §6 · Question-generation learnings from feedback (the living ledger)
@@ -1467,6 +1478,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 517 | 157 | P2/F3 | accept | auto | "Bordeaux varieties" stem is a closed six-variety set; Touriga Franca in the flight breaks the premise — variety-family premises need list validation | EK-0180, EK-0043, EK-0040 |
 | 537 | 177 | P2/F1 | accept | auto | fractional 7.5-mark sub-part is never used by the IMW, and the flight totalled 65 marks for 2 wines instead of 50 (personal abuse in the same submission ignored) | EK-0181, EK-0041, EK-0001 |
 | 577 | 217 | P3/F1 | accept | auto | same-variety stem premise false for two appellation-only sweet wines (Sauternes = Sémillon/SB, Coteaux du Layon = Chenin); variety checks need appellation→grape resolution (personal abuse in the submission ignored) | EK-0182, EK-0040, EK-0043, EK-0180 |
+| 581 | 220 | P3/F1 | accept | auto | 30 marks for a shared same-variety call on a P3 trio is double the attested 12–18 band, and the flight omitted P3's standard state-the-RS ask (personal abuse in the submission ignored) | EK-0183, EK-0184, EK-0165, EK-0154, EK-0037, EK-0018, EK-0166 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
