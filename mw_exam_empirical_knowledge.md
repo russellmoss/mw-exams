@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-09 — incremental: 1 feedback item(s) processed → 0 new entries.**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0174).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0172, EK-0173).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0170, EK-0171).**
@@ -1414,6 +1415,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 450 | 86 | P1/F2 | accept | auto | three-wine same-country P1 flight with two curveballs and no anchor; 15/25 marks on ID for a Canary Islands Listán Blanco is mis-tariffed — shift marks to method/quality/commercial | EK-0170, EK-0171, EK-0029, EK-0165, EK-0153 |
 | 458 | 97 | P1/F2 | accept | auto | "with reference to both wines" scope header must match a shared-attribute ask; but the 26/50 ID tariff itself is corpus-authentic for a reachable two-wine pair | EK-0172, EK-0173, EK-0165, EK-0171, EK-0147 |
 | 455 | 94 | P1/F2 | accept | auto | country-ID flights need an anchor that unlocks the country; three cult/specialist USA whites are all curveballs | EK-0174, EK-0029, EK-0170, EK-0162 |
+| 433 | 87 | P1/F1 | accept | auto | four-country all-New-World Chardonnay flight (Argentina/Australia/Chile/NZ) has no Burgundian anchor and four curveballs — already fully covered by the Old-World-anchor and banker rules | EK-0169, EK-0029, EK-0034, EK-0097 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
