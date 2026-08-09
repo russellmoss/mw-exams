@@ -1,15 +1,15 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { neon } from "@neondatabase/serverless";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
-import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback, saveNarration, getEmpiricalKnowledgeForAnalysis, createFeatureRequestFromFeedback, endorseQuestionForAttempt, getUserVoiceId } from "@/lib/db";
+import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback, saveNarration, getEmpiricalKnowledgeForAnalysis, createFeatureRequestFromFeedback, endorseQuestionForAttempt } from "@/lib/db";
 import { selectModel, resolveTierModel, type ModelTier } from "@/lib/model-selector";
 import { isAutoApplyEnabled } from "@/lib/settings";
 import { applyFeedbackChange } from "@/lib/apply-change";
 import { logClaudeUsage, logTavilyUsage } from "@/lib/usage-log";
 import { synthesizeSpeech, isElevenLabsConfigured } from "@/lib/elevenlabs";
 import { resolveTavilyKey } from "@/lib/tavily-key";
-import { getUserPersona } from "@/lib/persona-server";
-import { getPersona, needsRestyle, personaBlock } from "@/lib/personas";
+import { getUserPersona, resolveSpokenVoiceId } from "@/lib/persona-server";
+import { needsRestyle, personaBlock } from "@/lib/personas";
 import { restyleForPersona } from "@/lib/persona-restyle";
 import { getPendingRulingsForAttempt, recordRoleVerdicts } from "@/lib/wine-role-rulings";
 import { parseRoleRulings } from "@/lib/prompts/role-adjudication";
@@ -354,10 +354,9 @@ async function generateVerdictNarration(opts: {
     // Whose voice: the listener's own choice (Settings → Coach Voice, migration 059), falling back
     // to the app default. Undefined rather than null so synthesizeSpeech's own fallback chain —
     // ELEVENLABS_VOICE_ID then the default — still applies.
-    // A persona may pin its own narration voice (see Persona.lockedVoiceId) — the written register
-    // of some voices only works in one delivery, so that choice wins over Settings.
-    const lockedVoiceId = getPersona(narrationPersona).lockedVoiceId ?? null;
-    const userVoiceId = lockedVoiceId ?? (opts.userId ? await getUserVoiceId(opts.userId) : null);
+    // Persona pin, then Settings, then the app default — via the one resolver every synthesis path
+    // shares, so this and the Coach's speaker button can never disagree again.
+    const userVoiceId = await resolveSpokenVoiceId(opts.userId);
 
     const tts = await synthesizeSpeech(narrationText, {
       taskType: "notification_narration",

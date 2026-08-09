@@ -14,7 +14,8 @@
  */
 
 import { neon } from "@neondatabase/serverless";
-import { DEFAULT_PERSONA, isPersonaId, type PersonaId } from "./personas";
+import { getUserVoiceId } from "./db";
+import { DEFAULT_PERSONA, getPersona, isPersonaId, type PersonaId } from "./personas";
 
 const TTL_MS = 60_000;
 const cache = new Map<number, { persona: PersonaId; at: number }>();
@@ -80,4 +81,28 @@ export async function setUserPersona(userId: number, persona: PersonaId): Promis
   const sql = neon(process.env.DATABASE_URL!);
   await sql`UPDATE users SET persona = ${persona} WHERE id = ${userId}`;
   invalidatePersonaCache(userId);
+}
+
+/**
+ * The voice to SPEAK to this user in — the single resolver every text-to-speech path must use.
+ *
+ * Precedence: the persona's own pinned voice, then the user's Settings choice, then the app default
+ * (resolved downstream by synthesizeSpeech). A persona wins because some written registers only
+ * work in one delivery, and offering a choice that the copy then fights is worse than not offering
+ * one — which is why the picker hides the control for those personas too.
+ *
+ * WHY THIS IS SHARED RATHER THAN A ONE-LINER AT EACH CALL SITE. It was a one-liner at each call
+ * site, and it was only written at one of them: the verdict narration got the pinned voice while
+ * the Coach's speaker button kept reading the Settings choice, so an Unhinged user pressed play and
+ * got a polite British narrator. Two call sites, one of them wrong, and nothing to catch it.
+ * `tests/persona-unhinged.test.ts` now fails if a synthesis path resolves a voice any other way.
+ *
+ * Fail-soft throughout: getUserPersona and getUserVoiceId both swallow read errors, so the worst
+ * case is the app default rather than a failed synthesis.
+ */
+export async function resolveSpokenVoiceId(userId?: number | null): Promise<string | null> {
+  if (userId == null) return null;
+  const locked = getPersona(await getUserPersona(userId)).lockedVoiceId;
+  if (locked) return locked;
+  return getUserVoiceId(userId);
 }

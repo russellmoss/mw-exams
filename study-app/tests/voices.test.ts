@@ -97,7 +97,10 @@ describe("narration synthesis wiring", () => {
   });
 
   it("speaks in the listener's chosen voice, not just the app default", () => {
-    expect(feedbackAnalysis).toMatch(/getUserVoiceId/);
+    // resolveSpokenVoiceId, not getUserVoiceId directly: the shared resolver applies a persona's
+    // pinned voice first and then falls through to this preference. The intent asserted here is
+    // unchanged — the listener's choice must reach the synthesis call.
+    expect(feedbackAnalysis).toMatch(/resolveSpokenVoiceId/);
     expect(feedbackAnalysis).toMatch(/voiceId:\s*userVoiceId/);
   });
 
@@ -105,7 +108,7 @@ describe("narration synthesis wiring", () => {
     // A read-aloud is minutes of listening. If /api/coach/speak ignored the preference, the picker
     // would only affect a handful of notification clips and look broken to anyone who set it.
     const speak = read("src/app/api/coach/speak/route.ts");
-    expect(speak).toMatch(/getUserVoiceId/);
+    expect(speak).toMatch(/resolveSpokenVoiceId/);
     expect(speak).toMatch(/voiceId:\s*voiceId\s*\|\|\s*undefined/);
   });
 
