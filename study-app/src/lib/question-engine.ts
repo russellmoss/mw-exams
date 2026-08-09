@@ -2205,8 +2205,13 @@ ${repairContext.draft}`,
   // success — before this, a batch reported "generated" for rows the audit had already killed.
   let quarantinedAtGeneration = false;
   const backgroundAudit = Promise.all([stemKey, modelAnswer])
-    .then(async ([keyBuilt]) => {
-      if (!keyBuilt) return; // no key ⇒ no verdict; the daily sweep audits it once the key exists
+    .then(async () => {
+      // Runs whether or not the key built. It used to return here on a failed key, deferring the
+      // whole verdict to the 06:40 UTC sweep — which left the row banked and servable for up to a
+      // day behind nothing but the serve gate. auditAndQuarantineQuestion now LEFT JOINs and, on an
+      // unkeyed row, enforces the ground-truth-independent rules only (the same ones the sweep
+      // applies to the same rows), so a key failure costs the key-dependent checks and no longer
+      // costs every check.
       const audit = await auditAndQuarantineQuestion(questionId);
       if (audit.audited && audit.hard.length > 0) {
         quarantinedAtGeneration = true;
