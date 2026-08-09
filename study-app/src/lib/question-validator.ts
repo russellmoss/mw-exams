@@ -843,6 +843,174 @@ export function validateOldWorldAnchor(q: QuestionForAudit): Violation[] {
 }
 
 // ---------------------------------------------------------------------------------------------------
+// R-SCOPE — scope-header / ask-cardinality mismatch (EK-0172, second sighting).
+//
+// Mike Juergens, reviewing a four-wine flight of four DIFFERENT grape varieties, rejected it on the
+// marks: part (a) read "With reference to all four wines: a) Identify the grape variety for each wine.
+// (16 marks)". A collective "with reference to all N wines" header promises the candidate a single,
+// SHARED conclusion argued across the flight — it is only appropriate when the attribute being
+// identified is genuinely common to every wine. Here the grape variety is a different answer for every
+// wine, so the ask belongs under "For each wine:" with a per-wine "N x M" tariff, not a single pooled
+// 16-mark call.
+//
+// The corpus is unusually clean on this line (EK-0172). A COLLECTIVE header + POOLED tariff appears
+// only where the flight shares the attribute: 2018 P1 Q1 (four Chardonnays), 2014 P1 Q2 (four
+// Rieslings), 2025 P1 Q2, 2012 P1 Q2, and 2014 P1 Q1 (one shared country). When the stem instead
+// DECLARES each wine a different variety/origin, the exam switches to the DISTRIBUTIVE form without
+// exception: 2016 P1 Q5 ("four different grape varieties" → For each wine: a) Identify the grape
+// variety. 4 x 8 marks), 2015 P1 Q3 (6 x 10), 2018 P1 Q2 (6 x 7), 2023 P1 Q2 (4 x 5), 2024 P1 Q2,
+// 2022 P1 Q4. The shape this question uses — collective header, pooled tariff, per-wine answer — does
+// not occur in the modern corpus for distinct varieties.
+//
+// EK-0172 first recorded this after a prior ruling, but it landed as generation-PROMPT guidance only;
+// this recurrence is the EK-0064/EK-0155 pattern — an unenforced rule is not an enforcement. So the
+// check moves from prompt into a HARD gate wired into validateQuestion by default, catching both the
+// generation retry loop and the banked-corpus audit.
+//
+// PERMITTED EXCEPTION (the boundary is "one shared answer", not literally "one variety"): the IMW does
+// occasionally pool marks for a multi-variety NAMING task when cross-referencing genuinely resolves the
+// flight into one integrated answer — 2023 P1 Q3 asks candidates to "name the country and the three
+// grape varieties, referencing all four wines" (four wines, only three varieties, one country). The
+// rule does not fire when the collective ask names an explicit answer count SMALLER than the wine count
+// (three varieties across four wines), which is what marks that shape as integrated rather than
+// per-wine.
+// ---------------------------------------------------------------------------------------------------
+
+type ScopeKind = "collective" | "distributive" | "none";
+type TariffKind = "pooled" | "per-wine" | "none";
+interface ScopedSubPart {
+  label: string; // "a", "b", …
+  header: string; // normalised governing scope-header phrase ("" if none)
+  scope: ScopeKind;
+  body: string; // normalised sub-part body (header + marks tail stripped)
+  tariff: TariffKind;
+  count: number; // the N of an "N x M" per-wine tariff, else 0
+}
+
+// A COLLECTIVE header addresses the flight as one ("with reference to all/both …", "for all/both …
+// wines"); a DISTRIBUTIVE one addresses each wine in turn ("for each wine", "of each wine"). Matched
+// on the raw header phrase (case-insensitive) since normStem() would strip the trailing colon.
+function classifyScopeHeader(h: string): ScopeKind {
+  const t = h.toLowerCase();
+  if (/with reference to (?:all|both)/.test(t) || /\bfor (?:all|both)\b/.test(t)) return "collective";
+  if (/\bfor each\b/.test(t) || /\bof each\b/.test(t)) return "distributive";
+  return "none";
+}
+
+// A scope-header line ends with a colon and addresses the flight ("With reference to all four wines:")
+// or each wine ("For each wine:"). It governs every lettered sub-part that follows it until the next
+// such header.
+// The interior excludes ".", "(", ")" and newlines so a header cannot span past its own sentence into
+// the next sub-part — otherwise "…variety for each wine. (16 marks)\nFor each wine:" reads as one
+// header and swallows part (a)'s own "for each wine" qualifier.
+const SCOPE_HEADER_RE =
+  /(?:with reference to (?:all|both)[^:.()\n]*?:|for (?:each|both|all)[^:.()\n]*?wines?\s*:|of each wine\s*:)/gi;
+
+// Split a question into its lettered sub-parts, each tagged with the scope header that governs it
+// (COLLECTIVE / DISTRIBUTIVE) and the FORM of its marks tariff (POOLED single integer vs PER-WINE
+// "N x M"). Parses the RAW text because the labels (")") and headers (":") carry punctuation that
+// normStem() flattens away; bodies are normalised with norm() (which keeps punctuation) for matching.
+export function parseScopedSubParts(questionText: string): ScopedSubPart[] {
+  const text = questionText || "";
+  const headers: { index: number; text: string }[] = [];
+  for (const m of text.matchAll(new RegExp(SCOPE_HEADER_RE))) {
+    if (m.index != null) headers.push({ index: m.index, text: m[0] });
+  }
+
+  // Lettered labels: a single letter + ")" at a word boundary (space/newline/period before it), which
+  // never matches the "s)" of "marks)" or a digit inside "(4 x 8 marks)".
+  const labels: { index: number; letter: string; end: number }[] = [];
+  for (const m of text.matchAll(/(?:^|[\n\s.])([a-z])\)/g)) {
+    if (m.index == null) continue;
+    const letterIdx = m.index + m[0].length - 2;
+    labels.push({ index: letterIdx, letter: m[1], end: m.index + m[0].length });
+  }
+
+  const parts: ScopedSubPart[] = [];
+  for (let i = 0; i < labels.length; i++) {
+    const start = labels[i].end;
+    const end = i + 1 < labels.length ? labels[i + 1].index : text.length;
+    const segment = text.slice(start, end);
+
+    // Governing header: the last header that appears before this label.
+    let gov: { index: number; text: string } | null = null;
+    for (const h of headers) {
+      if (h.index < labels[i].index) gov = h;
+      else break;
+    }
+
+    const perWine = segment.match(/\(\s*(\d+)\s*(?:x|×|\*)\s*(\d+)\s*marks?\s*\)/i);
+    const pooled = perWine ? null : segment.match(/\(\s*(\d+)\s*marks?\s*\)/i);
+
+    let body = segment.replace(new RegExp(SCOPE_HEADER_RE), " ");
+    body = body.replace(/\([^)]*marks?[^)]*\)/gi, " ");
+
+    parts.push({
+      label: labels[i].letter,
+      header: gov ? norm(gov.text) : "",
+      scope: gov ? classifyScopeHeader(gov.text) : "none",
+      body: norm(body),
+      tariff: perWine ? "per-wine" : pooled ? "pooled" : "none",
+      count: perWine ? Number(perWine[1]) : 0,
+    });
+  }
+  return parts;
+}
+
+/**
+ * R-SCOPE. A COLLECTIVE-scoped, POOLED-tariff sub-part that asks the candidate to identify — PER WINE —
+ * an attribute (grape variety / origin) the STEM itself declares to be different for every wine is a
+ * hard scope_header_ask_mismatch: the header promises one shared answer while the ask demands N. Does
+ * not fire on the integrated-naming exception (a collective ask naming fewer answers than wines).
+ */
+export function validateScopeHeaderAsk(q: QuestionForAudit): Violation[] {
+  const wines = q.wines || [];
+  const n = wines.length;
+  if (n < 2) return [];
+
+  const stem = normStem(q.questionText || "");
+  // Subset-scoped stems ("wines 1-2 … wines 3-4 …") make each claim about a subset, not the flight —
+  // the same guard the cardinality rules use, so a distinctness clause there is not flight-wide.
+  if (subsetScopedStem(q.questionText, n)) return [];
+
+  // Which attributes does the STEM declare NON-SHARED (a distinctness clause across the flight)?
+  const stemDistinctVariety = /different\s+(?:single\s+)?grape variet(?:y|ies)/.test(stem);
+  const stemDistinctOrigin =
+    /different\s+(?:sub-?)?regions?\b/.test(stem) || /different\s+countries\b/.test(stem);
+  if (!stemDistinctVariety && !stemDistinctOrigin) return [];
+
+  const v: Violation[] = [];
+  for (const p of parseScopedSubParts(q.questionText)) {
+    if (p.scope !== "collective" || p.tariff !== "pooled") continue;
+
+    // The ask must identify a per-wine attribute the stem declared non-shared.
+    const perWineQualified = /for each wine|of each wine|each wine'?s|for each of/.test(p.body);
+    if (!perWineQualified) continue;
+    const varietyAsk = /identify (?:the )?(?:grape )?variet(?:y|ies)/.test(p.body);
+    const originAsk = /identify (?:the )?(?:origin|region|country|area)/.test(p.body);
+    const attr =
+      varietyAsk && stemDistinctVariety ? "grape variety" : originAsk && stemDistinctOrigin ? "origin" : "";
+    if (!attr) continue;
+
+    // Permitted exception (2023 P1 Q3): a collective ask that names an explicit aggregate count SMALLER
+    // than the wine count is genuinely integrated (three varieties across four wines), so pooling is
+    // legitimate. Only skip when such a count is actually named.
+    const countMatch = p.body.match(
+      /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+(?:grape\s+)?(?:variet(?:y|ies)|regions?|countr(?:y|ies)|origins?)\b/
+    );
+    const namedCount = countMatch ? parseStemCount(countMatch[1]) : 0;
+    if (namedCount > 0 && namedCount < n) continue;
+
+    v.push({
+      rule: "scope_header_ask_mismatch",
+      severity: "hard",
+      detail: `sub-part (${p.label}) sits under a COLLECTIVE scope header ("${p.header.trim()}") with a single pooled tariff, but the stem declares the ${attr} to be different for every wine and the ask itself is per wine ("for each wine"). A collective "with reference to all ${n} wines" header promises ONE shared conclusion; a per-wine identification of a non-shared attribute belongs under "For each wine:" with an "N x M marks" tariff (corpus: 2016 P1 Q5, 2023 P1 Q2). EK-0172.`,
+    });
+  }
+  return v;
+}
+
+// ---------------------------------------------------------------------------------------------------
 // RARITY BUDGET & FORTIFIED CATEGORY INTEGRITY — three validated Paper-3 signals (fb_254, fb_241,
 // fb_55) that all reduce to "ultra-rare / no-precedent fortified & oxidative wines used as flight
 // fillers". The wine knowledge lives in db.ts (WINE_RARITY_TIERS, FORTIFIED_CATEGORY_INTEGRITY) so an
@@ -3093,6 +3261,11 @@ export function validateQuestion(
     violations.push(...stemPreannouncesDiscriminator(q.questionText));
     violations.push(...idMarkAllocationViolations(q));
     violations.push(...flightWineCountViolations(q));
+    // R-SCOPE (EK-0172): a collective scope header + pooled tariff over a per-wine ask of an attribute
+    // the stem declares non-shared. Gated with the other stem-shape rules because the fix is a stem /
+    // sub-part edit; the banked corpus this must gate is all generated (stemIsAuthoritative === false),
+    // so this still covers every question the feedback targets while sparing verbatim past-paper imports.
+    violations.push(...validateScopeHeaderAsk(q));
   }
   // POOL-ADMISSION ASYMMETRY, the same shape as R-COLOUR's `blockIndeterminate`.
   //
