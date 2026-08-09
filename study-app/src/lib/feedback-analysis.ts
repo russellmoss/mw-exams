@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { neon } from "@neondatabase/serverless";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
 import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback, saveNarration, getEmpiricalKnowledgeForAnalysis, createFeatureRequestFromFeedback, endorseQuestionForAttempt, getUserVoiceId } from "@/lib/db";
-import { selectModel } from "@/lib/model-selector";
+import { selectModel, type ModelTier } from "@/lib/model-selector";
 import { isAutoApplyEnabled } from "@/lib/settings";
 import { applyFeedbackChange } from "@/lib/apply-change";
 import { logClaudeUsage, logTavilyUsage } from "@/lib/usage-log";
@@ -23,6 +23,26 @@ import { personaBlock } from "@/lib/personas";
  */
 
 const TAVILY_API_URL = "https://api.tavily.com/search";
+
+/**
+ * Output ceiling for one analysis. Was 4000, which SILENTLY LOST SIX VERDICTS.
+ *
+ * The verdict line ("Recommendation: ACCEPT|REJECT|PARTIAL|ENDORSE") is the LAST thing the prompt
+ * asks for, so a response cut short at the ceiling loses precisely the one machine-read token in it.
+ * extractRecommendation then falls through to "pending", applyRecommendation has no branch for
+ * "pending", and the attempt keeps feedback_status = NULL — indistinguishable from feedback nobody
+ * has looked at yet, except that the sweeper skips it forever (auto_analysis_id is already stamped).
+ *
+ * Why 4000 was enough and then wasn't: `message.content` is filtered to text blocks at the call site,
+ * but `usage.output_tokens` bills for everything the model emits, thinking included. Measured over
+ * this table's history — Sonnet 4.6 returns 3.98 characters of saved text per billed output token and
+ * never once hit the ceiling in 31 runs; Opus 5 returns 1.37 and pinned 4000 exactly in 17 of 25.
+ * The ceiling was sized against a model that spent it all on the answer.
+ *
+ * 16000 leaves room for the largest real analysis (11,856 chars ≈ 3k tokens) plus a thinking budget
+ * several times its size. It costs nothing when unused — output is billed as generated, not as capped.
+ */
+export const ANALYSIS_MAX_TOKENS = 16000;
 
 export type FeedbackAnalysisStatus =
   | "complete"
@@ -51,6 +71,15 @@ const STATUS_FOR_RECOMMENDATION: Record<string, string> = {
   partial: "partial",
   endorse: "endorsed",
 };
+
+/**
+ * Does this recommendation actually resolve the feedback? Anything else — in practice the "pending"
+ * that extractRecommendation returns when it finds no verdict line — leaves the attempt open with
+ * nothing to apply, and must be treated as a failed run rather than a finished one.
+ */
+export function isTerminalRecommendation(recommendation: string): boolean {
+  return Boolean(STATUS_FOR_RECOMMENDATION[recommendation]);
+}
 
 /**
  * Parse the analysis text's "Recommendation:" line. Single source of truth — the initial analysis
@@ -332,6 +361,12 @@ export async function runFeedbackAnalysis(opts: {
   source?: "user" | "server";
   /** Skip the auto-apply step (used when we only want the analysis row). */
   skipAutoApply?: boolean;
+  /**
+   * Override the default tier for this one call. Still goes through selectModel, so a configured
+   * A/B split continues to win — this only moves the fallback. Used by the retry path, which has a
+   * specific reason to prefer Sonnet (see retryUnadjudicatedFeedback).
+   */
+  tier?: ModelTier;
 }): Promise<RunFeedbackAnalysisResult> {
   const { attemptId } = opts;
   const apiKey = opts.apiKey ?? process.env.ANTHROPIC_API_KEY;
@@ -427,11 +462,15 @@ export async function runFeedbackAnalysis(opts: {
     });
 
     const client = new Anthropic({ apiKey });
-    const { model, abGroup } = await selectModel("feedback_analysis", apiKey, "opus");
+    const { model, abGroup } = await selectModel(
+      "feedback_analysis",
+      apiKey,
+      opts.tier ?? "opus"
+    );
     const t0 = Date.now();
     const message = await client.messages.create({
       model,
-      max_tokens: 4000,
+      max_tokens: ANALYSIS_MAX_TOKENS,
       system: prompt.system,
       messages: [{ role: "user", content: prompt.user + factCheckContext }],
     });
@@ -451,6 +490,32 @@ export async function runFeedbackAnalysis(opts: {
     const thread = [
       { role: "system" as const, content: analysisText, timestamp: new Date().toISOString() },
     ];
+
+    // NO VERDICT IS A FAILURE, NOT A COMPLETION.
+    //
+    // A run that produced no parseable recommendation has nothing downstream can act on: auto-apply
+    // no-ops, the attempt stays feedback_status = NULL, and the row nonetheless reads 'complete' with
+    // a confident-looking half-analysis in it. That is how fa_66 came to store ZERO characters, get a
+    // spoken verdict narrated over it, and still be filed as done.
+    //
+    // Marking it 'error' instead puts it on the one path that already exists for a broken analysis:
+    // it shows as failed in the admin feedback view, and — new below — the sweeper gives it exactly
+    // one retry. The partial text is written first and deliberately kept: it is usually several
+    // thousand words of real reasoning, and a human reading why the run failed should be able to see
+    // how far it got.
+    if (!isTerminalRecommendation(recommendation)) {
+      const truncated = message.stop_reason === "max_tokens";
+      const why = truncated
+        ? `Response hit the ${ANALYSIS_MAX_TOKENS}-token output ceiling before writing its verdict line`
+        : "Response completed without a parseable 'Recommendation:' line";
+      const detail =
+        `${why} (model ${model}, ${message.usage.output_tokens} output tokens, ` +
+        `${analysisText.length} characters of text). No verdict was applied. Re-trigger to retry.`;
+      await updateFeedbackAnalysis(analysis.id, { thread, status: "analyzing" }); // keep partial text
+      await updateFeedbackAnalysis(analysis.id, { status: "error", error_message: detail });
+      console.error(`feedback analysis ${analysis.id} produced no verdict: ${detail}`);
+      return { status: "error", analysisId: analysis.id, error: detail };
+    }
 
     // Generate the spoken verdict BEFORE flipping to 'complete': the notification
     // only surfaces once status is complete, so doing this first guarantees the
@@ -621,11 +686,74 @@ export async function reapStaleAnalyses(
  * Reaps abandoned analyses first, so the queue tells the truth even for an attempt nobody re-triggers:
  * a stale row shows as errored rather than as work still in progress.
  */
+/**
+ * Re-run feedback that WAS analysed but never got a verdict — the gap the guard above closes going
+ * forward, and the only way back for the rows that fell through it before it existed.
+ *
+ * These are invisible to sweepStrandedFeedback, which keys on `auto_analysis_id IS NULL`. An analysis
+ * that ran and produced nothing has that column stamped, so the attempt sits at feedback_status NULL
+ * for good: it looks open in the admin queue, has an analysis attached, and no path re-reaches it.
+ * Six rows reached that state (all Opus 5, all pinned at the old 4000-token ceiling); three were
+ * eventually resolved by hand and three were still sitting there.
+ *
+ * WHY THIS RETRIES WHEN reapStaleAnalyses DELIBERATELY DOES NOT. The reaper faces a killed invocation
+ * of unknown age and unknown progress, where a retry can dispatch a branch-and-PR for feedback whose
+ * substance already shipped. This faces a run whose failure mode is known, local and cheap: the model
+ * stopped early. Nothing was applied, so nothing can be applied twice.
+ *
+ * TWO BOUNDS KEEP IT FROM BECOMING A LOOP THAT SPENDS MONEY:
+ *   1. At most one retry per attempt, ever — `< 2` total analyses. A second failure stays failed and
+ *      waits for a human, because a repeat is evidence of something the retry cannot fix.
+ *   2. Sonnet, not the default tier. It is the arm that has never truncated (0 of 31 runs against
+ *      Opus 5's 17 of 25) and it costs $0.23 against $1.55. Retrying a ceiling failure on the model
+ *      that hit the ceiling would be the same run again at seven times the price.
+ */
+export async function retryUnadjudicatedFeedback(
+  limit = 3
+): Promise<{ retried: number; results: { attemptId: number; status: string; recommendation?: string }[] }> {
+  const sql = neon(process.env.DATABASE_URL!);
+  const rows = await sql`
+    SELECT a.id
+    FROM user_attempts a
+    WHERE a.mode = 'full'
+      AND a.user_feedback IS NOT NULL AND trim(a.user_feedback) <> ''
+      AND a.feedback_status IS NULL
+      AND a.question_id IS NOT NULL
+      AND (a.scope IS DISTINCT FROM 'general')
+      AND a.auto_analysis_id IS NOT NULL
+      -- Nothing in flight, and no run that actually reached a verdict.
+      AND NOT EXISTS (
+        SELECT 1 FROM feedback_analyses f
+        WHERE f.attempt_id = a.id
+          AND (f.status = 'analyzing' OR (f.status = 'complete' AND f.recommendation <> 'pending'))
+      )
+      AND (SELECT COUNT(*) FROM feedback_analyses f2 WHERE f2.attempt_id = a.id) < 2
+    ORDER BY a.started_at ASC
+    LIMIT ${limit}
+  `;
+  const results: { attemptId: number; status: string; recommendation?: string }[] = [];
+  for (const row of rows) {
+    const attemptId = row.id as number;
+    const r = await runFeedbackAnalysis({ attemptId, source: "server", tier: "sonnet" });
+    // A question-review card deep-links to the analysis it spawned. The retry makes a NEW row, so
+    // without this the reviewer's card keeps pointing at the failed one and shows a verdict-less
+    // analysis next to a resolved vote.
+    if (r.analysisId && r.status === "complete") {
+      await sql`UPDATE question_reviews SET analysis_id = ${r.analysisId}, updated_at = NOW()
+                WHERE attempt_id = ${attemptId}`;
+    }
+    results.push({ attemptId, status: r.status, recommendation: r.recommendation });
+  }
+  if (results.length) console.log(`retryUnadjudicatedFeedback: retried ${results.length} attempt(s)`);
+  return { retried: results.length, results };
+}
+
 export async function sweepStrandedFeedback(
   limit = 3
 ): Promise<{
   swept: number;
   reaped: number;
+  retried: number;
   results: { attemptId: number; status: string; recommendation?: string }[];
 }> {
   const sql = neon(process.env.DATABASE_URL!);
@@ -659,5 +787,12 @@ export async function sweepStrandedFeedback(
     const r = await runFeedbackAnalysis({ attemptId, source: "server" });
     results.push({ attemptId, status: r.status, recommendation: r.recommendation });
   }
-  return { swept: results.length, reaped, results };
+  // Never-analysed first, verdict-less second: both are unadjudicated feedback, and the never-analysed
+  // set is the one a candidate is actively waiting on. Sharing the caller's limit keeps the whole sweep
+  // inside the route's 120s maxDuration — a 31-73s analysis means a batch of 3 is already near it.
+  const { retried, results: retryResults } = await retryUnadjudicatedFeedback(
+    Math.max(0, limit - results.length)
+  );
+  results.push(...retryResults);
+  return { swept: results.length - retried, reaped, retried, results };
 }

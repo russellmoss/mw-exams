@@ -268,10 +268,21 @@ describe("write path source guards", () => {
     // produce a "reject" that reads as "your bug report was wrong" — or an "accept" that dispatches a
     // generation-rule PR for a bug in a React component. Now that file_bug attaches a question_id,
     // the sweeper can no longer use "has a question" as a proxy for "is about question quality".
+    //
+    // Both selectors are checked, not just the sweep: retryUnadjudicatedFeedback picks attempts by a
+    // different predicate (analysed, but no verdict) and hands them to the same analyser, so it needs
+    // the same two guards or it reopens this hole from the other side.
     const src = fs.readFileSync(path.join(appDir, "src/lib/feedback-analysis.ts"), "utf8");
-    const sweep = src.slice(src.indexOf("export async function sweepStrandedFeedback"));
-    expect(sweep).toMatch(/scope IS DISTINCT FROM 'general'/);
-    expect(sweep).toMatch(/question_id IS NOT NULL/);
+    for (const fn of ["sweepStrandedFeedback", "retryUnadjudicatedFeedback"]) {
+      const start = src.indexOf(`export async function ${fn}`);
+      expect(start, `${fn} not found`).toBeGreaterThan(-1);
+      // To the next top-level declaration — not to the first column-0 "}", which lands inside the
+      // multi-line Promise<{...}> return type before the query is ever reached.
+      const next = src.indexOf("\nexport ", start + 1);
+      const body = src.slice(start, next === -1 ? src.length : next);
+      expect(body, fn).toMatch(/scope IS DISTINCT FROM 'general'/);
+      expect(body, fn).toMatch(/question_id IS NOT NULL/);
+    }
   });
 
   it("writes through the shared feedback store, not a private Coach table", () => {
