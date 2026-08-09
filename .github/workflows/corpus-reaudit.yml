@@ -33,7 +33,11 @@ on:
       - "study-app/src/lib/answer-content-rules.mjs"
       - "study-app/scripts/audit-questions.mjs"
       # Answer-key data/builder changes: a key rebuild, without which the change is inert.
+      # BOTH stem-answer-key files: the .mjs is the single source of truth (the .ts is a thin live
+      # wrapper over it), so a key-rule change lands in the .mjs — with only the .ts listed here,
+      # PR #147's family-membership rule would have merged without triggering any rebuild or sweep.
       - "study-app/scripts/build-stem-answer-keys.mjs"
+      - "study-app/src/lib/stem-answer-key.mjs"
       - "study-app/src/lib/stem-answer-key.ts"
       - "data/stem_proprietary_blends*"
       - "data/stem_style_lexicon*"

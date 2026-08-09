@@ -191,6 +191,62 @@ export function scopeHeaderProblems(stem) {
   return out;
 }
 
+// ---------- Named Variety Family Membership (EK-0173, "R12") ----------
+// A stem that declares a NAMED variety family ("Bordeaux varieties") makes a factual promise to the
+// candidate: EVERY wine is made from a member of that family. A wine keyed OUTSIDE the family — e.g. a
+// Touriga Franca (a Portuguese indigenous grape, a natural Touriga Nacional × Marufo cross with no
+// genetic or regulatory tie to the six Bordeaux-permitted varieties) under a "Bordeaux varieties"
+// stem — breaks that contract. It is a factual error in wine selection, not a difficulty judgement, so
+// it is a HARD fault (validated=false → dropped from serve paths), the same treatment as the
+// country-diversity / single-variety / scope-header rules above. The existing name-label and
+// variety/profile checks never caught this: they verify a wine's key is internally consistent, not
+// that it belongs to the varietal family the stem names.
+//
+// Members are CANONICAL variety names. resolveVariety maps synonyms to their canonical form before
+// keying (Côt→Malbec, Touriga Francesa→Touriga Franca via variety_lexicon), so membership is a
+// canonical-name set compared accent/case-insensitively via norm(). A BLEND passes when ANY component
+// is in the family (a real Bordeaux blend may carry a splash of an outside grape); it fails only when
+// NO component is.
+const VARIETY_FAMILIES = {
+  // The six varieties permitted in Bordeaux AOC. Malbec's canonical synonym Côt and Carménère's
+  // accented spelling both normalise into this set. Extend with further families (Rhône, Burgundy, …)
+  // only WITH a curated member list — an un-listed family stays unenforced rather than risk a false
+  // flag on a premise this module can't yet verify.
+  bordeaux: {
+    label: "Bordeaux",
+    members: ["Cabernet Sauvignon", "Merlot", "Cabernet Franc", "Malbec", "Petit Verdot", "Carmenere"],
+  },
+};
+
+// The variety family a stem declares ("Bordeaux varieties"), or null. Only families present in
+// VARIETY_FAMILIES above are returned (and therefore enforced). norm() strips the accent so "Rhône"
+// would match "rhone" if/when a Rhône list is added.
+function namedVarietyFamily(stem) {
+  const m = norm(stem).match(/\b(bordeaux|rhone|burgundy|champagne) variet(?:y|ies)\b/);
+  return m ? VARIETY_FAMILIES[m[1]] || null : null;
+}
+
+// Hard faults where a wine's keyed variety is outside the family the stem declares. Pure (stem +
+// keyed ground in, messages out). Exported so the offline backfill, the live builder and the tests
+// run the SAME rule.
+export function varietyFamilyProblems(stem, ground) {
+  const family = namedVarietyFamily(stem || "");
+  if (!family) return [];
+  const members = new Set(family.members.map(norm));
+  const out = [];
+  for (const g of ground || []) {
+    const vars = g.varieties || [];
+    if (!vars.length) continue; // a no-variety wine is already flagged by the resolver
+    if (!vars.some((v) => members.has(norm(v)))) {
+      out.push(
+        `variety-family membership violation (W${g.slot} is keyed ${vars.join("/")}, not a ` +
+          `${family.label} variety, but the stem declares "${family.label} varieties")`
+      );
+    }
+  }
+  return out;
+}
+
 const STYLE_CAT_FALLBACK = {
   sparkling: "Sparkling",
   fortified: "Fortified",
@@ -469,6 +525,10 @@ export function createAnswerKeyBuilder(data) {
     // per-wine tariff (or a per-wine header over a single mark block) is structurally invalid. Hard
     // fault, same treatment as the checks above (validated=false → dropped from serve paths).
     for (const p of scopeHeaderProblems(r.question_text || "")) problems.push(p);
+    // Named variety-family membership (EK-0173, R12): a "Bordeaux varieties" stem promises every wine
+    // is a Bordeaux variety; a wine keyed outside the family (e.g. Touriga Franca) contradicts it.
+    // Hard fault, same treatment as the checks above (validated=false → dropped from serve paths).
+    for (const p of varietyFamilyProblems(r.question_text || "", ground)) problems.push(p);
     const plausible = plausibleFor(ground);
     const seenPl = new Set(plausible.map((p) => `${norm(p.variety)}|${norm(p.region)}`));
     for (const c of curatedConfusables) {
