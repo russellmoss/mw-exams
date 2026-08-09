@@ -96,10 +96,26 @@ export async function POST(request: Request) {
       apiKey: resolved.key,
     });
 
-    // synthesizeSpeech swallows the upstream error (a failed narration must never break analysis),
-    // so all we know here is that it didn't come back. For a preview that is almost always a voice
-    // ID the account can't use — say that, since it's the actionable case.
-    if (!result) {
+    // The failure reason now comes back typed, so the preview can stop guessing. It used to
+    // attribute every failure to a bad voice ID, which is the common case here but was flatly wrong
+    // when the real cause was an empty account — and sent people hunting for a voice problem.
+    if (!result.ok) {
+      if (result.failure === "quota_exceeded") {
+        return Response.json(
+          {
+            error:
+              "Out of ElevenLabs credits, so there's nothing to preview with. Top up the account, " +
+              "or add your own ElevenLabs key above.",
+          },
+          { status: 402 }
+        );
+      }
+      if (result.failure === "invalid_key") {
+        return Response.json(
+          { error: "ElevenLabs rejected the API key. Check or replace it above." },
+          { status: 402 }
+        );
+      }
       return Response.json(
         {
           error:

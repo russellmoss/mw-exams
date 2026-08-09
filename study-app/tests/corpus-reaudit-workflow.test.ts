@@ -69,7 +69,11 @@ describe("corpus-reaudit workflow", () => {
   it("re-audits unconditionally on a manual dispatch", () => {
     // Diffing the last commit on a dispatch decides on whatever happened to land most recently, which
     // has nothing to do with why a human clicked the button.
-    expect(yml()).toMatch(/workflow_dispatch"\s*\]\s*;\s*then[\s\S]{0,200}rules=1/);
+    // The window is deliberately generous. It was {0,200} and went red when faef1d5 added a
+    // six-line comment inside the branch — the workflow still set rules=1 unconditionally, so the
+    // behaviour under test never changed; only the distance did. A character budget is incidental
+    // to the intent here, and a tight one just fails the next person who explains themselves.
+    expect(yml()).toMatch(/workflow_dispatch"\s*\]\s*;\s*then[\s\S]{0,800}rules=1/);
   });
 
   it("watches itself, so a change to it is exercised by the push that makes it", () => {

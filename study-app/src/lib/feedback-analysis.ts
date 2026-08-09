@@ -259,6 +259,39 @@ async function tavilyFactCheck(
  * the notification just arrives without sound. The Sonnet call lands in
  * model_usage (task `notification_narration`); the TTS call in elevenlabs_usage.
  */
+/**
+ * Daily ceiling on narration characters, across all users.
+ *
+ * WHY THERE IS ONE. On 2026-08-09 this path synthesised 85,214 characters in 115 calls in a single
+ * day — enough to exhaust a 300,000-credit ElevenLabs plan, which it did. Read-aloud, the feature
+ * people actually press a button for, was 363 characters the same day and stopped working as
+ * collateral. Nothing was wrong: the pipeline simply speaks a clip for every analysis it finishes,
+ * and the analysis pipeline had a busy day.
+ *
+ * A cap is the blunt instrument, and blunt is right here: whatever else is misjudged about how many
+ * clips to make, the account should not be emptied by a background job while a candidate is trying
+ * to listen to their debrief. Tune with NARRATION_DAILY_CHAR_BUDGET.
+ */
+const NARRATION_DAILY_CHAR_BUDGET = Number(process.env.NARRATION_DAILY_CHAR_BUDGET || 10_000);
+
+/** Characters of narration already synthesised today. Fails OPEN — a budget we cannot read must
+ *  not silence every notification. */
+async function narrationCharsToday(): Promise<number> {
+  try {
+    const sql = neon(process.env.DATABASE_URL!);
+    const rows = await sql`
+      SELECT COALESCE(SUM(characters), 0)::int AS used
+      FROM elevenlabs_usage
+      WHERE task_type = 'notification_narration'
+        AND success
+        AND created_at >= date_trunc('day', now())
+    `;
+    return (rows[0]?.used as number) ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
 async function generateVerdictNarration(opts: {
   analysisId: number;
   attemptId: number;
@@ -271,6 +304,14 @@ async function generateVerdictNarration(opts: {
 }): Promise<void> {
   try {
     if (!isElevenLabsConfigured()) return; // no key → skip silently (no narration)
+
+    const used = await narrationCharsToday();
+    if (used >= NARRATION_DAILY_CHAR_BUDGET) {
+      console.warn(
+        `[narration] daily budget spent (${used}/${NARRATION_DAILY_CHAR_BUDGET} chars) — skipping`
+      );
+      return;
+    }
 
     const client = new Anthropic({ apiKey: opts.apiKey });
     const { model, abGroup } = await selectModel("notification_narration", opts.apiKey, "sonnet");
@@ -365,7 +406,13 @@ async function generateVerdictNarration(opts: {
       analysisId: opts.analysisId,
       voiceId: userVoiceId || undefined,
     });
-    if (!tts) return; // synthesis failed → no audio, notification stays silent
+    if (!tts.ok) {
+      // Silent notification, and a log line naming the cause — running out of credits is the one
+      // that repeats, and it is invisible from the UI because a missing clip looks like a clip
+      // nobody made.
+      console.warn(`[narration] synthesis failed (${tts.failure}); notification stays silent`);
+      return;
+    }
 
     await saveNarration(opts.analysisId, {
       text: narrationText,
@@ -388,6 +435,16 @@ export async function runFeedbackAnalysis(opts: {
   source?: "user" | "server";
   /** Skip the auto-apply step (used when we only want the analysis row). */
   skipAutoApply?: boolean;
+  /**
+   * Synthesise the spoken verdict clip. Default true — a candidate who just filed feedback and is
+   * watching for the bell should get audio.
+   *
+   * The BACKGROUND SWEEPS pass false, and that is the whole point of the flag. They exist to clear
+   * a backlog nobody is sitting in front of, and on 2026-08-09 they spoke 115 clips in a day and
+   * emptied the ElevenLabs plan — taking read-aloud, which people do press a button for, down with
+   * it. A swept verdict is still fully readable in the UI; it just is not pre-voiced.
+   */
+  narrate?: boolean;
   /**
    * Pin this call to a tier, bypassing the A/B split entirely.
    *
@@ -611,7 +668,7 @@ export async function runFeedbackAnalysis(opts: {
     // Generate the spoken verdict BEFORE flipping to 'complete': the notification
     // only surfaces once status is complete, so doing this first guarantees the
     // audio is ready the moment the bell shows it (playback is spoken-only).
-    await generateVerdictNarration({
+    if (opts.narrate !== false) await generateVerdictNarration({
       analysisId: analysis.id,
       attemptId,
       userId: (attempt.user_id as number) ?? null,
@@ -826,7 +883,7 @@ export async function retryUnadjudicatedFeedback(
   const results: { attemptId: number; status: string; recommendation?: string }[] = [];
   for (const row of rows) {
     const attemptId = row.id as number;
-    const r = await runFeedbackAnalysis({ attemptId, source: "server", forceTier: "sonnet" });
+    const r = await runFeedbackAnalysis({ attemptId, source: "server", forceTier: "sonnet", narrate: false });
     // A question-review card deep-links to the analysis it spawned. The retry makes a NEW row, so
     // without this the reviewer's card keeps pointing at the failed one and shows a verdict-less
     // analysis next to a resolved vote.
@@ -876,7 +933,7 @@ export async function sweepStrandedFeedback(
   const results: { attemptId: number; status: string; recommendation?: string }[] = [];
   for (const row of stranded) {
     const attemptId = row.id as number;
-    const r = await runFeedbackAnalysis({ attemptId, source: "server" });
+    const r = await runFeedbackAnalysis({ attemptId, source: "server", narrate: false });
     results.push({ attemptId, status: r.status, recommendation: r.recommendation });
   }
   // Never-analysed first, verdict-less second: both are unadjudicated feedback, and the never-analysed
