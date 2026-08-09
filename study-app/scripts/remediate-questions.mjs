@@ -54,11 +54,11 @@ const { normalizeMarkAllocation, buildGenerationProducerExclusion, PRODUCER_RECE
 // way the gate does, or it "fixes" a question into a different failure.
 const { expandMarkTokens } = await import("../src/lib/question-rules.mjs");
 // Model choice goes through the SAME A/B selector the app uses (see the note at OPUS below).
-const { selectModel } = await import("../src/lib/model-selector.ts");
+const { selectModel, resolveTierModel } = await import("../src/lib/model-selector.ts");
 const { logClaudeUsage } = await import("../src/lib/usage-log.ts");
 // (model-resolver is not imported here any more — selectModel resolves the opus tier through it.)
 const { buildKeyForRow, upsertKey } = await import("./build-stem-answer-keys.mjs");
-const { checkWineReferenceShape } = await import("../src/lib/question-rules.mjs");
+const { checkWineReferenceShape, checkStemShape } = await import("../src/lib/question-rules.mjs");
 
 const sql = neon(process.env.DATABASE_URL);
 const APPLY = process.argv.includes("--apply");
@@ -113,6 +113,16 @@ function parseGenerated(text, paper, family) {
     // model's mark arithmetic is rejected on nearly every attempt (an observed run burned all 6
     // retries emitting 40,40,40,40,40,90 against a target of 50), so remediation could never
     // converge for a reason that has nothing to do with the question's content.
+    // Reject a stem that is the model reasoning about its own marks rather than asking a question.
+    // Checked BEFORE the mark repair and before anything is saved: normalizeMarkAllocation cannot
+    // remove prose, and downstream this draft would otherwise buy a full wine enrichment before the
+    // validator threw 380 part-task-repertoire violations at it. Same guard as the wine slots below,
+    // one field over. See checkStemShape.
+    const stemShape = checkStemShape(questionText);
+    if (!stemShape.ok) {
+      console.warn(`    ${stemShape.problem}`);
+      return null;
+    }
     const repairedText = normalizeMarkAllocation(questionText, wines.length);
     questionText = repairedText;
     let totalMarks = 0;
@@ -156,7 +166,10 @@ const client = new Anthropic({ apiKey: APIKEY });
 // Measured on the batch that ran the old way: 18 questions took 17 rejected attempts.
 const GEN = await selectModel("question_generation", APIKEY, "sonnet");
 const ANSWER = await selectModel("model_answer", APIKEY, "opus");
-console.log(`models: generation=${GEN.model}  answer=${ANSWER.model}  (A/B-selected)`);
+// The escalation target, pinned past the A/B: the point of attempt 3 is to be a DIFFERENT and larger
+// model than attempts 1-2, which a split could otherwise resolve back to the same one.
+const ESCALATED = await resolveTierModel("opus", APIKEY);
+console.log(`models: generation=${GEN.model} (attempts 1-2) → ${ESCALATED} (3+)  answer=${ANSWER.model}`);
 
 // Sizing comes from the ONE shared helper (prompts/model-answer-prompt.ts), which carries the
 // evidence. It was hard-coded here — first 2000, then 8000 — and hard-coding is what let this script
@@ -268,11 +281,19 @@ async function remediateOne(old, existingWines, latest) {
   }
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    // Every attempt on the A/B-selected tier. The old "Opus first, Sonnet on retry" escalation had it
-    // backwards: a rejected attempt is nearly always a rule violation the validator names precisely,
-    // not a reasoning failure a bigger model would have avoided — the first live run's rejects were
-    // `excluded-producer`, which no tier can fix because the generator was never told the ban.
-    const model = GEN.model;
+    // ESCALATE ON FAILURE — cheap first, then the bigger model when cheap cannot converge.
+    //
+    // This has now been wrong in both directions. It opened on Opus and dropped to Sonnet on retry,
+    // which paid the premium on the easy majority and the cheap tier on the hard residue — backwards.
+    // Setting every attempt to Sonnet then went too far: measured over the drain, half of Sonnet's
+    // rejected drafts were its own mark arithmetic narrated into the stem ("f must be divisible by
+    // 3"), against one in ten on the Opus-first batch, and the average violation count per rejected
+    // draft went from 16 to 159.
+    //
+    // So: two attempts on the A/B tier, then Opus. Most questions never reach the third attempt (the
+    // repair pass and the drain's successes both converged well inside it), and the ones that do are
+    // the constrained residue where the premium actually buys convergence rather than a nicer wine.
+    const model = attempt <= 2 ? GEN.model : ESCALATED;
     let text;
     try { text = await callModel(model, prompt.system, prompt.user, prompt.cachedPrefix); }
     catch (e) { console.warn(`    attempt ${attempt}: model error ${e.message}`); continue; }

@@ -522,6 +522,49 @@ const DELIBERATION_MARKERS = [
   { re: /\b(the stem|sub-?rule|per the prompt|paper [123]\b|this is a problem|see reasoning)/i, why: "a reference to the prompt's own rules" },
 ];
 
+// The same failure, one field over. checkWineReferenceShape exists because the generator's reasoning
+// used to land in a WINE slot; on 2026-08-09 it started landing in the QUESTION TEXT instead, while
+// the model worked out how to make the marks total 25 x wines:
+//
+//   "actually rereading the instructions"      "f must be divisible by 3"
+//   "flat shared part that divides evenly"     "9 marks shared not per wine so 3 marks per wine equiv"
+//
+// Nothing rejected the draft for that. The validator's part extractor read each fragment as a
+// sub-part command and returned it as part-task-repertoire — 380 violations on one candidate, and
+// only AFTER a full Tavily wine enrichment had been paid for. Catching it at parse time makes the
+// failure instant and free.
+//
+// Deliberately narrow: every pattern is scratch-work or first-person, and an MW stem is neither. It
+// is written in the imperative to a candidate ("Identify the grape variety.") and never reasons about
+// its own construction. Mark ARITHMETIC is not a marker — "(3 x 8 marks)" is the correct notation —
+// only prose ABOUT the arithmetic is.
+const STEM_DELIBERATION_MARKERS = [
+  { re: /\b(wait|actually|hmm|let me|i need|i'll|i will|we need|re-?reading)\b/i, why: "first-person deliberation" },
+  { re: /\b(divisible by|divides? evenly|adds? up to|that gives|doesn'?t work|does not work|try again|recalculat\w*)\b/i, why: "mark arithmetic worked out in prose" },
+  { re: /\b(flat shared part|shared flat part)\b/i, why: "the prompt's own vocabulary for a mark shape" },
+  // "but that doesn t use the same variety identified once" — the model arguing with its own draft.
+  // A stem states; it never contrasts against an alternative it just considered.
+  { re: /\bbut that\b|\b(that|which|this) doesn'?\s?t\b/i, why: "the model arguing with its own draft" },
+  { re: /\b(per wine equiv\w*|shared not per wine|from the per wine parts)\b/i, why: "mark-scoping scratch work" },
+  { re: /\b(the stem|the instructions|per the prompt|sub-?rule|the constraint)\b/i, why: "a reference to the prompt's own rules" },
+];
+
+/**
+ * Does `questionText` read as an exam stem, or as the generator thinking out loud?
+ * @param {string} questionText
+ * @returns {{ ok: boolean, problem: string | null }}
+ */
+export function checkStemShape(questionText) {
+  const text = (questionText || "").toString();
+  for (const m of STEM_DELIBERATION_MARKERS) {
+    const hit = text.match(m.re);
+    if (hit) {
+      return { ok: false, problem: `stem contains ${m.why} ("${hit[0]}") — this is generator reasoning, not a question` };
+    }
+  }
+  return { ok: true, problem: null };
+}
+
 // The longest legitimate reference in the bank is 137 chars. The bounds below are deliberately loose —
 // they exist to catch a bare "..." or a paragraph of prose, not to police label length.
 const MIN_REFERENCE_LEN = 20;
