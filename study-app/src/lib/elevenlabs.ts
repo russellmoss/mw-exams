@@ -52,6 +52,25 @@ export function isElevenLabsConfigured(): boolean {
   return !!process.env.ELEVENLABS_API_KEY;
 }
 
+/**
+ * Why a synthesis did not produce audio. Distinguished because the two the user can ACT on look
+ * identical from the outside otherwise: running out of credits and a bad key both surfaced as a
+ * bare 502 "Voice synthesis failed", and diagnosing the first one took reading the usage table.
+ */
+export type SynthesisFailure =
+  /** The account is out of ElevenLabs credits. Actionable: top up, or use your own key. */
+  | "quota_exceeded"
+  /** The key is wrong, revoked, or not permitted. Actionable: replace it in Settings. */
+  | "invalid_key"
+  /** No key at all, or nothing to say. */
+  | "not_configured"
+  /** Rate limit, outage, network — not the user's fault and not their problem to fix. */
+  | "vendor_error";
+
+export type SynthesizeOutcome =
+  | ({ ok: true } & SynthesizeResult)
+  | { ok: false; failure: SynthesisFailure; detail?: string };
+
 export interface SynthesizeResult {
   /** base64-encoded mp3 (mp3_44100_128). */
   audioBase64: string;
@@ -61,8 +80,11 @@ export interface SynthesizeResult {
 }
 
 /**
- * Synthesize speech for `text` and log the spend. Returns null when ElevenLabs
- * isn't configured or the call fails (caller treats that as "no narration").
+ * Synthesize speech for `text` and log the spend.
+ *
+ * Returns a discriminated outcome rather than `null`, because the caller often needs to know WHY:
+ * a candidate who has run out of credits can fix that in a minute, and telling them "Voice
+ * synthesis failed" instead sends them looking for a bug that is not there.
  */
 export async function synthesizeSpeech(
   text: string,
@@ -81,10 +103,10 @@ export async function synthesizeSpeech(
      */
     apiKey?: string | null;
   }
-): Promise<SynthesizeResult | null> {
+): Promise<SynthesizeOutcome> {
   const apiKey = ctx.apiKey || process.env.ELEVENLABS_API_KEY;
   const clean = (text || "").trim();
-  if (!apiKey || !clean) return null;
+  if (!apiKey || !clean) return { ok: false, failure: "not_configured" };
 
   const voiceId = ctx.voiceId || getElevenLabsVoiceId();
   const modelId = ctx.modelId || DEFAULT_MODEL_ID;
@@ -116,7 +138,16 @@ export async function synthesizeSpeech(
         { latencyMs: Date.now() - t0, success: false, error: `HTTP ${res.status}: ${detail.slice(0, 200)}` }
       );
       console.error("[elevenlabs] synthesis failed:", res.status, detail.slice(0, 200));
-      return null;
+      // ElevenLabs returns 401 for BOTH "out of credits" and "bad key", so the status is useless
+      // on its own — the `code` in the body is what separates them. Observed verbatim:
+      //   {"detail":{"type":"invalid_request","code":"quota_exceeded","message":"This request
+      //    exceeds your quota of 300000. You have 17 credits remaining..."}}
+      const failure: SynthesisFailure = /quota_exceeded/i.test(detail)
+        ? "quota_exceeded"
+        : /invalid_api_key|unauthorized/i.test(detail) || res.status === 401 || res.status === 403
+          ? "invalid_key"
+          : "vendor_error";
+      return { ok: false, failure, detail: detail.slice(0, 200) };
     }
 
     const buf = Buffer.from(await res.arrayBuffer());
@@ -124,13 +155,13 @@ export async function synthesizeSpeech(
       { taskType: ctx.taskType, voiceId, modelId, characters, userId: ctx.userId, attemptId: ctx.attemptId, analysisId: ctx.analysisId },
       { latencyMs: Date.now() - t0, success: true }
     );
-    return { audioBase64: buf.toString("base64"), characters, voiceId, modelId };
+    return { ok: true, audioBase64: buf.toString("base64"), characters, voiceId, modelId };
   } catch (err) {
     logElevenLabsUsage(
       { taskType: ctx.taskType, voiceId, modelId, characters, userId: ctx.userId, attemptId: ctx.attemptId, analysisId: ctx.analysisId },
       { latencyMs: Date.now() - t0, success: false, error: err instanceof Error ? err.message : "fetch failed" }
     );
     console.error("[elevenlabs] synthesis error:", err);
-    return null;
+    return { ok: false, failure: "vendor_error" };
   }
 }

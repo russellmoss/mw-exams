@@ -64,8 +64,30 @@ export async function POST(request: Request) {
     apiKey: resolved.key,
     voiceId: voiceId || undefined,
   });
-  // synthesizeSpeech returns null on any failure and has already logged it.
-  if (!result) return Response.json({ error: "Voice synthesis failed." }, { status: 502 });
+  // The client renders `error` verbatim, so this is the whole of what the candidate is told when
+  // it goes wrong. It used to be a bare 502 "Voice synthesis failed" for every cause — including
+  // running out of credits, which is a one-minute fix that instead read as a broken app and took a
+  // console dump and a query against the usage table to diagnose.
+  if (!result.ok) {
+    if (result.failure === "quota_exceeded") {
+      return Response.json(
+        {
+          error:
+            "Out of ElevenLabs credits — the voice can't be synthesised until the account is " +
+            "topped up. You can also add your own ElevenLabs key in Settings to use your own credits.",
+        },
+        // 402, matching the no-key case: a setup/billing step the user can complete, not a fault.
+        { status: 402 }
+      );
+    }
+    if (result.failure === "invalid_key") {
+      return Response.json(
+        { error: "ElevenLabs rejected the API key. Check or replace it in Settings." },
+        { status: 402 }
+      );
+    }
+    return Response.json({ error: "Voice synthesis failed. Try again in a moment." }, { status: 502 });
+  }
 
   return new Response(Buffer.from(result.audioBase64, "base64"), {
     headers: {
