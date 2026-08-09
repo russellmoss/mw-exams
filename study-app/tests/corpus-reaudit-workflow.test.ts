@@ -48,6 +48,24 @@ describe("corpus-reaudit workflow", () => {
     }
   });
 
+  it("checks out enough history to diff HEAD^..HEAD", () => {
+    // The default depth-1 checkout has no HEAD^, so the diff errors, the file list comes back empty
+    // and both work steps skip — a green run that did nothing. The workflow's first run did exactly
+    // that on its own merge commit.
+    expect(yml()).toMatch(/fetch-depth:\s*2/);
+  });
+
+  it("re-audits anyway when the diff is unavailable", () => {
+    // The paths filter has already decided the push is relevant; this step only splits the work. With
+    // no diff it must fail TOWARD auditing — the pass is idempotent, a skipped one leaves the defect
+    // servable. (workflow_dispatch has no HEAD^ either.)
+    const text = yml();
+    expect(text).toMatch(/if \[ -z "\$CHANGED" \]/);
+    expect(text.slice(text.indexOf('if [ -z "$CHANGED" ]'), text.indexOf('if [ -z "$CHANGED" ]') + 300)).toMatch(
+      /rules=1/
+    );
+  });
+
   it("runs the audit through ts-loader", () => {
     // Without it, question-validator.ts's extensionless imports throw ERR_MODULE_NOT_FOUND and the
     // sweep goes dark with a green tick — the 2026-08-07 failure mode.

@@ -59,6 +59,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # fetch-depth: 2, because the step below diffs HEAD^..HEAD. The default depth-1 checkout has
+          # no HEAD^, so the diff errors, `|| true` swallows it, the file list comes back EMPTY and both
+          # work steps skip — a green run that did nothing. That is exactly what the first run of this
+          # workflow did (31319742510), on its own merge commit.
+          fetch-depth: 2
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -69,11 +75,20 @@ jobs:
         working-directory: study-app
         run: npm ci
 
+      # The paths: filter above has ALREADY decided this push is relevant. This step only splits it into
+      # "needs a key rebuild" and "needs a re-audit", so when the diff is unavailable it must fail
+      # TOWARD doing the work — a re-audit is idempotent, a silently skipped one leaves the defect
+      # servable. workflow_dispatch has no HEAD^ to diff either, and should plainly re-audit.
       - name: What changed
         id: changed
         run: |
-          CHANGED=$(git diff --name-only HEAD^ HEAD || true)
-          echo "changed files:"; echo "$CHANGED"
+          CHANGED=$(git diff --name-only HEAD^ HEAD 2>/dev/null || true)
+          echo "changed files:"; echo "${CHANGED:-<unavailable>}"
+          if [ -z "$CHANGED" ]; then
+            echo "::notice title=no diff available::re-auditing anyway (the paths filter already matched)"
+            echo "rules=1" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if echo "$CHANGED" | grep -qE 'stem_proprietary_blends|stem_style_lexicon|variety_lexicon|appellation_varieties|build-stem-answer-keys|stem-answer-key'; then
             echo "keys=1" >> "$GITHUB_OUTPUT"
           fi
