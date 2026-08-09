@@ -99,6 +99,7 @@ export default function OnboardingPage() {
               anthropic: !!user.hasApiKey,
               tavily: user.hasTavilyKey !== false,
               elevenlabs: !!user.hasVoiceKey,
+              grok: !!user.hasGrokKey,
             }}
             onSaved={refresh}
           />
@@ -267,7 +268,16 @@ export default function OnboardingPage() {
             grading happens first, in one neutral voice, and only the wording is changed afterwards.
             Switch any time in Settings, or just tell the Coach to change it.
           </p>
-          <PersonaPicker value={persona} onChange={setPersona} disabled={saving} />
+          <PersonaPicker
+            value={persona}
+            onChange={setPersona}
+            disabled={saving}
+            unavailable={
+              user?.hasGrokKey
+                ? undefined
+                : { unhinged: "Needs an xAI (Grok) key — add one above, or in Settings." }
+            }
+          />
         </section>
 
         <div className="flex items-center gap-4">

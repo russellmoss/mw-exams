@@ -9,7 +9,8 @@ import { logClaudeUsage, logTavilyUsage } from "@/lib/usage-log";
 import { synthesizeSpeech, isElevenLabsConfigured } from "@/lib/elevenlabs";
 import { resolveTavilyKey } from "@/lib/tavily-key";
 import { getUserPersona } from "@/lib/persona-server";
-import { personaBlock } from "@/lib/personas";
+import { getPersona, needsRestyle, personaBlock } from "@/lib/personas";
+import { restyleForPersona } from "@/lib/persona-restyle";
 import { getPendingRulingsForAttempt, recordRoleVerdicts } from "@/lib/wine-role-rulings";
 import { parseRoleRulings } from "@/lib/prompts/role-adjudication";
 
@@ -321,17 +322,42 @@ async function generateVerdictNarration(opts: {
       { latencyMs: Date.now() - t0 }
     );
 
-    const narrationText = message.content
+    let narrationText = message.content
       .filter((b) => b.type === "text")
       .map((b) => b.text)
       .join("")
       .trim();
     if (!narrationText) return;
 
+    // PASS 2 for the spoken line. Claude wrote it neutrally (the persona is pinned for any voice
+    // with an external copy vendor), so hand it over to be re-said properly. On any failure the
+    // neutral line is still spoken — silence would be worse than the wrong register.
+    const narrationPersona = await getUserPersona(opts.userId);
+    if (needsRestyle(narrationPersona, "spoken")) {
+      const spoken = await restyleForPersona({
+        neutralText: narrationText,
+        persona: narrationPersona,
+        surface: "spoken",
+        client,
+        apiKey: opts.apiKey,
+        userId: opts.userId,
+        maxTokens: 600,
+        usage: {
+          taskType: "notification_narration_persona_restyle",
+          source: opts.source,
+          userId: opts.userId,
+        },
+      });
+      if (spoken.outcome === "applied") narrationText = spoken.text;
+    }
+
     // Whose voice: the listener's own choice (Settings → Coach Voice, migration 059), falling back
     // to the app default. Undefined rather than null so synthesizeSpeech's own fallback chain —
     // ELEVENLABS_VOICE_ID then the default — still applies.
-    const userVoiceId = opts.userId ? await getUserVoiceId(opts.userId) : null;
+    // A persona may pin its own narration voice (see Persona.lockedVoiceId) — the written register
+    // of some voices only works in one delivery, so that choice wins over Settings.
+    const lockedVoiceId = getPersona(narrationPersona).lockedVoiceId ?? null;
+    const userVoiceId = lockedVoiceId ?? (opts.userId ? await getUserVoiceId(opts.userId) : null);
 
     const tts = await synthesizeSpeech(narrationText, {
       taskType: "notification_narration",
@@ -491,11 +517,40 @@ export async function runFeedbackAnalysis(opts: {
       { latencyMs: Date.now() - t0 }
     );
 
-    const analysisText = message.content
+    let analysisText = message.content
       .filter((b) => b.type === "text")
       .map((b) => b.text)
       .join("");
 
+    // PASS 2, candidate-facing HALF ONLY. A persona voiced by another vendor had to be pinned
+    // neutral for the adjudication itself (resolvePersonaFor), so the ruling is re-voiced here —
+    // but everything after [[INTERNAL]] is read by engineers and parsed by the fix pipeline, so it
+    // is split off, left in plain technical prose, and re-joined afterwards.
+    const feedbackPersona = await getUserPersona((attempt.user_id as number) ?? null);
+    if (needsRestyle(feedbackPersona, "verdict")) {
+      const [facing, ...rest] = analysisText.split("[[INTERNAL]]");
+      const restyled = await restyleForPersona({
+        neutralText: facing.trim(),
+        persona: feedbackPersona,
+        surface: "verdict",
+        client,
+        apiKey,
+        userId: (attempt.user_id as number) ?? null,
+        usage: {
+          taskType: "feedback_analysis_persona_restyle",
+          source: opts.source ?? "user",
+          userId: (attempt.user_id as number) ?? null,
+        },
+      });
+      if (restyled.outcome === "applied") {
+        analysisText = [restyled.text, ...rest].join("\n\n[[INTERNAL]]");
+      } else {
+        console.warn(`[feedback-analysis] restyle not applied: ${restyled.outcome}`);
+      }
+    }
+
+    // Read AFTER the rewrite, deliberately: the recommendation token is machine-parsed, so this
+    // also proves the rewrite did not mangle it. The fingerprint gate guarantees it survived.
     const recommendation = extractRecommendation(analysisText);
 
     // Record the role verdicts BEFORE the "no verdict line" bail-out below.

@@ -6,6 +6,7 @@ import {
   DEFAULT_PERSONA,
   PERSONAS,
   isPersonaId,
+  needsRestyle,
   personaBlock,
   resolvePersonaFor,
   type PersonaSurface,
@@ -183,11 +184,29 @@ describe("pass 1 grades in the neutral voice", () => {
   });
 
   it("leaves conversational surfaces alone — they carry no mark to corrupt", () => {
+    // Except personas voiced by an EXTERNAL vendor, which are neutral on every surface: Anthropic
+    // writes the first pass everywhere, and handing it a voice it will not write buys a refusal or
+    // a limp half-version. Their real voice arrives in the re-voicing pass.
     for (const surface of ["chat", "verdict", "spoken"] as PersonaSurface[]) {
-      for (const p of PERSONAS) {
+      for (const p of PERSONAS.filter((x) => !x.copyProvider)) {
         expect(resolvePersonaFor(p.id, surface), `${p.id}/${surface}`).toBe(p.id);
       }
+      for (const p of PERSONAS.filter((x) => x.copyProvider)) {
+        expect(resolvePersonaFor(p.id, surface), `${p.id}/${surface}`).toBe(DEFAULT_PERSONA);
+      }
       expect(personaBlock("roast", surface)).not.toBe(personaBlock("mentor", surface));
+    }
+  });
+
+  it("still re-voices an external-vendor persona on every surface that has prose", () => {
+    // The corollary of the pinning above: if the first pass is neutral everywhere, the second pass
+    // has to run everywhere, or the candidate silently gets the Tutor and the voice is decorative.
+    for (const p of PERSONAS.filter((x) => x.copyProvider)) {
+      for (const surface of ["grading", "chat", "verdict", "spoken"] as PersonaSurface[]) {
+        expect(needsRestyle(p.id, surface), `${p.id}/${surface}`).toBe(true);
+      }
+      // The 45-word drill line is the one exception — see gradedRestyleEnabled.
+      expect(needsRestyle(p.id, "oneliner")).toBe(false);
     }
   });
 
@@ -214,8 +233,14 @@ describe("pass 1 grades in the neutral voice", () => {
 });
 
 describe("catalog and schema agree", () => {
-  it("accepts exactly the four known ids", () => {
-    expect(PERSONAS.map((p) => p.id).sort()).toEqual(["examiner", "mentor", "roast", "wit"]);
+  it("accepts exactly the known ids", () => {
+    expect(PERSONAS.map((p) => p.id).sort()).toEqual([
+      "examiner",
+      "mentor",
+      "roast",
+      "unhinged",
+      "wit",
+    ]);
     expect(isPersonaId("mentor")).toBe(true);
     expect(isPersonaId("MENTOR")).toBe(false);
     expect(isPersonaId("")).toBe(false);
@@ -223,12 +248,31 @@ describe("catalog and schema agree", () => {
     expect(isPersonaId(undefined)).toBe(false);
   });
 
-  it("matches the CHECK constraint in the migration", () => {
-    // Drift here is a 500 on save, or worse a row the app cannot render. The constraint and the
-    // catalog have to be edited together, so assert it rather than trusting the pairing.
-    const sql = fs.readFileSync(path.join(appDir, "migrations/068_persona.sql"), "utf8");
-    for (const p of PERSONAS) expect(sql, p.id).toMatch(new RegExp(`'${p.id}'`));
-    expect(sql).toMatch(new RegExp(`DEFAULT '${DEFAULT_PERSONA}'`));
+  it("matches the CHECK constraint in the migrations", () => {
+    // Drift here is a 500 on save, or worse a row the app cannot render. Read across EVERY persona
+    // migration rather than the first one: the allowed set is widened by later files (069 added
+    // 'unhinged'), so pinning to 068 would fail the moment a fifth voice shipped — and pinning to
+    // "the newest" would stop noticing if someone widened the catalog without a migration at all.
+    const dir = path.join(appDir, "migrations");
+    const personaSql = fs
+      .readdirSync(dir)
+      .filter((f) => /persona/i.test(f))
+      .map((f) => fs.readFileSync(path.join(dir, f), "utf8"))
+      .join("\n");
+    for (const p of PERSONAS) expect(personaSql, p.id).toMatch(new RegExp(`'${p.id}'`));
+    expect(personaSql).toMatch(new RegExp(`DEFAULT '${DEFAULT_PERSONA}'`));
+
+    // …and the newest constraint must list them ALL, since it replaces its predecessor wholesale.
+    const newest = fs
+      .readdirSync(dir)
+      .filter((f) => /persona/i.test(f))
+      .sort()
+      .pop()!;
+    const latest = fs.readFileSync(path.join(dir, newest), "utf8");
+    const allowed = latest.match(/persona IN \(([^)]*)\)/)?.[1] ?? "";
+    for (const p of PERSONAS) {
+      expect(allowed, `${p.id} missing from ${newest}`).toContain(`'${p.id}'`);
+    }
   });
 
   it("gives every persona the copy the picker renders", () => {
