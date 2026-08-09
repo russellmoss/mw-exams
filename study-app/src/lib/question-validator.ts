@@ -699,6 +699,134 @@ export function flightCompositionViolations(wines: AuditWine[]): Violation[] {
 }
 
 // ---------------------------------------------------------------------------------------------------
+// R-OW-ANCHOR — a multi-country SAME-VARIETY flight of a classic variety must carry an Old World anchor.
+//
+// Mike Juergens, reviewing a four-wine Chardonnay flight (Mendoza + Coonawarra + Casablanca +
+// Marlborough — four different New World countries, no Burgundy, no Napa), rejected it: "if you had a
+// four-wine question that was Chardonnay-based, you would expect to see at least one banker in there,
+// which would be either from Burgundy or from Napa … having four curveballs would be weird."
+//
+// The historical record backs this precisely. EK-0169 (STRONG SIGNAL): every multi-country "same
+// single grape variety" Chardonnay flight in the 2011–2026 corpus carries a Burgundian anchor
+// (Chablis 1er/Grand Cru, Meursault, Corton-Charlemagne, …). An all-New-World same-variety Chardonnay
+// trio or quartet is UNATTESTED across fifteen years of papers. The same holds for the other
+// high-frequency classic WHITE varieties — each has a European home region the exam anchors on, and no
+// all-New-World white same-variety flight exists in the corpus (measured with the wines the Institute
+// actually poured, scripts/corpus-false-positive-rate.mjs → zero hits on white flights).
+//
+// EK-0029/EK-0169 lived as prompt guidance only, so an all-New-World Chardonnay flight passed
+// validation. This rule promotes the constraint to an ENFORCED hard gate (EK-0040/EK-0064/EK-0155:
+// prompt instruction is not enforcement; the gate must run in the serve/audit path, which this does).
+//
+// SCOPE — WHITE varieties only, and this is deliberate. The original proposal wanted the same hard gate
+// for Paper 2 reds (Pinot Noir, Syrah, Cabernet Franc), but the real corpus refutes it for exactly
+// those grapes: 2018 P2 Q2 is a genuine all-New-World Pinot Noir trio (Russian River + Central Otago +
+// Willamette), and 2016 P2 Q2 ("Wines 1-3 are not from France…") anchors on German Ahr Spätburgunder,
+// not Burgundy — the exam explicitly builds Pinot flights that clear France. A hard rule on P2 reds
+// would reject two real past-paper questions, which is the failure mode this codebase measures and
+// refuses (the same reason flight-composition is only ADVISORY over the real corpus). So R-OW-ANCHOR
+// fires only on the classic whites, where the STRONG-SIGNAL pattern is genuinely unbroken. Red flights
+// keep their softer prompt guidance without a hard gate.
+//
+// Trigger: a "same single grape variety" stem over 3+ wines that span 2+ distinct countries and is not
+// a same-country / same-region / subset-scoped question. If the flight's variety has a defined Old
+// World home region and NO wine sits in it, the flight is hard-rejected. Varieties with no listed home
+// (reds, and obscure grapes the exam would not build a comparative flight around) fall through
+// untouched — the rule fails SAFE by only firing on the whites whose anchor is documented in the corpus.
+// ---------------------------------------------------------------------------------------------------
+
+// Each classic WHITE variety's Old World home — the region a candidate MUST have as a fixed reference
+// point in a cross-country flight of that grape. `home` is tested against the wine's region+country+label.
+// For Chardonnay the home is Burgundy SPECIFICALLY (Chablis / Côte d'Or / Mâconnais), matching the
+// unbroken corpus pattern; a New World Chardonnay (Napa, Margaret River, Marlborough, Mendoza) never
+// satisfies it. Reds are intentionally absent — see the SCOPE note above (2018/2016 P2 Q2).
+const OLD_WORLD_ANCHOR_HOMES: { variety: RegExp; home: RegExp; label: string }[] = [
+  // ── High-frequency whites (Paper 1) ──
+  {
+    variety: /chardonnay/,
+    home: /\bchablis\b|\bmeursault\b|puligny|chassagne|montrachet|corton|\bmontagny\b|\brully\b|cote de beaune|cote de nuits|\bbeaune\b|maconnais|\bmacon\b|pouilly-?fuisse|\bpouilly-?vinzelles\b|saint-?veran|\bbourgogne\b|\bburgundy\b/,
+    label: "Burgundy (Chablis, Côte d'Or or Mâconnais) at village/1er cru/Grand Cru level",
+  },
+  {
+    variety: /riesling/,
+    home: /\balsace\b|\bmosel\b|rheingau|\bpfalz\b|\bnahe\b|rheinhessen|\bwachau\b|kamptal|kremstal/,
+    label: "Alsace, the Mosel/Rheingau, or the Wachau",
+  },
+  {
+    variety: /chenin/,
+    home: /vouvray|savennieres|montlouis|\banjou\b|\bsaumur\b|\bloire\b/,
+    label: "the Loire (Vouvray, Savennières or Anjou)",
+  },
+  {
+    variety: /pinot gris|pinot grigio/,
+    home: /\balsace\b/,
+    label: "Alsace",
+  },
+  {
+    variety: /gewurztraminer/,
+    home: /\balsace\b/,
+    label: "Alsace",
+  },
+  {
+    variety: /sauvignon blanc|^sauvignon$|\bsauvignon\b/,
+    home: /\bsancerre\b|pouilly-?fume|menetou-?salon|\bloire\b|\bbordeaux\b|\bgraves\b|pessac/,
+    label: "the Loire (Sancerre / Pouilly-Fumé) or white Bordeaux",
+  },
+  {
+    variety: /viognier/,
+    home: /\bcondrieu\b|chateau-?grillet|\bnorthern rhone\b|\brhone\b/,
+    label: "the Northern Rhône (Condrieu)",
+  },
+  // Reds are DELIBERATELY not listed — the exam sets all-New-World red same-variety flights (2018 P2
+  // Q2 Pinot Noir; 2016 P2 Q2 anchors on German Ahr, not Burgundy). See the SCOPE note above.
+];
+
+/**
+ * R-OW-ANCHOR. A cross-country "same single grape variety" flight of 3+ wines of a classic variety must
+ * include at least one Old World anchor from the variety's European home region. An all-New-World flight
+ * of such a variety has no precedent in the 2011–2026 corpus (EK-0169, STRONG SIGNAL) and is never valid.
+ */
+export function validateOldWorldAnchor(q: QuestionForAudit): Violation[] {
+  const wines = q.wines || [];
+  const n = wines.length;
+  if (n < 3) return []; // a pair is not the multi-country flight shape this rule guards
+
+  const stem = normStem(q.questionText || "");
+  // Only the SAME-variety comparative shape (F1). A "different varieties" flight has no shared anchor.
+  if (!/\bsame single grape variety\b/.test(stem)) return [];
+  // Subset-scoped stems ("wines 1-2 … wines 3-4 …") make each claim about a subset, not the flight —
+  // the same guard the shared cardinality rules use, so a paired stem is not judged as one flight.
+  if (subsetScopedStem(q.questionText, n)) return [];
+  // A same-country / same-region flight is anchored by geography, not by an Old World reference wine.
+  if (/\b(?:the )?same country\b/.test(stem) || /\b(?:the )?same region\b/.test(stem)) return [];
+
+  // The flight must actually span multiple countries — an all-one-country flight is out of scope.
+  const placed = wines.filter((w) => countryOf(w));
+  const distinctCountries = new Set(placed.map(countryOf));
+  if (distinctCountries.size < 2) return [];
+
+  // Resolve the shared variety (the stem asserts one). Use the first resolved primary variety.
+  const flightVariety = wines.map(primaryVariety).find(Boolean) || "";
+  if (!flightVariety) return [];
+  const spec = OLD_WORLD_ANCHOR_HOMES.find((s) => s.variety.test(flightVariety));
+  if (!spec) return []; // variety with no documented Old World home — rule fails safe (does not fire)
+
+  const hasAnchor = wines.some((w) => {
+    const origin = norm(`${w.region || ""} ${w.country || ""} ${w.fullText || ""}`);
+    return spec.home.test(origin);
+  });
+  if (hasAnchor) return [];
+
+  return [
+    {
+      rule: "old-world-anchor",
+      severity: "hard",
+      detail: `all-New-World same-variety flight: a ${n}-wine "same single grape variety" ${flightVariety} flight spanning ${distinctCountries.size} countries carries no Old World anchor from the variety's home region (${spec.label}). Every multi-country same-variety flight of a classic variety in the 2011–2026 corpus includes such an anchor (EK-0169); an all-New-World flight has no precedent and leaves the candidate no fixed reference point. Replace one wine with a ${spec.label} example.`,
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------------------------------
 // RARITY BUDGET & FORTIFIED CATEGORY INTEGRITY — three validated Paper-3 signals (fb_254, fb_241,
 // fb_55) that all reduce to "ultra-rare / no-precedent fortified & oxidative wines used as flight
 // fillers". The wine knowledge lives in db.ts (WINE_RARITY_TIERS, FORTIFIED_CATEGORY_INTEGRITY) so an
@@ -2965,6 +3093,12 @@ export function validateQuestion(
   violations.push(
     ...flightCompositionViolations(q.wines).map((v) => ({ ...v, severity: "soft" as const }))
   );
+  // R-OW-ANCHOR stays HARD in every path (unlike flight-composition, which is advisory here). An
+  // all-New-World same-variety flight of a classic variety has NO precedent in the 2011–2026 corpus
+  // (EK-0169, STRONG SIGNAL), so — unlike a curveball-heavy flight the Institute occasionally sets —
+  // there are no real-exam false positives to trade against. It is WINE-side (the fix is "add an Old
+  // World anchor wine"), so it runs even when the stem is a verbatim past-paper import.
+  violations.push(...validateOldWorldAnchor(q));
   // Rarity budget, exam-precedent blocklist and fortified category integrity are all WINE-side (they
   // turn on the choice/keying of the wines, not the stem's wording), so they run even on a fixed stem.
   violations.push(...validateRarityBudget(q));

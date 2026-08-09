@@ -793,6 +793,27 @@ So: if you have picked three European wines, replace one with a credible New Wor
 still fits the stem — a Central Otago Pinot against Burgundy, a Swartland Chenin against Vouvray, an
 Eden Valley Riesling against the Mosel. This is checked and a single-world flight is rejected.
 
+MANDATORY OLD WORLD ANCHOR — classic WHITE varieties (F1 same-variety flights, 3+ countries — EK-0169,
+STRONG SIGNAL). Any "same single grape variety" flight of a classic WHITE variety spanning 3 or more
+countries MUST include at least one Old World anchor wine from the variety's classic European home
+region:
+- Chardonnay → Burgundy (Chablis, Côte d'Or or Mâconnais) at village / 1er Cru / Grand Cru level, e.g.
+  Meursault, Puligny-Montrachet 1er Cru, or a Chablis 1er/Grand Cru. A New World Chardonnay (Napa,
+  Margaret River, Marlborough, Mendoza) does NOT satisfy this — the anchor must be Burgundian.
+- Riesling → Alsace Grand Cru, a Mosel Kabinett/Auslese, or a Wachau Smaragd.
+- Chenin Blanc → the Loire (Vouvray, Savennières or Anjou).
+- Pinot Gris → Alsace.
+An all-New-World same-variety flight of any classic white variety has NO PRECEDENT in the 2011–2026
+exam corpus and must NEVER be generated: the exam always gives the candidate a Burgundian (or
+home-region) reference point to calibrate the harder wines against. A blocking validator rejects any
+3+-country same-variety WHITE flight with no such anchor.
+
+For same-variety RED flights (Pinot Noir, Syrah, Cabernet Franc) the Old World home is the natural
+banker too (Burgundy, the Northern Rhône, the Loire), so prefer to include one — but this is a
+PREFERENCE, not a hard block: the exam does occasionally set an all-New-World red trio (2018 Paper 2 Q2
+was three New World Pinot Noirs), so a red flight without a European anchor is allowed where the wines
+are otherwise credible.
+
 ## MARK EMPHASIS FOR THIS PAPER (match the modern 2018–2025 shape — EK-0098)
 ${markEmphasis}
 Across any paper: identification parts (any sub-question whose text says "Identify the grape variety /
