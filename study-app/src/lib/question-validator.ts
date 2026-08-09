@@ -3579,14 +3579,26 @@ export async function regenerateFeedbackOnce(
 // nice to have model answers").
 //
 // This rule is the mechanical gate the analysis loop asked for. It fails a question whose payload
-// carries NO model answer, and — because a half-written answer is as ungradeable as a missing one on
-// the parts it skips — a question whose model answer does not carry a non-empty prose block for EVERY
-// lettered sub-part (a, b, c …) named in the stem. Each sub-part's block must reach
-// MODEL_ANSWER_SUBPART_MIN_CHARS characters of prose; anything thinner is treated as "not written".
+// carries NO model answer, and a question whose model answer never ADDRESSES a lettered sub-part
+// (a, b, c …) of its stem. Coverage is judged the way AC5 (answer-subpart-coverage in
+// answer-content-rules.mjs) was calibrated, because the bank's answers vary in ORGANISATION, not
+// just completeness:
+//   - a letter labelled at line start counts when its block is non-empty. There is deliberately NO
+//     per-block prose floor: identification asks are CORRECTLY one line ("**b)** Côte de Nuits,
+//     Burgundy, France", "d) State the level of alcohol" → "13.5%"), and a floor flagged complete
+//     per-wine answers on exactly those parts;
+//   - a letter never labelled at line start still counts as addressed when its label appears
+//     mid-heading — real answers merge parts ("## Wine 1 — a) Region…", "## a) … and b) …");
+//   - an answer that references NO letters at all is organised per-wine (measured on ~15% of the
+//     bank, all otherwise-fine answers) — structure variance, not missing content. It is held to
+//     the whole-answer stub floor only.
+// Blast-radius calibration on the live bank, 2026-08-09: the strict per-block-floor reading flagged
+// 132 banked questions, ~119 of them complete answers in the shapes above; this reading flags only
+// answers with a sub-part absent in every form, plus the genuinely answerless rows (fb_427's bug).
 // The rule reads the payload only — it never touches question content — so it is safe to run on the
 // serve path (question-engine.ts consumes it there) and in the corpus audit.
 
-/** Minimum prose length, in characters, for a lettered sub-part's model-answer block to count as written. */
+/** Minimum characters for a model answer WITH NO sub-part structure to count as written at all. */
 export const MODEL_ANSWER_SUBPART_MIN_CHARS = 150;
 
 // The lettered sub-question labels a stem actually poses — "a)", "b)", "(c)" … — in first-seen order,
@@ -3630,8 +3642,8 @@ export function modelAnswerSubpartBlocks(modelAnswer: string): Map<string, strin
 
 /**
  * validateModelAnswerPresent — a HARD gate: a question with no model answer, or a model answer that
- * fails to cover every lettered sub-part of its stem with >= MODEL_ANSWER_SUBPART_MIN_CHARS characters
- * of prose, is not servable. Reads q.modelAnswer + q.questionText only.
+ * skips a lettered sub-part of its stem (see the coverage calibration above), is not servable.
+ * Reads q.modelAnswer + q.questionText only.
  *
  * When the stem poses no lettered sub-parts (a bare single-ask), the whole answer is the one block and
  * it must itself clear the character floor — a one-line stub is still ungradeable.
@@ -3664,7 +3676,37 @@ export function validateModelAnswerPresent(q: QuestionForAudit): Violation[] {
   }
 
   const blocks = modelAnswerSubpartBlocks(answer);
-  const missing = letters.filter((l) => (blocks.get(l)?.length ?? 0) < MODEL_ANSWER_SUBPART_MIN_CHARS);
+  // Same letter shape AC5 accepts: the label after any whitespace/paren/heading/bold marker, anywhere
+  // in a line — a mid-heading "… and b) Grape variety" is addressing b), not skipping it. The label
+  // must be followed by content on its line: a bare "c)" with nothing after it is a placeholder.
+  const addressedAnywhere = (letter: string) =>
+    new RegExp(`(?:^|[\\s(>#*])\\(?${letter}\\)[ \\t]*\\S`, "im").test(answer);
+  // A letter with a line-start block is covered when the block is non-empty (a bare "b)" label with
+  // nothing after it is a placeholder, not an answer); a letter without one is judged by tolerant
+  // presence. No prose floor on blocks — identification asks are correctly one line (see above).
+  const covered = (l: string) => {
+    const block = blocks.get(l);
+    if (block !== undefined) return block.length > 0;
+    return addressedAnywhere(l);
+  };
+  const missing = letters.filter((l) => !covered(l));
+  // No letter appears anywhere in any form: the per-wine organisational shape. Content-complete
+  // answers legitimately take it, so only the whole-answer stub floor applies.
+  if (
+    missing.length === letters.length &&
+    letters.every((l) => !blocks.has(l) && !addressedAnywhere(l))
+  ) {
+    if (answer.length < MODEL_ANSWER_SUBPART_MIN_CHARS) {
+      return [
+        {
+          rule: "model-answer-incomplete",
+          severity: "hard",
+          detail: `model answer is only ${answer.length} characters — below the ${MODEL_ANSWER_SUBPART_MIN_CHARS}-character floor for a gradeable answer. It reads as a stub, not a model answer.`,
+        },
+      ];
+    }
+    return [];
+  }
   if (missing.length > 0) {
     return [
       {
@@ -3674,7 +3716,7 @@ export function validateModelAnswerPresent(q: QuestionForAudit): Violation[] {
           missing.length > 1 ? "s" : ""
         } ${missing.map((l) => `"${l})"`).join(", ")} ${
           missing.length > 1 ? "are" : "is"
-        } missing or below ${MODEL_ANSWER_SUBPART_MIN_CHARS} characters of prose. A candidate served this question could not be graded on ${
+        } never addressed anywhere in the answer. A candidate served this question could not be graded on ${
           missing.length > 1 ? "those parts" : "that part"
         }.`,
       },

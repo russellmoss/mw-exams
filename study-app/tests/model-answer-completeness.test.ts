@@ -8,10 +8,7 @@
 // the mechanical gate: no answer, or an answer that skips a sub-part, is not servable. The engine's
 // bankedServeRejection consumes it so such a row never reaches a candidate.
 import { describe, it, expect } from "vitest";
-import {
-  validateModelAnswerPresent,
-  MODEL_ANSWER_SUBPART_MIN_CHARS,
-} from "../src/lib/question-validator";
+import { validateModelAnswerPresent } from "../src/lib/question-validator";
 import type { QuestionForAudit } from "../src/lib/question-validator";
 import { bankedServeRejection, filterValidBanked } from "../src/lib/question-engine";
 import type { GeneratedQuestion } from "../src/lib/db";
@@ -62,17 +59,49 @@ describe("validateModelAnswerPresent — sub-part coverage", () => {
     }
   });
 
-  it("fails when a covered sub-part is only a stub below the character floor", () => {
+  it("accepts a short but present sub-part block — identification asks are correctly one line", () => {
+    // "b) Côte de Nuits, Burgundy, France" is a COMPLETE answer to "identify the region (5 marks)".
+    // A per-block prose floor flagged fully-correct per-wine answers on exactly this shape
+    // (calibrated on the live bank 2026-08-09), so brevity alone must not fail the gate.
     const answer = `${block("a")}\n\n${block("b")}\n\nc) Nebbiolo.`;
+    expect(validateModelAnswerPresent(baseQuestion(answer))).toEqual([]);
+  });
+
+  it("fails when a sub-part is only a bare label with nothing after it", () => {
+    const answer = `${block("a")}\n\n${block("b")}\n\nc)   \n`;
     const v = validateModelAnswerPresent(baseQuestion(answer));
-    expect(v.some((x) => x.rule === "model-answer-incomplete")).toBe(true);
+    expect(v.some((x) => x.rule === "model-answer-incomplete" && x.severity === "hard")).toBe(true);
     expect(v[0].detail).toContain('"c)"');
-    expect("c) Nebbiolo.".length).toBeLessThan(MODEL_ANSWER_SUBPART_MIN_CHARS);
   });
 
   it("tolerates markdown decoration around the sub-part labels (**a)**, ### b), - c))", () => {
     const answer = `**${block("a")}\n\n### ${block("b")}\n\n- ${block("c")}`;
     expect(validateModelAnswerPresent(baseQuestion(answer))).toEqual([]);
+  });
+
+  // The two organisational shapes the bank legitimately uses (AC5's calibration, re-measured on the
+  // live bank 2026-08-09: 119 of 132 blocks-only flags were complete answers in these shapes).
+
+  it("accepts a letter addressed mid-heading (per-wine merges: '## Wine 1 — a) Region…')", () => {
+    const answer =
+      `## Wine 1 — a) Region and Variety (8 marks)\n\n${block("b").slice(3)}\n\n` +
+      `## Wine 2 — a) Region and Variety (8 marks)\n\nMore full prose here weighing the calls.\n\n` +
+      `### ${block("b")}\n\n### ${block("c")}`;
+    expect(validateModelAnswerPresent(baseQuestion(answer))).toEqual([]);
+  });
+
+  it("accepts a per-wine answer that references no letters at all (structure variance, not a gap)", () => {
+    const answer =
+      `## Wine 1 — Nahe, Germany\n\nCrushed flint and electric acidity lock the variety as Riesling; ` +
+      `the origin call weighs Mosel and Rheingau before landing on the Nahe on dry extract and muscle.\n\n` +
+      `## Wine 2 — Eden Valley, Australia\n\nLime-cordial fruit with toasty development and screwcap-era ` +
+      `precision; quality is very good with the concentration and length for mid-term ageing.`;
+    expect(validateModelAnswerPresent(baseQuestion(answer))).toEqual([]);
+  });
+
+  it("still fails a letterless answer that is only a stub", () => {
+    const v = validateModelAnswerPresent(baseQuestion("Riesling, Germany. Good quality."));
+    expect(v.some((x) => x.rule === "model-answer-incomplete" && x.severity === "hard")).toBe(true);
   });
 });
 
