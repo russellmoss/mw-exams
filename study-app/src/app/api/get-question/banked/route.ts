@@ -1,10 +1,15 @@
 import { getUser } from "@/lib/auth";
 import {
   getEligibleBankedQuestions,
+  getUserExcludedFlightSignatures,
   recordQuestionView,
   incrementTimesServed,
 } from "@/lib/db";
-import { filterValidBanked, sanitizeQuestionMetadata } from "@/lib/question-engine";
+import {
+  filterValidBanked,
+  filterExcludedFlightSignatures,
+  sanitizeQuestionMetadata,
+} from "@/lib/question-engine";
 
 export const runtime = "nodejs";
 
@@ -38,7 +43,20 @@ export async function POST(request: Request) {
     // so a question whose violation had never been recorded (R-COLOUR did not run in the audit, so
     // wrong-colour rows were never marked) was served straight to the candidate. It is the reason a
     // Hermitage could appear in a Paper 1 flight even after the audit was fixed.
-    const eligible = filterValidBanked(await getEligibleBankedQuestions(user.id, paper, family));
+    // Per-user FLIGHT-level exclusion (feedback cluster: identical flights re-served, incl. rejected):
+    // drop any banked question whose (paper, family, wine-set) signature this user was served in the
+    // last 90 days or has ever rejected. Empty pool → 409, so the client nudges toward New Question —
+    // i.e. it generates a fresh flight rather than replaying a duplicate. Best-effort lookup.
+    const excludedFlightSignatures = await getUserExcludedFlightSignatures(user.id, paper).catch(
+      (err) => {
+        console.error("getUserExcludedFlightSignatures failed (non-fatal):", err);
+        return new Set<string>();
+      }
+    );
+    const eligible = filterExcludedFlightSignatures(
+      filterValidBanked(await getEligibleBankedQuestions(user.id, paper, family)),
+      excludedFlightSignatures
+    );
     if (eligible.length === 0) {
       return Response.json({ reason: "empty" }, { status: 409 });
     }

@@ -16,6 +16,8 @@ import {
   getRecentFlightSignatures,
   getRecentFlightSizes,
   flightSignature,
+  computeFlightSignature,
+  flightSignatureOfQuestion,
   wineCooldownId,
   RECENT_WINE_WINDOW,
   RECENT_FLIGHT_WINDOW,
@@ -913,6 +915,23 @@ export const MAX_DEDUP_REGENERATIONS = 3;
  * rather than serve a duplicate. `regenerations` is how many redraws it took (0 = the first draft was
  * already novel).
  */
+/**
+ * Per-user FLIGHT-level dedup (feedback cluster: identical flights re-served, including ones the user
+ * already rejected). Drop every banked question whose flight signature is on this user's exclusion
+ * set — anything they were served in the last 90 days, or ever rejected (see
+ * getUserExcludedFlightSignatures). Pure over the pool + the pre-computed set so the serve behaviour
+ * is unit-testable without a database: serving one question and adding its signature to `excluded`
+ * removes EVERY other banked question that keys the identical wine set, so a differently-worded
+ * duplicate of a just-served flight can never be the next serve.
+ */
+export function filterExcludedFlightSignatures(
+  pool: GeneratedQuestion[],
+  excluded: Set<string>
+): GeneratedQuestion[] {
+  if (!excluded || excluded.size === 0) return pool;
+  return pool.filter((q) => !excluded.has(flightSignatureOfQuestion(q)));
+}
+
 export function selectNovelFlight(
   generate: (attempt: number) => { fullText: string }[],
   recentWineIds: Set<string>,
@@ -1038,7 +1057,13 @@ export async function generateFreshQuestion(
   variety?: string | null,
   // Bank Health "Generate more like this" soft-constraint aim. Threaded into the prompt as
   // preferences (never as scope-breaking rules); undefined on every normal generation path.
-  targeting?: BankTargeting | null
+  targeting?: BankTargeting | null,
+  // Per-user FLIGHT-level exclusion (feedback cluster: identical flights re-served, incl. rejected).
+  // The (paper, family, wine-set) signatures this user was recently served or has ever rejected, so a
+  // FRESH generation cannot recreate one — a redrawn draft whose signature is in here is treated as a
+  // duplicate and redrafted, exactly like the paper-recency signature collision. Undefined on paths
+  // with no user context (the flight-choice dedup then runs on the paper-recency guards alone).
+  excludedFlightSignatures?: Set<string>
 ) {
   const client = new Anthropic({ apiKey });
 
@@ -1630,12 +1655,23 @@ ${repairContext.draft}`,
         null;
       const candidateSignature = flightSignature(candidate.wines);
       const signatureCollision = recentFlightSignatures.has(candidateSignature);
-      if (reusedWine || signatureCollision) {
+      // Per-user FLIGHT-level exclusion (feedback cluster): a fresh generation must not recreate a
+      // flight this user was recently served or has ever rejected. Keyed on the exact (paper, family,
+      // wine-set) signature, so a rejected flight cannot come back through a fresh draw.
+      const userFlightSig = computeFlightSignature(paper, candidate.family, candidate.wines);
+      const userFlightCollision = excludedFlightSignatures?.has(userFlightSig) ?? false;
+      if (reusedWine || signatureCollision || userFlightCollision) {
         dedupCollisions++;
-        const ruleName = reusedWine ? "dedupWine" : "dedupSignature";
+        const ruleName = reusedWine
+          ? "dedupWine"
+          : userFlightCollision && !signatureCollision
+            ? "dedupUserFlight"
+            : "dedupSignature";
         const reason = reusedWine
           ? `reuses a wine seen within the last ${RECENT_WINE_WINDOW} questions for paper ${paper}`
-          : `repeats the region/variety/style signature of a question within the last ${RECENT_FLIGHT_WINDOW} for paper ${paper}`;
+          : userFlightCollision && !signatureCollision
+            ? `recreates a flight this user was recently served or has rejected`
+            : `repeats the region/variety/style signature of a question within the last ${RECENT_FLIGHT_WINDOW} for paper ${paper}`;
         lastViolations = [`Duplicate flight: ${reason}`];
         console.error(
           `Generation attempt ${attempt}/${MAX_ATTEMPTS} duplicate flight (${dedupCollisions}/${MAX_DEDUP_REGENERATIONS} regenerations): ${reason}`
@@ -2044,7 +2080,12 @@ ${repairContext.draft}`,
     }
     console.error("All generation attempts failed, falling back to a banked question");
     emit?.({ type: "status", label: "Generation didn't converge — serving a validated banked question…" });
-    const allFallback = filterValidBanked(await getQuestionsByFilter(paper));
+    // Never serve a flight this user was recently served or ever rejected — even as a generation-
+    // failure fallback (the whole point of this cluster is to stop replaying a rejected flight).
+    const allFallback = filterExcludedFlightSignatures(
+      filterValidBanked(await getQuestionsByFilter(paper)),
+      excludedFlightSignatures ?? new Set()
+    );
     const unseen = recentlyServedIds
       ? allFallback.filter((q) => !recentlyServedIds.has(q.question_id))
       : allFallback;
