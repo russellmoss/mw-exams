@@ -32,8 +32,12 @@ on:
 permissions:
   contents: read
 
+# Shared with corpus-reaudit.yml, which runs the same `audit-questions.mjs --apply` on a rule-touching
+# push to master. Two concurrent --apply passes would race on invalid_reasons — one quarantining while
+# the other clears. Not cancel-in-progress: a half-finished sweep leaves the bank partly re-verdicted,
+# which is worse than the second run waiting.
 concurrency:
-  group: question-audit-daily
+  group: corpus-audit-apply
   cancel-in-progress: false
 
 jobs:

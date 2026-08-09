@@ -1,0 +1,97 @@
+# corpus-reaudit.yml — re-verdict the whole bank whenever the RULES change, whoever merged them.
+#
+# WHY THIS IS NOT A STEP IN auto-feedback.yml (it used to be). That workflow re-audited after landing a
+# change, gated on `steps.merge.outputs.merged == '1'` — i.e. only when the bot merged the change
+# ITSELF. A change that is PR-gated for human review skipped it, and nothing re-ran once the human
+# merged the PR. PR-gating is decided by Kind, and the Kinds that get PR-gated are `generation` and
+# `validator` — precisely the changes whose whole point is to re-verdict the corpus. The mechanism was
+# inverted: the merges that needed a sweep were the ones that didn't get one.
+#
+# Measured on 2026-08-09: R-OW-ANCHOR merged at 13:50 UTC via PR #128 and the bank was not re-audited.
+# The daily sweep had run at 07:37, so 17 questions carrying the newly-caught defect stayed servable —
+# and stayed in the reviewer's queue, which reads the quarantine COLUMN rather than running the
+# validator (servableWhere() in question-review.ts). The reviewer who reported the defect would have
+# kept being shown it for another sixteen hours.
+#
+# Keying on the PUSH to master and on the FILES it touched fixes both halves: it does not care who
+# merged, and it cannot fire on a merge that changed nothing relevant.
+#
+# No deployment is created (no Vercel involvement, no git writes), so this costs nothing against the
+# Hobby-plan deploy quota — the same reason question-audit-daily.yml is a GitHub schedule and not a
+# Vercel cron. It shares that workflow's concurrency group so the two can never apply at once.
+
+name: corpus-reaudit
+
+on:
+  push:
+    branches: [master]
+    paths:
+      # Rule changes: re-verdict every question.
+      - "study-app/src/lib/question-validator.ts"
+      - "study-app/src/lib/question-rules.mjs"
+      - "study-app/src/lib/question-engine.ts"
+      - "study-app/src/lib/answer-content-rules.mjs"
+      - "study-app/scripts/audit-questions.mjs"
+      # Answer-key data/builder changes: a key rebuild, without which the change is inert.
+      - "study-app/scripts/build-stem-answer-keys.mjs"
+      - "study-app/src/lib/stem-answer-key.ts"
+      - "data/stem_proprietary_blends*"
+      - "data/stem_style_lexicon*"
+      - "data/variety_lexicon*"
+      - "data/appellation_varieties*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Shared with question-audit-daily: both call audit-questions.mjs --apply, and two concurrent --apply
+# passes would race on invalid_reasons. Not cancel-in-progress — a half-finished sweep leaves the bank
+# partly re-verdicted, which is worse than waiting.
+concurrency:
+  group: corpus-audit-apply
+  cancel-in-progress: false
+
+jobs:
+  reaudit:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install app dependencies
+        working-directory: study-app
+        run: npm ci
+
+      - name: What changed
+        id: changed
+        run: |
+          CHANGED=$(git diff --name-only HEAD^ HEAD || true)
+          echo "changed files:"; echo "$CHANGED"
+          if echo "$CHANGED" | grep -qE 'stem_proprietary_blends|stem_style_lexicon|variety_lexicon|appellation_varieties|build-stem-answer-keys|stem-answer-key'; then
+            echo "keys=1" >> "$GITHUB_OUTPUT"
+          fi
+          if echo "$CHANGED" | grep -qE 'question-rules|question-validator|question-engine|answer-content-rules|audit-questions'; then
+            echo "rules=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Keys first: the audit reads ground_truth from stem_answer_keys, so re-auditing against a stale
+      # key would verdict the corpus on data the same push just changed.
+      - name: Rebuild stem answer keys
+        if: steps.changed.outputs.keys == '1'
+        working-directory: study-app
+        run: node scripts/build-stem-answer-keys.mjs
+
+      # ts-loader is mandatory — question-validator.ts imports "./tasting-validators" extensionless and
+      # plain node cannot resolve it. Running without it is how the nightly sweep went dark on
+      # 2026-08-07, silently and with a green tick. See question-audit-daily.yml.
+      - name: Re-audit corpus (quarantine + clear stale flags)
+        if: steps.changed.outputs.rules == '1' || steps.changed.outputs.keys == '1'
+        working-directory: study-app
+        run: node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs --apply
