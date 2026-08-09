@@ -63,11 +63,24 @@ const rows = await sql`
 let hardCount = 0, softCount = 0, quarantined = 0, setScored = 0, unkeyed = 0, unkeyedCleared = 0;
 const byRule = {};
 
-// The rules an UNKEYED row is actually evaluated on: the ground-truth-independent set, plus the serve
-// gate (which runs on every row regardless of key). A flag naming only these is one this pass could
-// have re-set, so finding the row clean is real evidence the flag is stale. A flag naming anything
-// else was written by an evaluation this pass cannot reproduce, and is left alone.
-const UNKEYED_EVALUATED_RULES = new Set([...GROUND_TRUTH_INDEPENDENT_RULES, "serve-gate"]);
+// R-SCOPE (scope_header_ask_mismatch, EK-0172) reads ONLY the stem wording and the wine COUNT — never a
+// resolved variety/region/country — so its verdict is byte-identical keyed or unkeyed. Unlike the other
+// stem-independent rules it does NOT live in the shared applyQuestionRules layer (it is in
+// question-validator.ts), so GROUND_TRUTH_INDEPENDENT_RULES — which is derived from that layer — cannot
+// name it. Enumerate it here so unkeyed rows are still gated on it; without this the very question the
+// rule was written for (gen_p1_F4_1786073249209, unkeyed) would have its violation filtered away.
+const STEM_ONLY_INDEPENDENT_RULES = ["scope_header_ask_mismatch"];
+
+// The rules an UNKEYED row is actually evaluated on: the ground-truth-independent set, the stem-only
+// independent rules above, plus the serve gate (which runs on every row regardless of key). A flag
+// naming only these is one this pass could have re-set, so finding the row clean is real evidence the
+// flag is stale. A flag naming anything else was written by an evaluation this pass cannot reproduce,
+// and is left alone.
+const UNKEYED_EVALUATED_RULES = new Set([
+  ...GROUND_TRUTH_INDEPENDENT_RULES,
+  ...STEM_ONLY_INDEPENDENT_RULES,
+  "serve-gate",
+]);
 
 function clearableUnkeyed(reasons) {
   if (!Array.isArray(reasons) || reasons.length === 0) return false;
@@ -122,7 +135,10 @@ for (const r of rows) {
   // nobody has resolved. Enforcing the full set here would quarantine most of the bank over nothing.
   // GROUND_TRUTH_INDEPENDENT_RULES is derived from that same two-way comparison — see the note on it
   // in question-rules.mjs and tests/ground-truth-independent-rules.test.ts, which re-derives it.
-  if (!hasKey) hardAll = hardAll.filter((x) => GROUND_TRUTH_INDEPENDENT_RULES.includes(x.rule));
+  if (!hasKey)
+    hardAll = hardAll.filter(
+      (x) => GROUND_TRUTH_INDEPENDENT_RULES.includes(x.rule) || STEM_ONLY_INDEPENDENT_RULES.includes(x.rule)
+    );
 
   // SERVE-GATE PARITY. filterValidBanked refuses questions at serve time that the SQL eligibility
   // predicate happily counts, so the "N available" on the setup card overstated the pool by 36 of 409
