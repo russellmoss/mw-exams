@@ -15,9 +15,6 @@
 
 import { neon } from "@neondatabase/serverless";
 import { getAnswerKeyGroundTruths, type GeneratedQuestion } from "@/lib/db";
-// The SAME gate the candidate serve path runs. Imported rather than reimplemented so the reviewer and
-// the candidate can never be shown different sets — see applyServeGate below.
-import { bankedServeRejection } from "@/lib/question-engine";
 import { getAppVersion } from "@/lib/app-version";
 import { verdictFromGroundTruth, type QuestionVerdict } from "@/lib/question-verdict";
 import {
@@ -486,6 +483,16 @@ async function applyServeGate(
   candidates: GeneratedQuestion[],
   want: number
 ): Promise<GeneratedQuestion[]> {
+  // Imported HERE, not at module scope. bankedServeRejection lives in question-engine, a 3,000-line
+  // module that pulls the pipeline context, the appellation resolver and the whole generation stack in
+  // behind it. A static import made every consumer of question-review pay for that — the vote route,
+  // the prefs route and the shared helpers, none of which run the gate — and it showed up as the
+  // composeReviewFeedback test timing out at five seconds on the import alone. Deferring it to the one
+  // function that actually needs it keeps the weight on the queue path, where it is unavoidable.
+  //
+  // Still the SAME function the candidate serve path runs, never a reimplementation: the reviewer and
+  // the candidate must not be shown different sets.
+  const { bankedServeRejection } = await import("@/lib/question-engine");
   const sql = db();
   const kept: GeneratedQuestion[] = [];
   for (const q of candidates) {
