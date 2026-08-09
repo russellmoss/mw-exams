@@ -2951,6 +2951,18 @@ function validateMarkAllocation(questionText: string, wineCount?: number): { val
     }
   }
 
+  // Whole marks only. Fractional tokens can sum to a "clean" total ("2 x 12.5 marks" = 25), so they
+  // are rejected on their own, not just through the total. Until the shared regex matched decimals
+  // (2026-08-09) these were invisible — "(2 x 7.5 marks)" shipped twice, printing 65 marks over 2
+  // wines while this check totalled the visible integer tokens to exactly 50.
+  for (const t of tokens) {
+    if (t.fractional) {
+      violations.push(
+        `Sub-question "${t.raw}" awards fractional marks (${t.perUnit} per unit). The MW exam awards whole marks only — re-allocate to integers summing to 25 per wine.`
+      );
+    }
+  }
+
   // The 5-mark floor on written sub-questions, checked on the PER-UNIT value in every notation:
   // 4 in "(3 x 4 marks)", and equally 4 in a bare "(4 marks)" under "For each wine:".
   for (const t of tokens) {
@@ -3313,6 +3325,10 @@ export function normalizeMarkAllocation(text: string, wineCount: number): string
   // wine:" + "(15 marks)") totalled short here and got a sub-question silently rewritten.
   const { tokens, total } = expandMarkTokens(text, wineCount);
   if (!tokens.length) return text; // no marks → engine defaults to 100; leave
+  // A stem with a fractional token is never repaired: rebalancing the OTHER parts around "(2 x 7.5
+  // marks)" would produce a verified-correct total with the half marks still in it. Leave it for
+  // validateMarkAllocation's fractional rule to reject outright.
+  if (tokens.some((t) => t.fractional)) return text;
   if (total === expected) return text;
   const delta = expected - total;
 
