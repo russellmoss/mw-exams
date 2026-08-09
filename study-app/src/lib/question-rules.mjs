@@ -805,7 +805,14 @@ export function sweetnessOutOfPaperViolations(paper, questionText) {
 // used to live: this file is plain .mjs imported by plain-node scripts, so it cannot import a .ts
 // module, and the rule below needs the list. producer.ts re-exports it, so every existing importer
 // (question-engine's generation exclusion list, the admin bank-health UI) is unchanged.
-export const REVIEWER_EXCLUDED_PRODUCERS = ["Domaine Weinbach", "Seppeltsfield"];
+// "Samos" is deliberately the bare word, not "Samos Co-operative": the house has been banked under
+// four spellings ("Samos Co-operative", "Samos Union Cooperatives", "Samos Union of Winemaking
+// Cooperatives", "Samos Union of Cooperatives"), and only the shared head survives all of them.
+// The reviewer's instruction was categorical ("just eliminate it — it's not valid for the MW exam",
+// question_reviews on hist_2023_p3_q4, 2026-08-09), and Samos Muscat is the only wine context in
+// which the word appears, so the blunt needle has no innocent bystanders. Corpus check: no Samos
+// wine appears in any 2011–2025 paper.
+export const REVIEWER_EXCLUDED_PRODUCERS = ["Domaine Weinbach", "Seppeltsfield", "Samos"];
 
 // Generic house-title prefixes. "Domaine Weinbach" must also match a label that says only
 // "Weinbach, Riesling Cuvée Théo" — the title is not the identity, and comma-less labels routinely

@@ -2490,6 +2490,14 @@ export const NICHE_WINE_STYLES: NicheStyle[] = [
     // Region + style: Gewurztraminer specifically from Alsace, since the complaint is Alsace Gewurz.
     test: (t) => /gew[uü]rztraminer/i.test(t) && /\balsace\b/i.test(t),
   },
+  {
+    id: "dry-white-port",
+    label: "Dry White Port",
+    // Never appeared in any 2011–2025 paper (reviewer flag on hist_2024_p3_q3, 2026-08-09; the
+    // corpus's Port asks are Vintage, Tawny/Colheita, LBV and Ruby). Capped rather than producer-
+    // banned: the houses that make it (Churchill's etc.) are legitimate for their other Ports.
+    test: (t) => /\bwhite\s+port\b/i.test(t),
+  },
 ];
 
 // The niche style ids a single wine descriptor matches (usually 0 or 1).
