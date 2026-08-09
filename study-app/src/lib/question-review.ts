@@ -97,10 +97,21 @@ function queueOrder(order: ReviewOrder, reviewerParam: string): string {
   if (order === "random") {
     return `ORDER BY md5(generated_questions.question_id || ${reviewerParam}::text)`;
   }
+  // Paper × family grouping is the point of this order — the walk works one block at a time and the
+  // UI renders a block-complete interstitial against it. What is NOT the point is the old
+  // `created_at DESC` tiebreaker, which sorted a block into GENERATION BATCHES: questions written
+  // seconds apart by one run arrived back to back, so a reviewer met four variations on one idea in a
+  // row. Mike Juergens binned gen_p1_F2_1786074180419 with "this is the same as the question I just
+  // saw and rejected" — and it was not the same question (that one was Spanish, this one three
+  // Marlborough whites), it was the next card off the same batch with the same shape.
+  //
+  // The tiebreaker is now a per-reviewer hash, which interleaves batches while staying deterministic —
+  // this queue has no cursor and relies on a stable order to resume where the reviewer left off.
+  // served_count still leads, so the questions candidates actually meet are still reviewed first.
   return `ORDER BY generated_questions.paper,
                   generated_questions.family,
                   generated_questions.served_count DESC NULLS LAST,
-                  generated_questions.created_at DESC,
+                  md5(generated_questions.question_id || ${reviewerParam}::text),
                   generated_questions.question_id`;
 }
 

@@ -149,6 +149,14 @@ describe("queue SQL", () => {
     expect(lib).toMatch(/served_count DESC NULLS LAST/);
   });
 
+  it("does not sort a block by creation time, which served generation batches back to back", () => {
+    // Mike Juergens binned gen_p1_F2_1786074180419 as "the same as the question I just saw and
+    // rejected". It was a different question; it was the next card off the same generation batch,
+    // because created_at DESC sorted each block into batches. The tiebreaker is a hash now.
+    const groupedOrder = lib.slice(lib.indexOf("return `ORDER BY generated_questions.paper"));
+    expect(groupedOrder.slice(0, 400)).not.toMatch(/created_at DESC/);
+  });
+
   it("breaks ties on question_id so the order is total", () => {
     // Without a total order, two rows with equal served_count and created_at can swap between
     // fetches — the reviewer sees one card twice and never sees the other.
@@ -273,6 +281,11 @@ describe("migration 067", () => {
   it("indexes the block walk on the same predicate the queue filters by", () => {
     // A partial index whose WHERE drifts from servableWhere() silently stops being used, and the
     // queue degrades to a full scan of 942 rows on every card.
+    //
+    // The index's SORT tail no longer matches the query's: the grouped order now breaks ties on
+    // md5(question_id || reviewer), which is per-reviewer and cannot be indexed. That is deliberate and
+    // cheap — the index still supplies the WHERE and the leading (paper, family, served_count) keys,
+    // and what remains to sort in memory is one paper × family block, not the bank.
     const text = sql();
     expect(text).toMatch(/CREATE INDEX IF NOT EXISTS idx_generated_questions_review_blocks/);
     expect(text).toMatch(/\(paper, family, served_count DESC, created_at DESC, question_id\)/);

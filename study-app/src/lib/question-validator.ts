@@ -728,7 +728,7 @@ export function flightCompositionViolations(wines: AuditWine[]): Violation[] {
 // fires only on the classic whites, where the STRONG-SIGNAL pattern is genuinely unbroken. Red flights
 // keep their softer prompt guidance without a hard gate.
 //
-// Trigger: a "same single grape variety" stem over 3+ wines that span 2+ distinct countries and is not
+// Trigger: a "same single grape variety" stem over 2+ wines that span 2+ distinct countries and is not
 // a same-country / same-region / subset-scoped question. If the flight's variety has a defined Old
 // World home region and NO wine sits in it, the flight is hard-rejected. Varieties with no listed home
 // (reds, and obscure grapes the exam would not build a comparative flight around) fall through
@@ -782,14 +782,24 @@ const OLD_WORLD_ANCHOR_HOMES: { variety: RegExp; home: RegExp; label: string }[]
 ];
 
 /**
- * R-OW-ANCHOR. A cross-country "same single grape variety" flight of 3+ wines of a classic variety must
+ * R-OW-ANCHOR. A cross-country "same single grape variety" flight of 2+ wines of a classic variety must
  * include at least one Old World anchor from the variety's European home region. An all-New-World flight
  * of such a variety has no precedent in the 2011–2026 corpus (EK-0169, STRONG SIGNAL) and is never valid.
  */
 export function validateOldWorldAnchor(q: QuestionForAudit): Violation[] {
   const wines = q.wines || [];
   const n = wines.length;
-  if (n < 3) return []; // a pair is not the multi-country flight shape this rule guards
+  // A PAIR COUNTS. This was `n < 3`, which left the shape the SAME reviewer binned separately
+  // (attempt 442) unguarded: "Wines 5 and 6 are made from the same single grape variety, from
+  // different origins" over Clare Valley Riesling + Columbia Valley Riesling. Two wines, two New World
+  // countries, no Mosel/Alsace/Wachau — a cross-country varietal comparison with no reference
+  // expression in it, which is this rule's entire subject. Nothing in EK-0169 is about flight size.
+  //
+  // Measured before lowering it (scripts/measure-banker-arm.mjs): at n>=2 the rule still hits ZERO of
+  // the 160 real IMW questions. Both real all-New-World same-variety pairs/trios in the corpus are RED
+  // — 2011 P2 Q5 (Californian + Chilean Merlot) and 2018 P2 Q2 (three New World Pinots) — and reds are
+  // deliberately absent from OLD_WORLD_ANCHOR_HOMES, so the whites-only scope keeps the pair case free.
+  if (n < 2) return [];
 
   const stem = normStem(q.questionText || "");
   // Only the SAME-variety comparative shape (F1). A "different varieties" flight has no shared anchor.
