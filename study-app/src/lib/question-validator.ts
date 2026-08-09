@@ -779,7 +779,28 @@ export function isBanker(w: AuditWine): boolean {
  */
 export function matchingBankerSignal(w: AuditWine): BankerSignal | null {
   const origin = norm(`${w.region || ""} ${w.country || ""} ${w.fullText || ""}`);
-  const variety = norm((w.varieties || []).map(canonVariety).join(" "));
+  // Prefer the resolved key; fall back to reading the grape off the LABEL.
+  //
+  // The variety gate is skipped when the variety is unknown, which is deliberate (see the doc comment
+  // on isBanker) — but the variety was read ONLY from the answer key, so on any wine whose key had not
+  // resolved a grape the region alone promoted it and every gate in the table was bypassed. That is
+  // not a rare case: the whole unkeyed cohort has empty varieties, and the labels name the grape in
+  // plain text.
+  //
+  // The result was the calibration contradicting its own stated intent. banker_signals.json says bare
+  // Burgundy counts for Pinot Noir and Chardonnay and cites Aligoté as excluded, and lists Oregon
+  // Pinot Gris among the deliberate exclusions — yet "Domaine de Villaine, Bouzeron Aligoté. Burgundy"
+  // and "Montinore Estate, Reserve Pinot Gris. Willamette Valley" both came back BANKER, and a "Huia
+  // Vineyards, Gewurztraminer. Marlborough" cleared a signal that requires Sauvignon. Reviewer attempt
+  // #459 named that last one exactly: "the Gewurztraminer and the Grüner Veltliner are pretty big
+  // curve balls for New Zealand".
+  //
+  // detectPrimaryVariety reads the label and its appellation table, and returns "unknown" when it
+  // genuinely cannot tell — so the deliberate free pass survives for wines that really are
+  // unresolvable, and only stops applying to wines that were never ambiguous.
+  const keyed = norm((w.varieties || []).map(canonVariety).join(" "));
+  const fromLabel = w.fullText ? detectPrimaryVariety(w.fullText) : "unknown";
+  const variety = keyed || (fromLabel === "unknown" ? "" : norm(canonVariety(fromLabel)));
   return (
     bankerSignalTable().signals.find(
       (s) =>

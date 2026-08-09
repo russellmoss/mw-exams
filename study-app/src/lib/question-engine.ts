@@ -141,6 +141,7 @@ import { enforceAnswerLength } from "@/lib/answer-length-gate";
 import {
   stemSniperScoringModel,
   flightCompositionViolations,
+  isBanker,
   idMarkAllocationViolations,
   crossCheckStemFacts,
   stemPreannouncesDiscriminator,
@@ -2051,7 +2052,35 @@ ${repairContext.draft}`,
   }
 
   emit?.({ type: "status", label: "Saving the question…" });
+
+  // MEASURE the flight's difficulty rather than asking the model to self-report it.
+  //
+  // curveball_level was parsed out of a "CurveballLevel: low|medium|high" line the model was asked to
+  // emit — and then not passed to the save at all, so the column was NULL on all 942 banked rows. The
+  // sibling `curveball` column fared no better: deriveCurveball() reads metadata.curveball, which
+  // nothing writes, and falls through to "low" — 805 rows "low", 137 NULL, no other value ever. Both
+  // fed the admin balance view and the curveball-targeted generation predicate, which were therefore
+  // reporting on and selecting by a constant.
+  //
+  // isBanker over the flight is a real signal and it is the SAME one the hard flight-composition rule
+  // gates on, so the dashboard and the gate can no longer disagree. Deliberately NOT derived here:
+  // curveballSlots, which feeds stem_answer_keys.ground_truth[].role and is ENFORCED
+  // (validateAnswerKeyClaims stops a debrief calling the flight's anchor a curveball). Its null means
+  // "the generator did not declare a role", and inventing roles from a heuristic would turn an
+  // unstated fact into an enforced one.
+  const flightForCurveball = winesFromText(parsed.wines).map((w) => ({ ...w, region: "" }));
+  const curveballCount = flightForCurveball.filter((w) => !isBanker(w)).length;
+  const curveballLevel =
+    flightForCurveball.length === 0
+      ? null
+      : curveballCount === 0
+        ? "low"
+        : curveballCount * 2 <= flightForCurveball.length
+          ? "medium"
+          : "high";
+
   const saved = await saveGeneratedQuestion({
+    curveballLevel,
     questionId,
     paper,
     family: parsed.family,
