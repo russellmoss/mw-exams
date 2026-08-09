@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-09 — incremental: 1 feedback item(s) processed → 0 new entries.**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0179).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 0 new entries.**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0178).**
@@ -1444,6 +1445,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 467 | 107 | P1/F4 | accept | auto | collective 'with reference to all four wines' header + pooled 16-mark tariff used for four DIFFERENT varieties; corpus always pairs distinct-variety asks with a per-wine header and `4 x 8` multiplier | EK-0178, EK-0172, EK-0147, EK-0041 |
 | 473 | 113 | P1/F4 | accept | auto | Third report of the same scope-header defect — collective 'with reference to all three wines' header on a per-wine variety ask (even with the correct 3 x 5 multiplier tariff); already covered, reinforces the case for validator enforcement | EK-0172, EK-0178 |
 | 500 | 140 | P2/F2 | accept | auto | one banker isn't enough — same-country Italian P2 flights carry one curveball, not three | EK-0179, EK-0029, EK-0162, EK-0097 |
+| 505 | 145 | P2/F2 | accept | auto | Second report of the same defect — four-wine same-country Italian P2 flight (Aglianico del Vulture, Cirò/Gaglioppo, Valpolicella, Montepulciano d'Abruzzo) carries three hard wines against one anchor; attested Italian P2 flights pair Barolo/Chianti/Valpolicella anchors with only one curveball. Fully covered by existing entries. | EK-0179, EK-0029, EK-0162, EK-0097 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
