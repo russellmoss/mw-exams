@@ -170,6 +170,38 @@ describe("queue SQL", () => {
     expect(lib).not.toMatch(/ORDER BY random\(\)/);
   });
 
+  it("runs the SAME serve gate the candidate path runs", () => {
+    // servableWhere() selects on database columns; the study path additionally runs
+    // bankedServeRejection in-process on every question it serves. The two disagreed by exactly the
+    // questions the gate refuses, so a reviewer could be handed — and spend a vote on — a flight no
+    // candidate could ever see. Imported, never reimplemented, or the two sets drift again.
+    expect(lib).toMatch(/import \{ bankedServeRejection \} from "@\/lib\/question-engine"/);
+    expect(lib).toMatch(/bankedServeRejection\(q\)/);
+  });
+
+  it("over-fetches so gating cannot silently short the page", () => {
+    expect(lib).toMatch(/want \* 2/);
+  });
+
+  it("quarantines what the gate refuses instead of only skipping it", () => {
+    // This is what keeps the countdown honest. The "N to go" counter and the block standings are SQL
+    // COUNTs over servableWhere(); filtering the page in memory while leaving the rows servable would
+    // count questions the queue will never hand over, and the remaining count would never reach zero.
+    const gate = lib.slice(lib.indexOf("async function applyServeGate"));
+    expect(gate).toMatch(/UPDATE generated_questions SET invalid_reasons/);
+    expect(gate).toMatch(/serve-gate/);
+  });
+
+  it("merges the quarantine reason rather than replacing what another rule recorded", () => {
+    const gate = lib.slice(lib.indexOf("async function applyServeGate"));
+    expect(gate).toMatch(/jsonb_agg\(DISTINCT v\)/);
+  });
+
+  it("does not let a throwing rule take the review surface down", () => {
+    const gate = lib.slice(lib.indexOf("async function applyServeGate"));
+    expect(gate).toMatch(/catch \(err\)/);
+  });
+
   it("binds the filter values rather than interpolating them", () => {
     expect(lib).toMatch(/paper = ANY\(\$\{papersParam\}\)/);
     expect(lib).toMatch(/family = ANY\(\$\{familiesParam\}\)/);
