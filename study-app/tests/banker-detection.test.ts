@@ -11,6 +11,7 @@
 import { describe, it, expect } from "vitest";
 import { isBanker, flightCompositionViolations, matchesAnchorPair, type AuditWine } from "@/lib/question-validator";
 import { detectPrimaryVariety, canonVariety } from "@/lib/question-rules.mjs";
+import { ADVISORY_RULES, BANK_BLOCKING_RULES, blockingViolations } from "@/lib/question-engine";
 import "@/lib/appellation-resolver";
 
 const label = (fullText: string): AuditWine => ({ slot: 1, varieties: [], region: "", fullText });
@@ -172,5 +173,38 @@ describe("matchesAnchorPair — the unknown abstains", () => {
     expect(matchesAnchorPair(wine("Recaredo, Terrers Brut Nature. Corpinnat, Penedès, Spain.", "Penedès"))).toBe(true);
     expect(matchesAnchorPair(wine("Clément Klur, Brut NV. Crémant d'Alsace, France.", "Crémant d'Alsace"))).toBe(true);
     expect(matchesAnchorPair(wine("Schloss Reinhartshausen, Riesling Extra Brut Sekt. Rheingau, Germany.", "Rheingau", ["riesling"]))).toBe(true);
+  });
+});
+
+// ── Anchor-pairing is ADVISORY on every path, including the bank ──────────────────────────────────
+//
+// It was folded into `banker` and inherited its bank-path blocking. The two have very different error
+// rates. flight-composition's blocking is earned: bankerless flights are the largest defect class in
+// the reviewer bin corpus and a rejected attempt costs a retry. Anchor-pairing rejects 13.1% of REAL
+// past-paper flights (scripts/measure-banker-arm.mjs) because the Institute sets anchorless flights on
+// purpose — and on a FIXED stem a retry cannot help. Re-importing hist_2023_p3_q1, whose stem reads
+// "traditional method sparkling wines from four different countries. None is from Champagne", burned
+// all three attempts on "no anchor"; --redo had already deleted the row, so the question simply
+// vanished from the bank until the rule was fixed.
+describe("anchor-pairing never decides whether a question exists", () => {
+  it("is advisory", () => {
+    expect(ADVISORY_RULES.has("anchorPairing")).toBe(true);
+  });
+
+  it("does NOT block on the bank path, unlike banker", () => {
+    // The distinction is the whole point of splitting them.
+    expect(BANK_BLOCKING_RULES.has("anchorPairing")).toBe(false);
+    expect(BANK_BLOCKING_RULES.has("banker")).toBe(true);
+  });
+
+  it("is filtered out of the blocking set even on the bank path", () => {
+    const byRule = { anchorPairing: ["flight of 4 wines has NO anchor"], markCheck: ["marks do not total"] };
+    expect(blockingViolations(byRule, { bankPath: true })).toEqual(["marks do not total"]);
+    expect(blockingViolations(byRule, { bankPath: false })).toEqual(["marks do not total"]);
+  });
+
+  it("still blocks the rules that earned it", () => {
+    const byRule = { banker: ["flight has no banker"] };
+    expect(blockingViolations(byRule, { bankPath: true })).toEqual(["flight has no banker"]);
   });
 });

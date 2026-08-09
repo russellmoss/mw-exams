@@ -24,10 +24,27 @@ describe("ADVISORY_RULES membership", () => {
     expect(ADVISORY_RULES.has("banker")).toBe(true);
   });
 
+  it("contains anchorPairing", () => {
+    // Added 2026-08-09, on purpose, and this test caught the change — which is what it is for.
+    //
+    // anchorPairing was folded into `banker` and inherited its bank-path blocking. Measured against
+    // the real corpus (scripts/measure-banker-arm.mjs) it rejects 13.1% of past-paper flights, because
+    // the Institute sets anchorless ones deliberately: four Muscats in 2012 P3 Q4, Chinon + Baden
+    // Spätburgunder + Pinotage + Lagrein in 2017 P2 Q3, two Hawke's Bay Syrahs in 2018 P2 Q3.
+    //
+    // Unlike banker it is also UNSATISFIABLE for some legitimate stems, which is the part that
+    // decided it. hist_2023_p3_q1 reads "traditional method sparkling wines from four different
+    // countries. None is from Champagne" — the stem forbids the anchor. Re-importing it burned all
+    // three attempts on "no anchor" and, because --redo deletes before it regenerates, left the
+    // question missing from the bank entirely. A retry cannot fix a fixed stem.
+    expect(ADVISORY_RULES.has("anchorPairing")).toBe(true);
+    expect(BANK_BLOCKING_RULES.has("anchorPairing")).toBe(false);
+  });
+
   it("contains nothing else", () => {
     // Deliberately exact. Demoting a rule is a real quality decision and must not ride along in an
     // unrelated change — if you are adding one, you should be updating this test on purpose.
-    expect([...ADVISORY_RULES].sort()).toEqual(["banker"]);
+    expect([...ADVISORY_RULES].sort()).toEqual(["anchorPairing", "banker"]);
   });
 
   it("never demotes a correctness rule", () => {
