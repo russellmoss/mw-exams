@@ -14,7 +14,11 @@ import { deriveSessionState } from "@/lib/live-tasting";
 import { produceFullEvaluation } from "@/app/api/evaluate-full/produce";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+// Raised from 120 when the persona re-voicing pass landed. Measured on a real debrief: pass 1
+// (grading, Opus) 61s + pass 2 (re-voicing, Sonnet) 43s = ~104s, which left 16s of headroom against
+// the old cap — a longer script would have timed out mid-stream and cost the candidate their graded
+// attempt. 300 matches /api/coach, the other long-running streaming route.
+export const maxDuration = 300;
 
 /**
  * POST /api/live-tasting/[id]/grade — the blind grading wrapper (live_tasting_plan.md §2.4).

@@ -166,14 +166,14 @@ describe("scope — exam content is never persona-voiced", () => {
   });
 });
 
-describe("the graded-surface gate", () => {
-  // Why the gate exists: persona-grading.eval.test.ts measured one script under all four voices
-  // and got three different verdicts, then — after a calibration fix — a 19-point swing the other
-  // way from the Cellar Rat. A voice whose register is evaluative leaks into the judgement, so
-  // graded surfaces stay pinned to the reference voice until the assessment is separated from the
-  // delivery structurally. These assertions stop the flag being flipped by accident.
+describe("pass 1 grades in the neutral voice", () => {
+  // The first half of the two-pass split. persona-grading.eval.test.ts measured one script under
+  // all four voices when grading was single-pass and got three different verdicts, then — after a
+  // calibration fix — a 19-point swing the other way from the Cellar Rat. A voice whose register
+  // is evaluative moves the grade, so the call that decides the marks never learns which persona
+  // was chosen. The voice is applied afterwards, by persona-restyle.
 
-  it("pins graded surfaces to the reference voice while the flag is off", () => {
+  it("never lets a marked surface see the candidate's voice", () => {
     for (const p of PERSONAS) {
       expect(resolvePersonaFor(p.id, "grading"), p.id).toBe(DEFAULT_PERSONA);
       expect(resolvePersonaFor(p.id, "oneliner"), p.id).toBe(DEFAULT_PERSONA);
@@ -191,9 +191,13 @@ describe("the graded-surface gate", () => {
     }
   });
 
-  it("keeps the eval's bypass out of application code", () => {
-    // bypassSurfaceGate exists so the eval can measure the suppressed voices. A route reaching for
-    // it would silently re-enable exactly what the measurement says is not safe yet.
+  it("lets only the restyle pass carry a voice onto a graded surface", () => {
+    // `bypassSurfaceGate` is how a graded surface gets a voice at all, so exactly one module in
+    // src/ may use it: persona-restyle, the SECOND pass, which never grades anything and whose
+    // output is machine-checked against the original and discarded on any drift. A grader reaching
+    // for it would put the voice back into the call that decides the marks — the precise thing the
+    // eval measured going wrong.
+    const ALLOWED = ["src/lib/personas.ts", "src/lib/persona-restyle.ts"];
     const srcDir = path.join(appDir, "src");
     const walk = (dir: string): string[] =>
       fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
@@ -201,13 +205,11 @@ describe("the graded-surface gate", () => {
         if (e.isDirectory()) return walk(full);
         return /\.tsx?$/.test(e.name) ? [full] : [];
       });
-    const offenders = walk(srcDir).filter(
-      (f) =>
-        // personas.ts declares the option; everything else must not pass it.
-        path.basename(f) !== "personas.ts" &&
-        /bypassSurfaceGate/.test(fs.readFileSync(f, "utf8"))
-    );
-    expect(offenders.map((f) => path.relative(appDir, f))).toEqual([]);
+    const offenders = walk(srcDir)
+      .filter((f) => /bypassSurfaceGate/.test(fs.readFileSync(f, "utf8")))
+      .map((f) => path.relative(appDir, f).split(path.sep).join("/"))
+      .filter((rel) => !ALLOWED.includes(rel));
+    expect(offenders).toEqual([]);
   });
 });
 

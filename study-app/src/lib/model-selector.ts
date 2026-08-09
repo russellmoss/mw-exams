@@ -31,6 +31,11 @@ export const AB_TASKS: { task: string; label: string; defaultTier: ModelTier }[]
   { task: "question_appearance", label: "P3 appearance notes", defaultTier: "sonnet" },
   { task: "feedback_reply", label: "Feedback reply", defaultTier: "sonnet" },
   { task: "notification_narration", label: "Verdict narration (spoken)", defaultTier: "sonnet" },
+  // Pass 2 of the two-pass persona split. Sonnet, and not for cost reasons alone: re-wording
+  // finished text is not a reasoning task, and the first live run on Opus spent 3.2k output tokens
+  // and 36s to re-say what pass 1 had already decided. Correctness here is enforced structurally
+  // (persona-restyle's fingerprint gate discards any rewrite that moved a mark), not by model tier.
+  { task: "persona_restyle", label: "Persona re-voicing (pass 2)", defaultTier: "sonnet" },
   { task: "retail_availability", label: "Retail availability (Live Tasting)", defaultTier: "haiku" },
   // Sonnet by default because the Coach is conversational and BYOK — every turn spends the
   // candidate's own credits, so the tier that answers a lookup well enough is the right default.

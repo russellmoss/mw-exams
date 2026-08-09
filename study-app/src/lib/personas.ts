@@ -106,46 +106,53 @@ export function getPersona(id: PersonaId | null | undefined): Persona {
  * only true of the spoken one.
  */
 /**
- * WHETHER A PERSONA MAY VOICE A **GRADED** SURFACE. Currently false, and this is the honest
- * state of the feature rather than a stub.
+ * Surfaces where a mark is decided, and which therefore GRADE IN THE NEUTRAL VOICE, ALWAYS.
  *
- * `tests/persona-grading.eval.test.ts` graded one fixed script under all four voices. The prompt
- * invariants alone did not hold the mark:
+ * This is not a feature flag and there is nothing here to turn on later. It is the first half of
+ * the two-pass split: the call that decides the marks must never learn which persona the candidate
+ * chose, because a voice whose register is evaluative moves the grade. Measured, in
+ * `tests/persona-grading.eval.test.ts`, when grading was single-pass:
  *
- *   run 1 (invariants only)      Tutor BORDERLINE 64% · Examiner FAIL 51% · Wit BORDERLINE 64% · Rat PASS 76%
- *   run 2 (+ calibration rules)  Tutor PASS 69%      · Examiner PASS 76% · Wit PASS 67%      · Rat FAIL 57%
+ *   invariants only      Tutor BORDERLINE 64% · Examiner FAIL 51% · Wit BORDERLINE 64% · Rat PASS 76%
+ *   + calibration rules  Tutor PASS 69%      · Examiner PASS 76% · Wit PASS 67%      · Rat FAIL 57%
  *
- * Three verdicts on one script in run 1, and in run 2 the Cellar Rat swung nineteen points the
- * OTHER way from a single "do not be generous" line. That is an unstable equilibrium, not a bias
- * that can be nudged out: a voice whose whole register is evaluative (contemptuous, curt) leaks
- * into the judgement in whichever direction it was last pushed. A candidate cannot be given a dial
- * that moves them across the pass line, and the UI must not promise otherwise.
- *
- * So graded surfaces are pinned to the Tutor until the assessment is separated from the delivery
- * STRUCTURALLY — grade once in the neutral voice, then restyle the fixed marks and findings in a
- * second pass. That makes the marks identical by construction rather than by instruction, and it
- * is the only version of this worth shipping. It is a real piece of work (the debrief streams, so
- * the restyle has to stream too) and it is the next thing to build here.
- *
- * TO TURN IT ON: make the eval pass — do not relax it — and flip this to true. Nothing else
- * changes; the seven call sites already pass their persona through `resolvePersonaFor`.
+ * Three verdicts on one script, and then a nineteen-point swing the OTHER way from one "do not be
+ * generous" line — an unstable equilibrium, not a bias that could be nudged out with better
+ * wording. The candidate's voice is applied afterwards, by `restyleForPersona` in
+ * lib/persona-restyle.ts, which may only rewrite prose and is machine-checked against the original.
  */
-export const GRADING_PERSONAS_ENABLED = false;
+const NEUTRAL_GRADED_SURFACES: PersonaSurface[] = ["grading", "oneliner"];
 
 /**
- * The voice a given surface may actually use. Conversational surfaces get the candidate's choice;
- * graded ones are pinned to the reference voice while GRADING_PERSONAS_ENABLED is false.
+ * The voice a given surface may use *at generation time*. Conversational surfaces get the
+ * candidate's choice; graded ones get the reference voice, and are re-voiced in a second pass.
  *
- * Call sites pass their real persona and let this decide, rather than branching themselves — one
- * place to reason about, and flipping the flag needs no edit to any route.
+ * Call sites pass their real persona and let this decide rather than branching themselves, so
+ * there is one place to reason about and no route can opt itself out.
  */
 export function resolvePersonaFor(
   id: PersonaId | null | undefined,
   surface: PersonaSurface
 ): PersonaId {
-  const graded: PersonaSurface[] = ["grading", "oneliner"];
-  if (!GRADING_PERSONAS_ENABLED && graded.includes(surface)) return DEFAULT_PERSONA;
+  if (NEUTRAL_GRADED_SURFACES.includes(surface)) return DEFAULT_PERSONA;
   return getPersona(id).id;
+}
+
+/**
+ * Whether a graded surface gets the second (re-voicing) pass at all.
+ *
+ * Separate from the pinning above because they answer different questions: that one is permanent,
+ * this one is a per-surface cost decision. `false` simply means that surface stays in the Tutor's
+ * voice end to end.
+ *
+ * FLASH NOTES IS DELIBERATELY OFF. It is the rapid-fire drill — one competency, a 45-word line,
+ * card after card — and a second model call per card would roughly double the latency of the one
+ * surface whose entire point is speed, to re-voice a single sentence. The trade is bad. The
+ * long-form debriefs are where a voice is actually worth reading and where one extra call is
+ * proportionate to what the candidate is already waiting for.
+ */
+export function gradedRestyleEnabled(surface: PersonaSurface): boolean {
+  return surface === "grading";
 }
 
 export type PersonaSurface =
