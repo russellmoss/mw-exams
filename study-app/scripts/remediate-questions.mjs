@@ -370,9 +370,19 @@ async function remediateOne(old, existingWines, latest) {
 // here can put a question back that the audit would immediately quarantine again.
 async function tryRepair(old) {
   const row = (await sql`
-    SELECT question_id, paper, family, question_text, wines, wine_profiles, model_answer, total_marks
+    SELECT question_id, paper, family, question_text, wines, wine_profiles, model_answer, total_marks, invalid_reasons
     FROM generated_questions WHERE question_id = ${old.question_id}`)[0];
   if (!row) return null;
+  // A feedback-question quarantine encodes a REVIEWER'S judgment, which the validator cannot
+  // re-derive — the same reason audit-questions.mjs --apply preserves this rule when it clears stale
+  // flags. The "already clean" shortcut below trusts the validator to decide a flag is stale, so a
+  // question flagged by a reviewer would sail through it unchanged, complaint unaddressed, and
+  // return to service. Regeneration is the only exit for these.
+  const flaggedReasons = typeof row.invalid_reasons === "string" ? JSON.parse(row.invalid_reasons) : row.invalid_reasons;
+  if (Array.isArray(flaggedReasons) && flaggedReasons.some((r) => r && r.rule === "feedback-question")) {
+    console.warn(`    repair: feedback-question quarantine — a reviewer's complaint, not a validator flag; regeneration only`);
+    return null;
+  }
   const wines = typeof row.wines === "string" ? JSON.parse(row.wines) : row.wines;
   const wineCount = Array.isArray(wines) ? wines.length : 0;
   if (!wineCount) return null; // no flight to keep — regeneration is the only option
