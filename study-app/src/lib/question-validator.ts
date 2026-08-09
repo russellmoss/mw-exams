@@ -54,6 +54,13 @@ export interface AuditWine {
   region: string;
   country?: string;
   is_blend?: boolean;
+  // The grape varieties the ENRICHMENT recorded, when it recorded any. Distinct from `varieties`,
+  // which is what the answer key resolved: the key routinely reduces a wine to its dominant grape
+  // ("Treixadura") while wine_profiles holds the whole blend ("Treixadura, Loureiro, Albariño"). R5
+  // grades severity on the length of this, because two varieties can be an 85%-rule varietal and
+  // three cannot — and names them in the violation, since "a wine is a blend" is not actionable but
+  // "wine 2 is Treixadura/Loureiro/Albariño" is.
+  blend_varieties?: string[];
   style?: string;
   // The P3 answer-key style category (e.g. "Botrytis sweet", "Late-harvest sweet", "Port"). Supplied
   // alongside `style`, it lets methodClass() (and the contrast-integrity rule) resolve a wine's
@@ -3363,6 +3370,56 @@ export interface KeyedGroundWine {
  *  - A slot in one half and not the other → carried through on whichever half has it, because a
  *    partial flight still catches claims about the wines it does know.
  */
+/**
+ * Zip what the ENRICHMENT step learned onto the wines the answer key resolved.
+ *
+ * Two different things know two different halves of a wine. The answer key resolves it into one
+ * dominant variety plus region/country. `generated_questions.wine_profiles` is the enrichment: a
+ * web-cited read of the wine in the glass, carrying the resolved colour and the FULL grape list.
+ * Rules that only ever saw the key were therefore blind to facts the row already contained.
+ *
+ * That is not hypothetical. Reviewer attempt #475 rejected a "different single grape varieties" stem
+ * because wine 2 was a three-grape blend — and the row's own wine_profiles had said
+ * ["Treixadura","Loureiro","Albariño"] with confidence "high" since the day it was generated. R5 was
+ * asking `w.is_blend`, which comes from the key, and the key had reduced it to its dominant grape.
+ * The evidence to reject that question was sitting one column away, unread.
+ *
+ * Deliberately ADDITIVE, never overriding:
+ *  - colour is taken from the profile, which judged the wine directly (a red grape bottled white —
+ *    "Touriga Nacional Branco" — is the case varieties cannot settle).
+ *  - is_blend becomes true if EITHER half says so. The key naming one grape is not evidence of one
+ *    grape; it is evidence of a dominant grape.
+ *  - `varieties` is filled ONLY when the key left it empty. Overwriting it would change what R1/R2/R3
+ *    compare for distinctness — a much wider change than this, and not one the profile is authoritative
+ *    for. The full count travels separately in `blend_variety_count` so R5 can grade on it.
+ */
+export function applyWineProfiles(wines: AuditWine[], wineProfiles: unknown): AuditWine[] {
+  const parsed = (typeof wineProfiles === "string" ? JSON.parse(wineProfiles) : wineProfiles) as Record<
+    string,
+    { colour?: unknown; grape_varieties?: unknown } | undefined
+  > | null;
+  if (!parsed || typeof parsed !== "object") return wines;
+
+  return wines.map((w) => {
+    const p = parsed[String(w.slot)];
+    if (!p) return w;
+    const out: AuditWine = { ...w };
+
+    const c = p.colour;
+    if (c === "white" || c === "red" || c === "rose" || c === "orange") out.colour = c;
+
+    const grapes = Array.isArray(p.grape_varieties)
+      ? p.grape_varieties.filter((g): g is string => typeof g === "string" && g.trim().length > 0)
+      : [];
+    if (grapes.length) {
+      out.blend_varieties = grapes;
+      if (grapes.length >= 2) out.is_blend = true;
+      if (!out.varieties?.length) out.varieties = grapes;
+    }
+    return out;
+  });
+}
+
 export function answerKeyFlight(
   ground: readonly KeyedGroundWine[] | null | undefined,
   wines: readonly { slot: number; fullText?: string }[] | null | undefined,
