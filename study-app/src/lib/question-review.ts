@@ -15,6 +15,9 @@
 
 import { neon } from "@neondatabase/serverless";
 import { getAnswerKeyGroundTruths, type GeneratedQuestion } from "@/lib/db";
+// The SAME gate the candidate serve path runs. Imported rather than reimplemented so the reviewer and
+// the candidate can never be shown different sets — see applyServeGate below.
+import { bankedServeRejection } from "@/lib/question-engine";
 import { getAppVersion } from "@/lib/app-version";
 import { verdictFromGroundTruth, type QuestionVerdict } from "@/lib/question-verdict";
 import {
@@ -381,6 +384,7 @@ export async function getReviewQueue(
   filter: ReviewFilter = DEFAULT_REVIEW_FILTER
 ): Promise<ReviewCard[]> {
   const sql = db();
+  const want = Math.max(1, Math.min(50, limit));
   const rows = (await sql.query(
     `
     SELECT * FROM generated_questions
@@ -393,13 +397,73 @@ export async function getReviewQueue(
     ${queueOrder(filter.order, "$1")}
     LIMIT $4
     `,
-    [reviewerId, filter.papers, filter.families, Math.max(1, Math.min(50, limit))]
+    // Over-fetch, because the serve gate below drops rows the SQL predicate cannot see. Twice the page
+    // is ample: the gate rejects a few percent of the servable set, so a short page only happens if a
+    // whole batch of neighbours is bad, and the next fetch picks up where this one stopped anyway.
+    [reviewerId, filter.papers, filter.families, want * 2]
   )) as unknown as GeneratedQuestion[];
 
-  if (rows.length === 0) return [];
+  const page = await applyServeGate(rows, want);
+  if (page.length === 0) return [];
   // One key fetch for the whole page, not one per card.
-  const keys = await getAnswerKeyGroundTruths(rows.map((q) => q.question_id));
-  return rows.map((q) => toCard(q, keys.get(q.question_id)));
+  const keys = await getAnswerKeyGroundTruths(page.map((q) => q.question_id));
+  return page.map((q) => toCard(q, keys.get(q.question_id)));
+}
+
+/**
+ * Run the SERVE GATE over a page of queue candidates, and quarantine what it refuses.
+ *
+ * The reviewer's queue selects on DATABASE COLUMNS (servableWhere above) while the candidate's study
+ * path additionally runs bankedServeRejection in-process on every question it is about to serve. So
+ * the two disagreed by exactly the questions the gate refuses: a reviewer could be handed a flight no
+ * candidate could ever be shown, and spend a vote ruling on it. Closing that by running the same gate
+ * here is item 3 of the 2026-08-09 sweep review.
+ *
+ * IT QUARANTINES RATHER THAN JUST SKIPPING, and that is what keeps the countdown honest. The block
+ * standings and the "N to go" counter are SQL COUNTs over the same predicate; if this filtered the page
+ * in memory and left the rows servable, the counter would include questions the queue would never hand
+ * over and a reviewer's remaining count would never reach zero — the precise drift servableWhere()'s
+ * comment exists to prevent. Writing invalid_reasons removes the row from BOTH, and from the
+ * candidate-facing pool that was already refusing it at serve time. It is the same write the nightly
+ * sweep makes, applied lazily to the handful of rows someone is about to look at.
+ *
+ * Safe against a bad rule in the way the sweep is: audit-questions.mjs --apply clears a flag whose rule
+ * has stopped firing, so a false positive here is undone by the next pass rather than being permanent
+ * (the un-quarantine now reaches unkeyed rows too, which is how the R-OW-ANCHOR/Cabernet false positive
+ * would have been released without hand-editing).
+ */
+async function applyServeGate(
+  candidates: GeneratedQuestion[],
+  want: number
+): Promise<GeneratedQuestion[]> {
+  const sql = db();
+  const kept: GeneratedQuestion[] = [];
+  for (const q of candidates) {
+    if (kept.length >= want) break; // stop gating once the page is full — the rest are next fetch's
+    let reason: string | null = null;
+    try {
+      reason = bankedServeRejection(q);
+    } catch (err) {
+      // A throwing rule must not take the review surface down with it. Treat as servable and let the
+      // corpus sweep, which runs the same gate with logging, be the one to rule on it.
+      console.error(`[review] serve gate threw on ${q.question_id}:`, err);
+    }
+    if (!reason) {
+      kept.push(q);
+      continue;
+    }
+    console.log(`[review] serve gate refused ${q.question_id}: ${reason}`);
+    // MERGE, matching the scoped path in audit-questions.mjs: another rule may already have recorded a
+    // reason on this row and quarantining for the gate must not erase it.
+    const payload = JSON.stringify([{ rule: "serve-gate", severity: "hard", detail: reason }]);
+    await sql`
+      UPDATE generated_questions SET invalid_reasons = (
+        SELECT jsonb_agg(DISTINCT v) FROM jsonb_array_elements(
+          (CASE WHEN jsonb_typeof(invalid_reasons) = 'array' THEN invalid_reasons ELSE '[]'::jsonb END)
+          || ${payload}::jsonb) v)
+      WHERE question_id = ${q.question_id}`;
+  }
+  return kept;
 }
 
 // ── Recording a vote ─────────────────────────────────────────────────────────────────────────────
