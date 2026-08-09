@@ -38,6 +38,7 @@ import {
   type ReviewFilter,
   type ReviewBlock,
   type Disagreement,
+  type RoleOverride,
 } from "@/lib/question-review-shared";
 
 /** Refill the local buffer when it gets this short, so a vote never waits on the network. */
@@ -77,6 +78,10 @@ export default function ReviewPage() {
   // The reject form lives here so the window-level ⌘/Ctrl+Enter shortcut can read it directly.
   const [rejectTags, setRejectTags] = useState<string[]>([]);
   const [rejectNote, setRejectNote] = useState("");
+  // Per-wine banker/curveball corrections for the CURRENT card. Held here, not in the card, because
+  // they ride along with every verdict — including an approve, which is fired by a window-level
+  // keypress that never reaches the card's own state.
+  const [roleOverrides, setRoleOverrides] = useState<RoleOverride[]>([]);
   const [tab, setTab] = useState<"queue" | "disagreements">("queue");
   const [disagreements, setDisagreements] = useState<Disagreement[] | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
@@ -149,6 +154,7 @@ export default function ReviewPage() {
     setRejecting(false);
     setRejectTags([]);
     setRejectNote("");
+    setRoleOverrides([]);
   }
 
   const vote = useCallback(
@@ -163,10 +169,27 @@ export default function ReviewPage() {
         const res = await fetch("/api/question-review/vote", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          // The buffer rides along so the server can say which of these have stopped being servable
-          // since they were fetched. The corpus is being fixed WHILE the reviewer works — by these
-          // very votes — so a card retired ten seconds ago would otherwise still be dealt to them.
-          body: JSON.stringify({ questionId, verdict, tags, note, buffered: queue.map((c) => c.id) }),
+          body: JSON.stringify({
+            questionId,
+            verdict,
+            tags,
+            note,
+            // The buffer rides along so the server can say which of these have stopped being servable
+            // since they were fetched. The corpus is being fixed WHILE the reviewer works — by these
+            // very votes — so a card retired ten seconds ago would otherwise still be dealt to them.
+            buffered: queue.map((c) => c.id),
+            roleOverrides,
+            // Sent so a dispute can name the bottle in the feedback text and in the ruling row. The
+            // server never trusts these for anything that decides an outcome — it re-reads the wines
+            // from the question and joins on the slot.
+            wines: current.wines.map((w) => ({
+              slot: w.slot,
+              label: w.text,
+              variety: w.variety,
+              region: w.region,
+              country: w.country,
+            })),
+          }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
@@ -196,13 +219,20 @@ export default function ReviewPage() {
           retired > 0
             ? ` ${retired} more question${retired === 1 ? "" : "s"} left the queue — retired by a fix since you started.`
             : "";
+        const roleNote =
+          roleOverrides.length > 0
+            ? ` ${roleOverrides.length} role ${roleOverrides.length === 1 ? "ruling" : "rulings"} filed.`
+            : "";
         setFlash(
           (verdict === "down"
             ? "Rejected — analysing now. The verdict will arrive in your notifications, where you can argue with it."
             : verdict === "up"
               ? "Approved — recorded as a generation exemplar."
-              : "Skipped.") + retiredNote
+              : "Skipped.") +
+            roleNote +
+            retiredNote
         );
+        setRoleOverrides([]);
         setError(null);
       } catch (err) {
         console.error("Vote failed:", err);
@@ -211,10 +241,34 @@ export default function ReviewPage() {
         setBusy(false);
       }
     },
-    // `queue` is read to send the buffer for reconciliation, so it belongs here — without it the
-    // request would carry whatever the buffer was when this callback was last built.
-    [current, busy, filter.order, queue]
+    // `queue` is read to send the buffer for reconciliation, and `roleOverrides` to send the
+    // disputes — without either, the request would carry whatever they were when this callback was
+    // last built.
+    [current, busy, filter.order, queue, roleOverrides]
   );
+
+  /**
+   * Flip one wine's role, or take the dispute back.
+   *
+   * `keyed` is the role AS SHOWN when the reviewer clicked, and it is stored on the override rather
+   * than re-derived at submit time. The claim being recorded is "the system called this X and I say
+   * Y" — re-deriving X later, after a ruling has changed the calibration, would rewrite what the
+   * reviewer actually disagreed with.
+   */
+  const toggleRole = useCallback((slot: number, keyed: "banker" | "curveball") => {
+    setRoleOverrides((prev) =>
+      prev.some((o) => o.slot === slot)
+        ? prev.filter((o) => o.slot !== slot)
+        : [
+            ...prev,
+            {
+              slot,
+              keyed,
+              reviewer: (keyed === "banker" ? "curveball" : "banker") as RoleOverride["reviewer"],
+            },
+          ].sort((a, b) => a.slot - b.slot)
+    );
+  }, []);
 
   /**
    * Save a new selection and swap in the freshly-scoped queue from the same response.
@@ -481,6 +535,8 @@ export default function ReviewPage() {
                 )
               }
               onNoteChange={setRejectNote}
+              roleOverrides={roleOverrides}
+              onToggleRole={toggleRole}
               onOpenReject={() => setRejecting(true)}
               onCancelReject={() => setRejecting(false)}
               onApprove={() => vote("up")}

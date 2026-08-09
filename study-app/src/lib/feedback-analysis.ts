@@ -9,7 +9,10 @@ import { logClaudeUsage, logTavilyUsage } from "@/lib/usage-log";
 import { synthesizeSpeech, isElevenLabsConfigured } from "@/lib/elevenlabs";
 import { resolveTavilyKey } from "@/lib/tavily-key";
 import { getUserPersona } from "@/lib/persona-server";
-import { personaBlock } from "@/lib/personas";
+import { getPersona, needsRestyle, personaBlock } from "@/lib/personas";
+import { restyleForPersona } from "@/lib/persona-restyle";
+import { getPendingRulingsForAttempt, recordRoleVerdicts } from "@/lib/wine-role-rulings";
+import { parseRoleRulings } from "@/lib/prompts/role-adjudication";
 
 /**
  * Server-side feedback analysis — the durable core of the "feedback → analysis →
@@ -319,17 +322,42 @@ async function generateVerdictNarration(opts: {
       { latencyMs: Date.now() - t0 }
     );
 
-    const narrationText = message.content
+    let narrationText = message.content
       .filter((b) => b.type === "text")
       .map((b) => b.text)
       .join("")
       .trim();
     if (!narrationText) return;
 
+    // PASS 2 for the spoken line. Claude wrote it neutrally (the persona is pinned for any voice
+    // with an external copy vendor), so hand it over to be re-said properly. On any failure the
+    // neutral line is still spoken — silence would be worse than the wrong register.
+    const narrationPersona = await getUserPersona(opts.userId);
+    if (needsRestyle(narrationPersona, "spoken")) {
+      const spoken = await restyleForPersona({
+        neutralText: narrationText,
+        persona: narrationPersona,
+        surface: "spoken",
+        client,
+        apiKey: opts.apiKey,
+        userId: opts.userId,
+        maxTokens: 600,
+        usage: {
+          taskType: "notification_narration_persona_restyle",
+          source: opts.source,
+          userId: opts.userId,
+        },
+      });
+      if (spoken.outcome === "applied") narrationText = spoken.text;
+    }
+
     // Whose voice: the listener's own choice (Settings → Coach Voice, migration 059), falling back
     // to the app default. Undefined rather than null so synthesizeSpeech's own fallback chain —
     // ELEVENLABS_VOICE_ID then the default — still applies.
-    const userVoiceId = opts.userId ? await getUserVoiceId(opts.userId) : null;
+    // A persona may pin its own narration voice (see Persona.lockedVoiceId) — the written register
+    // of some voices only works in one delivery, so that choice wins over Settings.
+    const lockedVoiceId = getPersona(narrationPersona).lockedVoiceId ?? null;
+    const userVoiceId = lockedVoiceId ?? (opts.userId ? await getUserVoiceId(opts.userId) : null);
 
     const tts = await synthesizeSpeech(narrationText, {
       taskType: "notification_narration",
@@ -433,6 +461,12 @@ export async function runFeedbackAnalysis(opts: {
     // Live empirical knowledge (paper-filtered) from the Neon projection — always current.
     const empiricalKnowledge = await getEmpiricalKnowledgeForAnalysis(attempt.paper as number);
 
+    // Per-wine banker/curveball claims filed with this rejection, if any. They are adjudicated INLINE
+    // rather than by a second call: this prompt already carries the flight, the corpus and the
+    // empirical knowledge, so a separate model call to rule on the same wines would pay the same
+    // ~$1.58 twice to look at the same evidence.
+    const roleDisputes = await getPendingRulingsForAttempt(attemptId);
+
     const prompt = buildFeedbackAnalysisPrompt({
       questionText: attempt.question_text as string,
       wines,
@@ -447,6 +481,7 @@ export async function runFeedbackAnalysis(opts: {
       // a nightly sweep or an admin re-run still writes back to the candidate who filed it.
       persona: await getUserPersona((attempt.user_id as number) ?? null),
       empiricalKnowledge,
+      roleDisputes,
       questionMetadata: metadata as Record<string, unknown> | null,
       reasoningTrace: attempt.reasoning_trace as string | null,
       attempt: {
@@ -482,12 +517,67 @@ export async function runFeedbackAnalysis(opts: {
       { latencyMs: Date.now() - t0 }
     );
 
-    const analysisText = message.content
+    let analysisText = message.content
       .filter((b) => b.type === "text")
       .map((b) => b.text)
       .join("");
 
+    // PASS 2, candidate-facing HALF ONLY. A persona voiced by another vendor had to be pinned
+    // neutral for the adjudication itself (resolvePersonaFor), so the ruling is re-voiced here —
+    // but everything after [[INTERNAL]] is read by engineers and parsed by the fix pipeline, so it
+    // is split off, left in plain technical prose, and re-joined afterwards.
+    const feedbackPersona = await getUserPersona((attempt.user_id as number) ?? null);
+    if (needsRestyle(feedbackPersona, "verdict")) {
+      const [facing, ...rest] = analysisText.split("[[INTERNAL]]");
+      const restyled = await restyleForPersona({
+        neutralText: facing.trim(),
+        persona: feedbackPersona,
+        surface: "verdict",
+        client,
+        apiKey,
+        userId: (attempt.user_id as number) ?? null,
+        usage: {
+          taskType: "feedback_analysis_persona_restyle",
+          source: opts.source ?? "user",
+          userId: (attempt.user_id as number) ?? null,
+        },
+      });
+      if (restyled.outcome === "applied") {
+        analysisText = [restyled.text, ...rest].join("\n\n[[INTERNAL]]");
+      } else {
+        console.warn(`[feedback-analysis] restyle not applied: ${restyled.outcome}`);
+      }
+    }
+
+    // Read AFTER the rewrite, deliberately: the recommendation token is machine-parsed, so this
+    // also proves the rewrite did not mangle it. The fingerprint gate guarantees it survived.
     const recommendation = extractRecommendation(analysisText);
+
+    // Record the role verdicts BEFORE the "no verdict line" bail-out below.
+    //
+    // The two are independent: an analysis can rule cleanly on three wine roles and still stop short
+    // of its own Recommendation line (which is the LAST thing it writes, and the failure mode
+    // ANALYSIS_MAX_TOKENS exists for). Writing them after the bail-out would throw away good rulings
+    // because a different part of the same response was cut off, and the reviewer would see their
+    // claims still sitting at 'pending' with no explanation.
+    //
+    // Filtered to the ids we sent, so a hallucinated id cannot update a ruling nobody disputed.
+    if (roleDisputes.length > 0) {
+      try {
+        const sent = new Set(roleDisputes.map((d) => d.id));
+        const parsed = parseRoleRulings(analysisText).filter((p) => sent.has(p.id));
+        const written = await recordRoleVerdicts(parsed, analysis.id);
+        const unruled = roleDisputes.length - parsed.length;
+        console.log(
+          `[feedback-analysis] attempt ${attemptId}: ${written} role ruling(s) recorded` +
+            (unruled > 0 ? `, ${unruled} left pending (no parseable line)` : "")
+        );
+      } catch (roleErr) {
+        // Never fail the analysis over the role side-channel — the rulings stay 'pending' and the
+        // batch adjudicator picks them up.
+        console.error("[feedback-analysis] role ruling capture failed (non-fatal):", roleErr);
+      }
+    }
 
     const thread = [
       { role: "system" as const, content: analysisText, timestamp: new Date().toISOString() },

@@ -10,6 +10,7 @@ import { BankReviewSection } from "../components/BankReviewSection";
 import { BankHealthSection } from "../components/BankHealthSection";
 import { WhyBinnedSection } from "../components/WhyBinnedSection";
 import { BinFixProposalsSection } from "../components/BinFixProposalsSection";
+import { RoleRulingsSection } from "../components/RoleRulingsSection";
 import { AdminUserModal } from "../components/AdminUserModal";
 import { formatPurgeDate, purgeDateFor } from "@/lib/user-deletion";
 
@@ -432,6 +433,12 @@ export default function AdminPage() {
           {/* Root-cause fixes — recurring bin-reason clusters mined into PR-gated mechanical fixes
               (codify-and-retire: a shipped fix retires its reasons from the prompt feeds). */}
           <BinFixProposalsSection />
+
+          {/* Banker / curveball rulings — the reviewers' role corrections, adjudicated, codified into
+              data/banker_signals.json, then swept through the bank as wine swaps. Sits next to the
+              root-cause fixes because it is the same shape of loop: expert signal → mechanical,
+              PR-gated change → retroactive cleanup of what the change invalidates. */}
+          <RoleRulingsSection />
 
           {/* Auto-Feature pipeline toggle */}
           <div className={`rounded-xl border-2 p-5 mb-6 ${autoFeature ? "border-accent bg-accent/5" : "border-border bg-card"}`}>

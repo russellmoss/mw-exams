@@ -28,6 +28,8 @@ interface AuthUser {
    */
   hasTavilyKey?: boolean;
   hasVoiceKey?: boolean;
+  /** xAI key present (own, or the server key for an admin). Gates the Unhinged persona. */
+  hasGrokKey?: boolean;
   stemDetailDefault?: "guided" | "exam_real";
   questionSourceDefault?: "banked" | "fresh";
   reasoningStreamDefault?: boolean;

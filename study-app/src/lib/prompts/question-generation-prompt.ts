@@ -3,6 +3,10 @@ import { join } from "path";
 import { neon } from "@neondatabase/serverless";
 import { getEndorsedExemplars } from "@/lib/db";
 import { paperScopeProse } from "@/lib/paper-scope";
+// The SAME banker/curveball table the validator enforces (data/banker_signals.json). Rendered into
+// the banker-minimum section below so the generator builds flights against the rule it is judged by,
+// instead of against a prose paraphrase that could disagree with it.
+import { renderBankerCalibration } from "@/lib/banker-signals";
 
 const TARGET_DISTRIBUTIONS: Record<string, Record<number, number>> = {
   F1: { 2: 44, 3: 32, 4: 12, 5: 8, 6: 4 },
@@ -677,6 +681,9 @@ BAD: Montlouis sparkling + Bourgogne Blanc + Hermitage Blanc + Deiss field blend
 GOOD: Puligny-Montrachet 1er Cru + Sancerre + Hermitage Blanc + Deiss field blend (2 bankers, 1 curveball)
 GOOD: Chablis Grand Cru + Pouilly-Fumé + Condrieu + Jurançon Sec (2 bankers, 1 curveball)
 
+### The exact banker calibration the validator applies
+${renderBankerCalibration()}
+
 ## F4 (MIXED BREADTH) WINE SELECTION — QUALITY TIER CAP
 F4 "grab bag" questions test VARIETAL IDENTIFICATION and REGIONAL TYPICITY, not quality prestige. The 10-year MW corpus consistently uses mid-tier, regional-identity wines for this question family — not icon cuvées or prestige bottlings.
 
@@ -768,6 +775,11 @@ c) Comment on quality and commercial position. (2 x 7 marks)
 - NEVER write "a) Identify the grape variety and region of origin. (2 x 10 marks)" on a same-variety flight — that pays the candidate twice for one shared answer. No real stem does this, and a blocking validator rejects it.
 - Do NOT combine the shared attribute with per-wine attributes in one part. The historical corpus occasionally did ("For both wines: a) Identify the country of origin and grape variety. (25 marks)") but a single 25-mark identification part breaches the 10-mark cap above and is auto-rejected — keep the shared attribute in its own flat part and ask the varying attributes per-wine.
 - Marks must still total 25 per wine — the flat shared marks divide equally across the flight.
+
+**THE SCOPE HEADER MUST MATCH THE ANSWER'S CARDINALITY (EK-0172 — blocking validator).** The header and the tariff form are a matched pair, and getting them out of step is an automatic failure:
+- A **distinctness clause** in the stem ("each made from a **different**, single grape variety", "from **different countries/regions**") means the grape variety (or origin) is a DIFFERENT answer for every wine. Ask it under "For each wine:" with an "N x M marks" tariff — e.g. "For each wine: a) Identify the grape variety. (4 x 8 marks)". NEVER pool it as "With reference to all N wines: a) Identify the grape variety for each wine. (16 marks)" — a collective header with a single flat mark over four different answers is the exact shape the reviewer rejected, and the validator hard-blocks it. Corpus: 2016 P1 Q5 (4 x 8), 2015 P1 Q3 (6 x 10), 2018 P1 Q2 (6 x 7), 2023 P1 Q2 (4 x 5), 2024 P1 Q2, 2022 P1 Q4.
+- A **collective header** ("With reference to all/both N wines:" + one flat tariff) is only for an attribute with exactly ONE shared answer across the flight — a same-variety flight's grape, or a same-country flight's country. Corpus: 2018 P1 Q1, 2014 P1 Q1/Q2, 2025 P1 Q2, 2012 P1 Q2.
+- The header promises a *single shared answer*, not literally a single variety. The one permitted pooled multi-variety ask is the integrated 2023 P1 Q3 shape — "name the country and the **three** grape varieties, referencing all four wines" — where four wines carry only three varieties from one country, so the flight resolves into one answer. That works precisely because the named count (three) is fewer than the wines (four); do not use it as cover for a per-wine ask.
 
 ## ASKS THE EXAM NEVER MAKES (reviewer-binned phrasings — do not use)
 Verified against all 162 historical stems (zero occurrences of any of these):

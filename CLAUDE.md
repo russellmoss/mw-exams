@@ -260,12 +260,12 @@ app. Treat running it as a deliberate spending decision.
 ## Deploying the study app
 
 **Deploys are GIT AUTO-DEPLOY, single-path (changed 2026-05-30).** Vercel git auto-deploy is
-**enabled** via `study-app/vercel.json` (`"git": {"deploymentEnabled": {"claude/*": false}}` —
-unlisted branches default to enabled, so master deploys; **`claude/*` worktree branches create NO
-deployment at all**, preview or otherwise. That exclusion exists because on 2026-08-06 bot-branch
-preview deploys exhausted the Hobby plan's 100-deployments/day quota and production deploys of
-merged fixes were rate-limited for hours — see `.github/workflows/manual-deploy.yml` for the
-break-glass path. To preview a claude branch, rename it or merge to master). A push to `master`
+**enabled** via `study-app/vercel.json` `git.deploymentEnabled`, which now lists every bot branch
+pattern as `true`: **`claude/*`, `auto-feedback/*`, `bin-fix/*` and `feature-request/*` all get
+preview deployments again** (re-enabled 2026-08-09 on the move to Pro; they were `false` from
+2026-08-06, when bot-branch previews exhausted the Hobby plan's 100/day quota and production
+deploys of merged fixes were rate-limited for hours). `.github/workflows/manual-deploy.yml` is
+still the break-glass path if git auto-deploy is ever down. A push to `master`
 that touches `study-app/` is built and deployed by Vercel automatically — for **both** human pushes
 and the auto-feedback bot's merges. There is **one** deploy path (git); nothing runs an explicit
 `vercel --prod` in CI anymore.
@@ -281,30 +281,38 @@ A versioned **`ignoreCommand`** in `study-app/vercel.json` decides what builds:
 - Otherwise build **only if** something under `study-app/` changed (`./` = the Vercel Root Directory,
   which is `study-app`). So root-only commits (docs, `data/`, `outputs/`) never trigger a build.
 
-**The deploy-quota guard keeps headroom for human deploys (added 2026-08-06).** The Hobby plan
-allows **100 deployment creations per rolling 24h per account**, and *everything* counts against
-it: production builds, preview builds, CLI/API deploys (`manual-deploy.yml` included), **and
-deployments the `ignoreCommand` cancels** — the deployment record is created before the ignore
-check runs, so `[skip ci]` and root-only pushes to master still burn a slot each (verified
-empirically 2026-08-06: 16 CANCELED master deployments in 48h). On 2026-08-05/06 the bot merge
-cadence drained all 100 slots and an urgent human fix (PR #37) could not deploy at all. Two
-defenses now exist:
+**The deploy-quota guard keeps headroom for human deploys (added 2026-08-06, re-sized 2026-08-09).**
+*Everything* counts against the daily deployment cap: production builds, preview builds, CLI/API
+deploys (`manual-deploy.yml` included), **and deployments the `ignoreCommand` cancels** — the
+deployment record is created before the ignore check runs, so `[skip ci]` and root-only pushes to
+master still burn a slot each (verified empirically 2026-08-06: 16 CANCELED master deployments in
+48h). On 2026-08-05/06 the bot merge cadence drained all 100 Hobby slots and an urgent human fix
+(PR #37) could not deploy at all; on 2026-08-09 the same thing recurred mid-session and PR #137 sat
+merged-but-unserved until the Pro upgrade.
 
-- **Bot work branches never create deployments.** `study-app/vercel.json` `git.deploymentEnabled`
-  excludes `claude/*`, `auto-feedback/*`, `bin-fix/*` and `feature-request/*`. If a new bot
-  pipeline is added, exclude its branch pattern too (`study-app/tests/vercel-crons.test.ts`
-  asserts the current list) — an `ignoreCommand` tweak is NOT a substitute, per the above.
-- **Bots defer merging near the quota.** `auto-feedback.yml` and `feature-build.yml` run
-  `.github/scripts/deploy-quota-guard.sh` before landing: it counts the rolling-24h deployments
-  via the Vercel API (`VERCEL_TOKEN` Actions secret) and, at/over the cutoff (100 − reserve,
-  reserve defaults to 20 and can be tuned via the `DEPLOY_QUOTA_RESERVE` repo Actions variable),
-  the verified change is **PR-gated instead of auto-merged** with the reason in the PR body and in
-  the admin UI (`apply_error`). The guard fails OPEN on API errors. If bot churn regularly hits
-  the cutoff and that churn is wanted, the real fix is Vercel Pro (6,000 deploys/day) — the guard
-  just makes the free plan safe.
+`.github/scripts/deploy-quota-guard.sh` runs in `auto-feedback.yml` and `feature-build.yml` before
+landing. At/over the cutoff the verified change is **PR-gated instead of auto-merged**, with the
+reason in the PR body and in the admin UI (`apply_error`). It fails OPEN on API errors.
 
-**The Vercel account is on the Hobby plan, which caps `crons` in `study-app/vercel.json` at 2 jobs,
-each firing at most once per day.** A sub-daily schedule (anything with `*`, `,`, `-` or `/` in the
+- **It reads the plan; it does not hardcode the cap.** `GET /v2/teams/{id}` → `billing.plan`, mapped
+  hobby→100, pro→6,000, anything unrecognised→Pro-or-better. A hardcoded 100 would have throttled
+  every bot merge past the 81st deployment of the day the moment the account went Pro; hardcoding
+  6,000 instead would fail in the *dangerous* direction on a downgrade. `DEPLOY_QUOTA_LIMIT` (repo
+  Actions variable) always wins if the mapping ever needs overriding.
+- **The reserve scales**: 20% of the cap, floor 20 — so Hobby keeps its original 80-of-100 cutoff and
+  Pro fires at 4,800 rather than at a meaningless flat 20. `DEPLOY_QUOTA_RESERVE` overrides.
+- **Paging is bounded by the cutoff, not by a flat 5 pages.** The old cap counted at most 500
+  deployments, which was ample against Hobby's 80 and would have made the guard decorative against
+  Pro's 4,800 — it could never count high enough to fire. It now short-circuits as soon as the
+  cutoff is reached, so a normal day still costs exactly one API call.
+
+Bot branch previews are **on** (see above). If a new bot pipeline is added, list its branch pattern
+in `deploymentEnabled` explicitly — `study-app/tests/vercel-crons.test.ts` requires an explicit
+boolean for each known pattern, so the decision is recorded rather than inherited from the default.
+
+**`crons` in `study-app/vercel.json` are held to 2 jobs, each at most once per day.** Pro no longer
+requires this — the gate is kept deliberately, because the failure mode is silent. A sub-daily
+schedule (anything with `*`, `,`, `-` or `/` in the
 minute or hour field) makes Vercel reject the deployment *at creation time* with
 `cron_jobs_limits_reached` — so there is no failed build to look at, nothing appears in the
 deployments list, and **git auto-deploy silently stops for every subsequent commit**. That is what
@@ -408,7 +416,7 @@ Ids are the `user_attempts.id` shown in the admin feedback queue; `Fixes-Bug: 40
 On every push to master, `.github/workflows/close-fixed-bug-reports.yml` runs
 `study-app/scripts/close-fixed-bug-reports.mjs`, which sets `feedback_status = 'accepted'` on each
 referenced open row with a note naming the commit. It creates no deployment, so it burns none of the
-Hobby-plan quota.
+deployment quota.
 
 **Only the trailer closes a row.** Prose mentions are parsed but merely reported as a candidate in the
 Actions log, because prose cannot express intent reliably — measured on real history, prose matching

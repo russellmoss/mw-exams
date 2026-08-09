@@ -2,10 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "git": {
     "deploymentEnabled": {
-      "claude/*": false,
-      "auto-feedback/*": false,
-      "bin-fix/*": false,
-      "feature-request/*": false
+      "claude/*": true,
+      "auto-feedback/*": true,
+      "bin-fix/*": true,
+      "feature-request/*": true
     }
   },
   "ignoreCommand": "if git log -1 --pretty=%s | grep -q '\\[skip ci\\]'; then exit 0; else git diff --quiet HEAD^ HEAD ./; fi",

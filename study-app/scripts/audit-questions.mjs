@@ -16,7 +16,7 @@
 // Reads ground_truth from stem_answer_keys (already-resolved variety/region/country/is_blend per wine).
 import { readFileSync } from "fs";
 import { neon } from "@neondatabase/serverless";
-import { validateQuestion } from "../src/lib/question-validator.ts";
+import { validateQuestion, applyWineProfiles } from "../src/lib/question-validator.ts";
 import { GROUND_TRUTH_INDEPENDENT_RULES } from "../src/lib/question-rules.mjs";
 // The serve-time bank gate, imported so the sweep can enforce exactly what the serve path enforces
 // rather than an approximation of it. See the SERVE-GATE PARITY note below.
@@ -63,11 +63,24 @@ const rows = await sql`
 let hardCount = 0, softCount = 0, quarantined = 0, setScored = 0, unkeyed = 0, unkeyedCleared = 0;
 const byRule = {};
 
-// The rules an UNKEYED row is actually evaluated on: the ground-truth-independent set, plus the serve
-// gate (which runs on every row regardless of key). A flag naming only these is one this pass could
-// have re-set, so finding the row clean is real evidence the flag is stale. A flag naming anything
-// else was written by an evaluation this pass cannot reproduce, and is left alone.
-const UNKEYED_EVALUATED_RULES = new Set([...GROUND_TRUTH_INDEPENDENT_RULES, "serve-gate"]);
+// R-SCOPE (scope_header_ask_mismatch, EK-0172) reads ONLY the stem wording and the wine COUNT — never a
+// resolved variety/region/country — so its verdict is byte-identical keyed or unkeyed. Unlike the other
+// stem-independent rules it does NOT live in the shared applyQuestionRules layer (it is in
+// question-validator.ts), so GROUND_TRUTH_INDEPENDENT_RULES — which is derived from that layer — cannot
+// name it. Enumerate it here so unkeyed rows are still gated on it; without this the very question the
+// rule was written for (gen_p1_F4_1786073249209, unkeyed) would have its violation filtered away.
+const STEM_ONLY_INDEPENDENT_RULES = ["scope_header_ask_mismatch"];
+
+// The rules an UNKEYED row is actually evaluated on: the ground-truth-independent set, the stem-only
+// independent rules above, plus the serve gate (which runs on every row regardless of key). A flag
+// naming only these is one this pass could have re-set, so finding the row clean is real evidence the
+// flag is stale. A flag naming anything else was written by an evaluation this pass cannot reproduce,
+// and is left alone.
+const UNKEYED_EVALUATED_RULES = new Set([
+  ...GROUND_TRUTH_INDEPENDENT_RULES,
+  ...STEM_ONLY_INDEPENDENT_RULES,
+  "serve-gate",
+]);
 
 function clearableUnkeyed(reasons) {
   if (!Array.isArray(reasons) || reasons.length === 0) return false;
@@ -88,9 +101,16 @@ for (const r of rows) {
   // deliberation instead of a wine still resolves to a plausible-looking key (a paragraph mentioning
   // "Amontillado" and "Spain" keys as Palomino/Jerez/Spain), so the shape rule is the only one that
   // can see the defect — and it needs the string ground_truth discarded.
-  const wines = hasKey
-    ? gt.map((w) => (bySlot.has(w.slot) ? { ...w, fullText: bySlot.get(w.slot) } : w))
-    : rawWines.map((w) => ({ slot: w.slot, fullText: w.fullText }));
+  // wine_profiles was in this SELECT but never read, so the sweep judged every wine on the key alone
+  // while auditAndQuarantineQuestion had at least been zipping the colour on — the two audits were
+  // looking at different wines. applyWineProfiles is now the single place that merges the enrichment
+  // in (colour, and the full grape list the key reduces to a dominant grape), used by both.
+  const wines = applyWineProfiles(
+    hasKey
+      ? gt.map((w) => (bySlot.has(w.slot) ? { ...w, fullText: bySlot.get(w.slot) } : w))
+      : rawWines.map((w) => ({ slot: w.slot, varieties: [], region: "", fullText: w.fullText })),
+    r.wine_profiles
+  );
   const res = validateQuestion({
     questionId: r.question_id, paper: r.paper, family: r.family,
     questionText: r.question_text, totalMarks: r.total_marks, wines,
@@ -115,7 +135,10 @@ for (const r of rows) {
   // nobody has resolved. Enforcing the full set here would quarantine most of the bank over nothing.
   // GROUND_TRUTH_INDEPENDENT_RULES is derived from that same two-way comparison — see the note on it
   // in question-rules.mjs and tests/ground-truth-independent-rules.test.ts, which re-derives it.
-  if (!hasKey) hardAll = hardAll.filter((x) => GROUND_TRUTH_INDEPENDENT_RULES.includes(x.rule));
+  if (!hasKey)
+    hardAll = hardAll.filter(
+      (x) => GROUND_TRUTH_INDEPENDENT_RULES.includes(x.rule) || STEM_ONLY_INDEPENDENT_RULES.includes(x.rule)
+    );
 
   // SERVE-GATE PARITY. filterValidBanked refuses questions at serve time that the SQL eligibility
   // predicate happily counts, so the "N available" on the setup card overstated the pool by 36 of 409

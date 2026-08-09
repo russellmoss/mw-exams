@@ -281,8 +281,15 @@ export function markScopeForHeader(header, wineCount) {
 }
 
 // "(3 x 10 marks)" | "(15 marks)" | "(8 marks per pair)" | "(4 x 10)" | "(4 x 10\)"
+//
+// The per-unit value matches DECIMALS too — "(2 x 7.5 marks)". Not because fractional marks are legal
+// (they never are; the exam awards whole marks only) but because an integer-only pattern made them
+// INVISIBLE: "(2 x 7.5 marks)" matched nothing, so both stems Mike rejected on 2026-08-09 printed
+// 65 marks over 2 wines while every sum check totalled the remaining integer tokens to a clean 50.
+// A defect the parser cannot see is a defect no rule can reject. Bare decimals — "(13.5)", an ABV —
+// are still excluded from the unitless convention inside expandMarkTokens.
 const MARK_TOKEN_RE =
-  /\(\s*(?:(\d+)\s*[x×]\s*)?(\d+)\s*(marks?)?(?:\s+per\s+(wine|pair))?\s*\\?\s*\)/gi;
+  /\(\s*(?:(\d+)\s*[x×]\s*)?(\d+(?:\.\d+)?)\s*(marks?)?(?:\s+per\s+(wine|pair))?\s*\\?\s*\)/gi;
 
 // A lettered sub-part label — the unit a header's scope actually distributes over.
 const LETTERED_PART_RE = /^\s*([a-h])\)\s*/gim;
@@ -300,10 +307,12 @@ const FLIGHT_WIDE_PART_RE =
  * @property {string} raw       the matched text, e.g. "(3 x 10 marks)"
  * @property {number} start     index of `raw` in the question text
  * @property {number} end       index just past `raw`
- * @property {number} perUnit   the printed per-unit value (10 in "3 x 10 marks")
+ * @property {number} perUnit   the printed per-unit value (10 in "3 x 10 marks"; may be fractional)
  * @property {number} mult      how many units it is awarded over
  * @property {number} marks     perUnit × mult — what this token is really worth
  * @property {"explicit"|"per-phrase"|"scoped"|"enumerated"|"pooled"|"bare"} origin  where `mult` came from
+ * @property {boolean} fractional  the printed per-unit value is not a whole number ("7.5 marks") —
+ *                                 always a defect; the exam awards whole marks only
  */
 
 /**
@@ -358,15 +367,17 @@ export function expandMarkTokens(questionText, wineCount = 0) {
   /** @type {MarkToken[]} */
   const raws = [];
   for (const m of text.matchAll(MARK_TOKEN_RE)) {
+    const perUnit = parseFloat(m[2]);
     // A bare "(10)" is a mark token only under a question's own unitless convention, and only at a
-    // value a paper could plausibly award — which keeps a parenthesised vintage or ABV out.
+    // value a paper could plausibly award — which keeps a parenthesised vintage or ABV out. A bare
+    // DECIMAL never counts at all: "(13.5)" is an ABV, and no unitless corpus year prints one.
     if (m[1] === undefined && !m[3]) {
       if (!unitless || m[4]) continue;
-      const bare = parseInt(m[2], 10);
-      if (!(bare >= 1 && bare <= 100)) continue;
+      if (!Number.isInteger(perUnit)) continue;
+      if (!(perUnit >= 1 && perUnit <= 100)) continue;
     }
     const start = m.index ?? 0;
-    raws.push({ m, start, end: start + m[0].length, perUnit: parseInt(m[2], 10) });
+    raws.push({ m, start, end: start + m[0].length, perUnit });
   }
 
   // Adjacent bare tokens are an ENUMERATION, not one scoped value: "a) Identify … (13 marks)
@@ -408,7 +419,10 @@ export function expandMarkTokens(questionText, wineCount = 0) {
         origin = scope ? "pooled" : "bare";
       }
     }
-    tokens.push({ raw: m[0], start, end, perUnit, mult, marks: perUnit * mult, origin });
+    tokens.push({
+      raw: m[0], start, end, perUnit, mult, marks: perUnit * mult, origin,
+      fractional: !Number.isInteger(perUnit),
+    });
   });
   return { tokens, total: tokens.reduce((sum, t) => sum + t.marks, 0) };
 }
@@ -521,6 +535,49 @@ const DELIBERATION_MARKERS = [
   { re: /\b(exclude[ds]?|banned|non-banned|dedupl\w*|correction|corrected)\b/i, why: "a dedup/exclusion note" },
   { re: /\b(the stem|sub-?rule|per the prompt|paper [123]\b|this is a problem|see reasoning)/i, why: "a reference to the prompt's own rules" },
 ];
+
+// The same failure, one field over. checkWineReferenceShape exists because the generator's reasoning
+// used to land in a WINE slot; on 2026-08-09 it started landing in the QUESTION TEXT instead, while
+// the model worked out how to make the marks total 25 x wines:
+//
+//   "actually rereading the instructions"      "f must be divisible by 3"
+//   "flat shared part that divides evenly"     "9 marks shared not per wine so 3 marks per wine equiv"
+//
+// Nothing rejected the draft for that. The validator's part extractor read each fragment as a
+// sub-part command and returned it as part-task-repertoire — 380 violations on one candidate, and
+// only AFTER a full Tavily wine enrichment had been paid for. Catching it at parse time makes the
+// failure instant and free.
+//
+// Deliberately narrow: every pattern is scratch-work or first-person, and an MW stem is neither. It
+// is written in the imperative to a candidate ("Identify the grape variety.") and never reasons about
+// its own construction. Mark ARITHMETIC is not a marker — "(3 x 8 marks)" is the correct notation —
+// only prose ABOUT the arithmetic is.
+const STEM_DELIBERATION_MARKERS = [
+  { re: /\b(wait|actually|hmm|let me|i need|i'll|i will|we need|re-?reading)\b/i, why: "first-person deliberation" },
+  { re: /\b(divisible by|divides? evenly|adds? up to|that gives|doesn'?t work|does not work|try again|recalculat\w*)\b/i, why: "mark arithmetic worked out in prose" },
+  { re: /\b(flat shared part|shared flat part)\b/i, why: "the prompt's own vocabulary for a mark shape" },
+  // "but that doesn t use the same variety identified once" — the model arguing with its own draft.
+  // A stem states; it never contrasts against an alternative it just considered.
+  { re: /\bbut that\b|\b(that|which|this) doesn'?\s?t\b/i, why: "the model arguing with its own draft" },
+  { re: /\b(per wine equiv\w*|shared not per wine|from the per wine parts)\b/i, why: "mark-scoping scratch work" },
+  { re: /\b(the stem|the instructions|per the prompt|sub-?rule|the constraint)\b/i, why: "a reference to the prompt's own rules" },
+];
+
+/**
+ * Does `questionText` read as an exam stem, or as the generator thinking out loud?
+ * @param {string} questionText
+ * @returns {{ ok: boolean, problem: string | null }}
+ */
+export function checkStemShape(questionText) {
+  const text = (questionText || "").toString();
+  for (const m of STEM_DELIBERATION_MARKERS) {
+    const hit = text.match(m.re);
+    if (hit) {
+      return { ok: false, problem: `stem contains ${m.why} ("${hit[0]}") — this is generator reasoning, not a question` };
+    }
+  }
+  return { ok: true, problem: null };
+}
 
 // The longest legitimate reference in the bank is 137 chars. The bounds below are deliberately loose —
 // they exist to catch a bare "..." or a paragraph of prose, not to police label length.
@@ -790,6 +847,7 @@ export function matchExcludedProducer(label) {
 // fails if the corpus ever disagrees with it.
 export const GROUND_TRUTH_INDEPENDENT_RULES = [
   "MARKS_BELOW_FLOOR",
+  "MARKS_FRACTIONAL",
   "excluded-producer",
   "part-task-repertoire",
   "pooled-block-marked-per-wine",
@@ -951,14 +1009,57 @@ export function applyQuestionRules(q, opts = {}) {
       });
   }
 
-  // R5 — "single grape variety" + a blend wine. SOFT: a dominant-grape blend / co-ferment is often
-  // legitimate, and "predominantly" explicitly permits it. Truly wrong wines are caught (hard) by R2.
-  if (!predominantly && /\bsingle grape variety\b/.test(stem) && wines.some((w) => w.is_blend))
-    v.push({
-      rule: "single-variety-blend",
-      severity: "soft",
-      detail: `stem says single grape variety; a wine is a blend (${wines.filter((w) => w.is_blend).map((w) => w.varieties.join("/")).join("; ")})`,
-    });
+  // R5 — "single grape variety" + a blend wine.
+  //
+  // Severity is graded on HOW MANY grapes, because the two cases are not the same question. Two
+  // varieties can be an 85%-rule varietal — most appellations let a wine labelled "Chardonnay" carry
+  // a splash of something else, and a co-ferment or a dominant-grape blend is often a legitimate
+  // answer to a "single grape variety" stem. That stays SOFT, as it always was. THREE or more is a
+  // blend in anyone's terms: asked to name "the single grape variety", the candidate has no answer to
+  // give, which is this file's definition of hard. Reviewer attempt #475 is the case — a stem
+  // promising "different single grape varieties" over Emilio Rojo Ribeiro Blanco, which the row's own
+  // wine_profiles recorded as Treixadura/Loureiro/Albariño with confidence "high".
+  //
+  // The count comes from `blend_varieties` (the enrichment's full list) rather than `varieties` (what
+  // the key resolved), because the key reduces a blend to its dominant grape — which is exactly why
+  // this rule could not see #475 before. See applyWineProfiles in question-validator.ts.
+  //
+  // The stemDeclaresBlend guard is new and load-bearing. Two real past papers say "single grape
+  // variety" AND announce a blend in the same breath:
+  //   2022 P2 Q1 — "Wines 1-3 … each made from a different, single grape variety. Wine 4 is a blend
+  //                 of all three of these varieties."
+  //   2019 P1 Q1 — "They may be blends or single varieties, but one variety is common to all."
+  // Firing on those would reject the actual exam. Nothing caught it before only because the key had
+  // never marked those wines as blends; giving the rule real evidence is what made the gap reachable.
+  //
+  // Deliberately NOT the general `subsetSplit` guard, which is far too wide here: isSubsetSplit()
+  // matches any stem containing "Wines 1 and 2", i.e. essentially every two-wine flight — including
+  // attempt #475's, the case this rule exists to catch. (That over-breadth is the pre-existing gap
+  // already noted where subsetSplit is defined.) The narrow test is whether the STEM ITSELF says a
+  // blend is present; only then is a blended wine what the question asked for.
+  // Both inflections. The regex was `single grape variety` singular, so it never matched the commonest
+  // multi-wine phrasing — "made from different single grape VARIETIES" — which is attempt #475's stem
+  // verbatim. R3 next door has always used variet(?:y|ies); this rule simply never did, so it was
+  // silently scoped to same-variety flights while its whole purpose is the different-variety ones.
+  const stemDeclaresBlend = /\b(?:is|are|may be|might be|could be)\s+(?:a\s+)?blends?\b|\bblend of\b|\bblended\b/.test(stem);
+  if (!predominantly && !stemDeclaresBlend && /\bsingle grape variet(?:y|ies)\b/.test(stem)) {
+    const blends = wines.filter((w) => w.is_blend);
+    if (blends.length > 0) {
+      const grapesOf = (w) => (w.blend_varieties?.length ? w.blend_varieties : w.varieties || []);
+      const genuine = blends.filter((w) => grapesOf(w).length >= 3);
+      const describe = (w) => `wine ${w.slot} (${grapesOf(w).join("/") || "blend"})`;
+      v.push({
+        rule: "single-variety-blend",
+        severity: genuine.length > 0 ? "hard" : "soft",
+        detail:
+          genuine.length > 0
+            ? `stem says single grape variety, but ${genuine
+                .map(describe)
+                .join("; ")} is a blend of ${grapesOf(genuine[0]).length} — there is no single variety to name`
+            : `stem says single grape variety; a wine is a blend (${blends.map(describe).join("; ")})`,
+      });
+    }
+  }
 
   // R9 — contrast-without-contrast (Mike's bin corpus, Class 3). Two triggers, both method-shaped:
   // a stem that PROMISES "different methods of production" must not key duplicate methods (same
@@ -1181,7 +1282,20 @@ export function applyQuestionRules(q, opts = {}) {
 // resolves to "unknown" and the diversity rules skip it. Every synonym key above that can appear on a
 // real label therefore has a token here. Longer alternatives must precede the shorter ones they
 // contain ("garnacha blanca" before "garnacha") because the regex alternation is first-match.
-export const WHITE_GRAPE_INDICATORS = /\b(chardonnay|sauvignon\s*blanc|riesling\s*italico|riesling|pinot\s*gri[gs]|grauburgunder|rul[aä]nder|pinot\s*bianco|weissburgunder|gewurz|moscato\s*bianco|moscatel\s*de\s*grano\s*menudo|moscatel|muscat\s*blanc|muscat|moscato|zibibbo|gelber\s*muskateller|muskateller|viognier|chenin|steen|semillon|albarino|alvarinho|gruner|verdejo|vermentino|soave|garganega|torrontes|fiano|greco|arneis|cortese|marsanne|roussanne|picpoul|muscadet|melon\s*de\s*bourgogne|blanc\s*de\s*blancs|prosecco|glera|listan\s*blanco|palomino|pedro\s*xim[eé]nez|furmint|sercial|verdelho|malvasia|malmsey|boal|bual|assyrtiko|welschriesling|grasevina|vidal|viura|macabeo|garnacha\s*blanca|grenache\s*blanc|ugni\s*blanc|trebbiano|tocai\s*friulano|friulano|treixadura|romorantin|godello|hondarrabi\s*zuri|aligote|savagnin|altesse|jacquere|mauzac|\brolle\b|bourboulenc|clairette|timorasso|pecorino|passerina|falanghina|verdicchio|grillo|catarratto|carricante|inzolia|insolia|loureiro|arinto|encruzado|ant[aã]o\s*vaz|fern[aã]o\s*pires|s[iy]lvaner|elbling|scheurebe|rkatsiteli|robola|savatiano|malagousia|petit\s*manseng|gros\s*manseng|colombard|folle\s*blanche|chasselas|gutedel|m[uü]ller[- ]thurgau|traminer|kerner|xarel[- ]?lo|parellada)\b/i;
+// PREFIXES DO NOT WORK HERE. The whole alternation sits inside \b(…)\b, so every alternative must end
+// on a word boundary. Two entries were written as prefixes and could therefore never match the grape
+// they name:
+//   `gewurz`         — "gewurztraminer" continues past it, so \bgewurz\b fails. Gewürztraminer has
+//                      NEVER been detected, in any spelling. (`traminer` further down does not save it
+//                      either: there is no word boundary before it inside "gewurztraminer".)
+//   `pinot\s*gri[gs]` — matches "pinot gris" (ends on the s) but not "pinot grigio".
+// Both are staple Paper 1 whites, and an undetected variety is invisible to R-COLOUR, to the diversity
+// rules, and to isBanker's variety gate — where "unknown" is a free pass, so a Marlborough
+// Gewürztraminer was counted as a banker against a signal that requires Sauvignon (reviewer attempt
+// #459: "the Gewurztraminer and the Grüner Veltliner are pretty big curve balls for New Zealand").
+// Same family as the accented-label bug already recorded for this file: the regex looked right and
+// silently matched nothing.
+export const WHITE_GRAPE_INDICATORS = /\b(chardonnay|sauvignon\s*blanc|riesling\s*italico|riesling|pinot\s*grigio|pinot\s*gris|grauburgunder|rul[aä]nder|pinot\s*bianco|weissburgunder|gewurztraminer|gewurz|moscato\s*bianco|moscatel\s*de\s*grano\s*menudo|moscatel|muscat\s*blanc|muscat|moscato|zibibbo|gelber\s*muskateller|muskateller|viognier|chenin|steen|semillon|albarino|alvarinho|gruner|verdejo|vermentino|soave|garganega|torrontes|fiano|greco|arneis|cortese|marsanne|roussanne|picpoul|muscadet|melon\s*de\s*bourgogne|blanc\s*de\s*blancs|prosecco|glera|listan\s*blanco|palomino|pedro\s*xim[eé]nez|furmint|sercial|verdelho|malvasia|malmsey|boal|bual|assyrtiko|welschriesling|grasevina|vidal|viura|macabeo|garnacha\s*blanca|grenache\s*blanc|ugni\s*blanc|trebbiano|tocai\s*friulano|friulano|treixadura|romorantin|godello|hondarrabi\s*zuri|aligote|savagnin|altesse|jacquere|mauzac|\brolle\b|bourboulenc|clairette|timorasso|pecorino|passerina|falanghina|verdicchio|grillo|catarratto|carricante|inzolia|insolia|loureiro|arinto|encruzado|ant[aã]o\s*vaz|fern[aã]o\s*pires|s[iy]lvaner|elbling|scheurebe|rkatsiteli|robola|savatiano|malagousia|petit\s*manseng|gros\s*manseng|colombard|folle\s*blanche|chasselas|gutedel|m[uü]ller[- ]thurgau|traminer|kerner|xarel[- ]?lo|parellada)\b/i;
 export const RED_GRAPE_INDICATORS = /\b(cabernet\s*sauvignon|cabernet\s*franc|merlot|pinot\s*noir|pinot\s*nero|spatburgunder|sp[aä]tburgunder|blauburgunder|syrah|shiraz|garnacha\s*tinta|grenache|garnacha|cannonau|tempranillo|tinta\s*de\s*toro|tinto\s*fino|tinta\s*fina|tinta\s*roriz|aragonez|ull\s*de\s*llebre|cencibel|sangiovese|prugnolo\s*gentile|nielluccio|morellino|nebbiolo|spanna|chiavennasca|malbec|zinfandel|primitivo|tribidrag|mourvedre|monastrell|mataro|carignan|carinena|cari[nñ]ena|mazuelo|samso|barbera|dolcetto|touriga\s*nacional|touriga\s*franca|touriga\s*francesa|touriga|tannat|carmenere|pinotage|gamay|blaufr[aä]nkisch|lemberger|kekfrankos|k[ée]kfrankos|zweigelt|aglianico|nero\s*d.avola|nerello|lagrein|xinomavro|cinsault|tinta\s*negra\s*mole|tinta\s*negra|petite\s*sirah|durif|cot|baga|mencia|blauer\s*wildbacher|corvina|corvinone|rondinella|molinara|sagrantino|refosco|schioppettino|teroldego|petit\s*verdot|graciano|bobal|trincadeira|castel[aã]o|alfrocheiro|agiorgitiko|negroamaro|gaglioppo|frappato|saperavi|plavac\s*mali|ciliegiolo|freisa|croatina|marzemino|schiava|cesanese|trousseau|poulsard|ploussard)\b/i;
 // NOTE: `montepulciano` is deliberately NOT in the list above. The bare token is ambiguous — Vino
 // Nobile di Montepulciano is Sangiovese from a Tuscan town, Montepulciano d'Abruzzo is the grape —

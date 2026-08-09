@@ -49,14 +49,27 @@ const { buildModelAnswerPrompt, parseModelAnswerSections, modelAnswerMaxTokens, 
 const { enrichWineProfiles } = await import("../src/lib/wine-enrichment.ts");
 const { saveGeneratedQuestion, getQuestionsByFilter, getRecentGeneratedQuestions, getProducerTally, getRecentProducerKeys } = await import("../src/lib/db.ts");
 const { validateQuestion } = await import("../src/lib/question-validator.ts");
-const { normalizeMarkAllocation, buildGenerationProducerExclusion, PRODUCER_RECENT_WINDOW } = await import("../src/lib/question-engine.ts");
-const { getLatestOpus } = await import("../src/lib/model-resolver.ts");
+const { normalizeMarkAllocation, buildGenerationProducerExclusion, PRODUCER_RECENT_WINDOW, bankedServeRejection } = await import("../src/lib/question-engine.ts");
+// The mark expander the validator itself reads through — the repair tier must count marks the same
+// way the gate does, or it "fixes" a question into a different failure.
+const { expandMarkTokens } = await import("../src/lib/question-rules.mjs");
+// Model choice goes through the SAME A/B selector the app uses (see the note at OPUS below).
+const { selectModel, resolveTierModel } = await import("../src/lib/model-selector.ts");
+const { logClaudeUsage } = await import("../src/lib/usage-log.ts");
+// (model-resolver is not imported here any more — selectModel resolves the opus tier through it.)
 const { buildKeyForRow, upsertKey } = await import("./build-stem-answer-keys.mjs");
-const { checkWineReferenceShape } = await import("../src/lib/question-rules.mjs");
+const { checkWineReferenceShape, checkStemShape } = await import("../src/lib/question-rules.mjs");
 
 const sql = neon(process.env.DATABASE_URL);
 const APPLY = process.argv.includes("--apply");
 const LIMIT = Number((process.argv.find((a) => a.startsWith("--limit=")) || "").split("=")[1]) || Infinity;
+// --repair-only: attempt the cheap in-place repair and NEVER fall through to regeneration.
+//
+// This is the right first pass over a backlog. Repair costs at most one small Sonnet edit and often
+// nothing; regeneration costs a generation, a wine enrichment, a key build and a model answer. Running
+// repair-only across everything first means the expensive pass afterwards only sees questions that
+// genuinely need a new flight — and the count it reports is the honest size of that set.
+const REPAIR_ONLY = process.argv.includes("--repair-only");
 const MAX_ATTEMPTS = 6;
 
 const FAMILY_LABELS = {
@@ -100,6 +113,16 @@ function parseGenerated(text, paper, family) {
     // model's mark arithmetic is rejected on nearly every attempt (an observed run burned all 6
     // retries emitting 40,40,40,40,40,90 against a target of 50), so remediation could never
     // converge for a reason that has nothing to do with the question's content.
+    // Reject a stem that is the model reasoning about its own marks rather than asking a question.
+    // Checked BEFORE the mark repair and before anything is saved: normalizeMarkAllocation cannot
+    // remove prose, and downstream this draft would otherwise buy a full wine enrichment before the
+    // validator threw 380 part-task-repertoire violations at it. Same guard as the wine slots below,
+    // one field over. See checkStemShape.
+    const stemShape = checkStemShape(questionText);
+    if (!stemShape.ok) {
+      console.warn(`    ${stemShape.problem}`);
+      return null;
+    }
     const repairedText = normalizeMarkAllocation(questionText, wines.length);
     questionText = repairedText;
     let totalMarks = 0;
@@ -129,16 +152,33 @@ function parseGenerated(text, paper, family) {
 }
 
 const client = new Anthropic({ apiKey: APIKEY });
-let OPUS = "claude-sonnet-4-6";
-try { OPUS = await getLatestOpus(APIKEY); } catch { /* fall back to sonnet */ }
+
+// MODEL CHOICE FOLLOWS THE APP'S A/B, IT DOES NOT SET ITS OWN.
+//
+// This script used to open on Opus for generation and pin Opus for every model answer, while the live
+// bank is built by question_generation at SONNET 100% and answers run a 50/50 opus/sonnet split. So
+// remediation was paying roughly seven times the per-attempt rate to produce questions the bank
+// otherwise makes with Sonnet — and diverging from whatever the A/B is tuned to, silently, because
+// nothing here read it. Routing both through selectModel makes the replacement come from the same
+// distribution as the thing it replaces, which is also the only honest basis for calling it "as
+// accurate": validity here is enforced by the validator gate, not by the model tier.
+//
+// Measured on the batch that ran the old way: 18 questions took 17 rejected attempts.
+const GEN = await selectModel("question_generation", APIKEY, "sonnet");
+const ANSWER = await selectModel("model_answer", APIKEY, "opus");
+// The escalation target, pinned past the A/B: the point of attempt 3 is to be a DIFFERENT and larger
+// model than attempts 1-2, which a split could otherwise resolve back to the same one.
+const ESCALATED = await resolveTierModel("opus", APIKEY);
+console.log(`models: generation=${GEN.model} (attempts 1-2) → ${ESCALATED} (3+)  answer=${ANSWER.model}`);
 
 // Sizing comes from the ONE shared helper (prompts/model-answer-prompt.ts), which carries the
 // evidence. It was hard-coded here — first 2000, then 8000 — and hard-coding is what let this script
 // drift below the live engine: at 2000, 12 of 17 remediated questions landed in the live pool with NO
 // model answer at all, and genModelAnswer's `catch` never fired because nothing threw, the response
 // simply came back short.
-async function callModel(model, system, user, cachedPrefix) {
+async function callModel(model, system, user, cachedPrefix, taskType = "question_generation") {
   const maxTokens = modelAnswerMaxTokens(model);
+  const t0 = Date.now();
   const msg = await client.messages.create(
     {
       model,
@@ -160,6 +200,20 @@ async function callModel(model, system, user, cachedPrefix) {
     // on the SDK's own default instead.
     { timeout: 360_000, maxRetries: 2 }
   );
+  // EVERY CALL IS LOGGED. This script spent real money invisibly: callModel talked to the SDK
+  // directly, so its generations and model answers never reached model_usage and neither the Cost
+  // dashboard nor /optimize-costs could see them — only the wine enrichment, which goes through the
+  // app's own lib, ever showed up. That was tolerable for a hand-run script and is not for a nightly
+  // job. Best-effort: a logging failure must never lose the work the call just paid for.
+  try {
+    await logClaudeUsage(
+      { taskType, model, source: "server", userId: null, attemptId: null, abGroup: null },
+      msg.usage,
+      { latencyMs: Date.now() - t0 }
+    );
+  } catch (e) {
+    console.warn(`    usage log failed (non-fatal): ${e.message}`);
+  }
   const text = msg.content.filter((b) => b.type === "text").map((b) => b.text).join("");
   if (msg.stop_reason === "max_tokens") {
     console.warn(`    ⚠ response hit max_tokens (${maxTokens}) — output may be truncated`);
@@ -183,7 +237,7 @@ async function callModel(model, system, user, cachedPrefix) {
 async function genModelAnswer(questionText, wines, paper, wineProfiles) {
   try {
     const p = buildModelAnswerPrompt(questionText, wines, paper, undefined, undefined, wineProfiles);
-    const text = await callModel(OPUS, p.system, p.user, p.cachedPrefix);
+    const text = await callModel(ANSWER.model, p.system, p.user, p.cachedPrefix, "model_answer");
     const s = parseModelAnswerSections(text);
     // An empty answer is a silent failure: the caller skips the save and the replacement lands in
     // the live pool with no model answer, having archived the question it replaced. Say so loudly.
@@ -227,7 +281,19 @@ async function remediateOne(old, existingWines, latest) {
   }
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    const model = attempt === 1 ? OPUS : "claude-sonnet-4-6";
+    // ESCALATE ON FAILURE — cheap first, then the bigger model when cheap cannot converge.
+    //
+    // This has now been wrong in both directions. It opened on Opus and dropped to Sonnet on retry,
+    // which paid the premium on the easy majority and the cheap tier on the hard residue — backwards.
+    // Setting every attempt to Sonnet then went too far: measured over the drain, half of Sonnet's
+    // rejected drafts were its own mark arithmetic narrated into the stem ("f must be divisible by
+    // 3"), against one in ten on the Opus-first batch, and the average violation count per rejected
+    // draft went from 16 to 159.
+    //
+    // So: two attempts on the A/B tier, then Opus. Most questions never reach the third attempt (the
+    // repair pass and the drain's successes both converged well inside it), and the ones that do are
+    // the constrained residue where the premium actually buys convergence rather than a nicer wine.
+    const model = attempt <= 2 ? GEN.model : ESCALATED;
     let text;
     try { text = await callModel(model, prompt.system, prompt.user, prompt.cachedPrefix); }
     catch (e) { console.warn(`    attempt ${attempt}: model error ${e.message}`); continue; }
@@ -275,6 +341,153 @@ async function remediateOne(old, existingWines, latest) {
     await rejectCandidate(newId, [...key.problems, ...hard.map((v) => `${v.rule}: ${v.detail}`)]);
   }
   return null;
+}
+
+// ── TIER 1: REPAIR IN PLACE ───────────────────────────────────────────────────────────────────────
+//
+// A third of the quarantined backlog is not a bad question. Measured over the 264 live quarantined
+// rows on 2026-08-09: 78 of them (30%) are flagged ONLY for mark arithmetic or sub-part shape —
+// MARKS_BELOW_FLOOR (56), id-mark-allocation (24), pooled-block-marked-per-wine (24),
+// shared-variety-marked-per-wine (16), pooled-block-per-wine-task (10). The wines are fine. The
+// defect is "(2 x 3 marks)" where the floor is five, or asking the variety per-wine when the stem
+// says the flight shares one.
+//
+// Regenerating those throws away a flight a reviewer may already have approved and rolls the dice on
+// a fresh one they then have to re-review — so repair is not merely cheaper here, it is MORE accurate.
+// It also costs a rounding error against a regeneration: no wine enrichment, no key rebuild, no model
+// answer, and often no model call at all.
+//
+// TWO STEPS, CHEAPEST FIRST, AND THE VALIDATOR DECIDES:
+//   1. normalizeMarkAllocation — free, deterministic, already used by the generation path. Fixes a
+//      wrong TOTAL by nudging one part, and refuses rather than half-fix.
+//   2. one small Sonnet edit, given the question and its actual violations, told to change as little
+//      as possible. Covers below-floor, over-cap and the block-shape rules in one mechanism, which is
+//      three bespoke deterministic repairers I would otherwise have to write and defend.
+//
+// Neither is trusted. A repair ships ONLY if the result passes the same validateQuestion + serve gate
+// the regeneration path must pass, with the EXISTING model answer in scope — so if a mark change
+// invalidates the answer, the repair fails and the question falls through to regeneration. Nothing
+// here can put a question back that the audit would immediately quarantine again.
+async function tryRepair(old) {
+  const row = (await sql`
+    SELECT question_id, paper, family, question_text, wines, wine_profiles, model_answer, total_marks
+    FROM generated_questions WHERE question_id = ${old.question_id}`)[0];
+  if (!row) return null;
+  const wines = typeof row.wines === "string" ? JSON.parse(row.wines) : row.wines;
+  const wineCount = Array.isArray(wines) ? wines.length : 0;
+  if (!wineCount) return null; // no flight to keep — regeneration is the only option
+  // buildKeyForRow reads wine_profiles per slot; an unenriched row has nothing to key against, and
+  // enriching it here would be most of a regeneration's cost anyway. Let it fall through.
+  if (!row.wine_profiles) return null;
+
+  const key = buildKeyForRow(row);
+  if (!key.ok) return null; // the key itself is broken; a stem edit cannot fix that
+  const bySlot = new Map(wines.map((w) => [w.slot, w.fullText]));
+  const keyed = (key.ground || []).map((w) => (bySlot.has(w.slot) ? { ...w, fullText: bySlot.get(w.slot) } : w));
+
+  const check = (text) => {
+    const marks = expandMarkTokens(text, wineCount).total;
+    const audit = validateQuestion({
+      questionId: row.question_id, paper: row.paper, family: row.family,
+      questionText: text, totalMarks: marks, wines: keyed,
+      modelAnswer: row.model_answer || undefined,
+    });
+    const gate = bankedServeRejection({ ...row, question_text: text, total_marks: marks });
+    return { ok: audit.ok && !gate, marks, audit, gate };
+  };
+
+  // Nothing to do if it is already clean — the flag is stale and the audit's own clearing pass owns it.
+  const before = check(row.question_text);
+  if (before.ok) return { text: row.question_text, marks: before.marks, how: "already clean" };
+
+  const candidates = [];
+  const normalized = normalizeMarkAllocation(row.question_text, wineCount);
+  if (normalized !== row.question_text) candidates.push(["normalizeMarkAllocation", normalized]);
+
+  for (const [how, text] of candidates) {
+    const r = check(text);
+    if (r.ok) return { text, marks: r.marks, how };
+  }
+
+  // Step 2. One Sonnet call. The violations are handed over verbatim: the model is fixing THIS list,
+  // not looking for something to improve. Editing the wines is forbidden — they are keyed, enriched
+  // and (for a reviewer-approved flight) the part worth keeping.
+  const violations = before.audit.violations
+    .filter((v) => v.severity === "hard")
+    .map((v) => `- ${v.rule}: ${v.detail}`)
+    .concat(before.gate ? [`- serve-gate: ${before.gate}`] : [])
+    .join("\n");
+  const system =
+    "You repair the MARK ALLOCATION and SUB-PART STRUCTURE of an MW practical exam question. " +
+    "You make the SMALLEST edit that clears the listed violations and change nothing else.\n\n" +
+    "HARD RULES:\n" +
+    "- Never change the wines, the number of wines, or what the stem claims about them.\n" +
+    `- Marks must total exactly ${wineCount * 25} (${wineCount} wines x 25).\n` +
+    "- Every written sub-part is worth at least 5 marks per wine. Only a literal 'state the residual " +
+    "sugar in g/L' or 'state the alcohol in % abv' readout may be 2-4.\n" +
+    "- A single identification sub-part is never worth more than 10 marks per wine.\n" +
+    "- If the stem says the wines share one grape variety, ask the variety ONCE flight-wide with a " +
+    "flat mark under 'With reference to all wines:', not per wine.\n" +
+    "- Keep the stem's wording, length and sub-part order. You are re-pricing and re-scoping parts, " +
+    "not rewriting the question: edits that inflate the text are rejected outright.\n" +
+    "- Output ONLY the corrected question text. No preamble, no explanation, no code fences.";
+  const user =
+    `Question (${wineCount} wines, Paper ${row.paper}):\n\n${row.question_text}\n\n` +
+    `Violations to clear:\n${violations}\n\nOutput the corrected question text now.`;
+
+  let edited;
+  try {
+    edited = (await callModel("claude-sonnet-4-6", system, user)).trim();
+  } catch (e) {
+    console.warn(`    repair: model error ${e.message}`);
+    return null;
+  }
+  // A model that "repairs" by rewriting the question has not repaired anything. The flight itself is
+  // safe by construction — the wines live in their own column and commitRepair never touches it — so
+  // what needs guarding is the STEM: its claims about those wines, and its scale.
+  //
+  // Scale is checked here (a repair that halves or doubles the text is a rewrite, whatever it clears);
+  // the claims are checked by validateQuestion below, which cross-checks stem facts against the KEYED
+  // ground truth and so catches "same variety" being quietly relaxed to make the marks work.
+  //
+  // The first version of this guard asserted each wine's label still appeared in the edited text.
+  // That could never pass: an MW stem does not name its wines, it refers to them by slot ("Wines 3-6
+  // are made from the same single grape variety"). It rejected every repair on the first dry run.
+  const ratio = edited.length / row.question_text.length;
+  if (!edited || ratio < 0.5 || ratio > 2) {
+    console.warn(`    repair: edit changed the stem's length by ${Math.round(ratio * 100)}% — rejecting as a rewrite`);
+    return null;
+  }
+  // THE MODEL FIXES THE SHAPE; THE NORMALIZER FIXES THE ARITHMETIC. On the first dry run every single
+  // Sonnet edit cleared the structural violation and then missed the total — 70 where 75 was needed,
+  // 78, 59, 97, 81, 85. Asking a language model to re-split a dozen sub-parts so they sum to exactly
+  // 25 x wines is asking the wrong tool; normalizeMarkAllocation does it deterministically and refuses
+  // rather than half-fix. Try the raw edit first (it may already be exact), then the snapped version.
+  for (const [how, text] of [["sonnet edit", edited], ["sonnet edit + normalize", normalizeMarkAllocation(edited, wineCount)]]) {
+    const r = check(text);
+    if (r.ok) return { text, marks: r.marks, how };
+  }
+  const after = check(normalizeMarkAllocation(edited, wineCount));
+  // Deduped: part-task-repertoire can emit a violation per part per wine and has been seen returning
+  // 150 identical entries, which turns one failed repair into an unreadable log.
+  const stillBad = [...new Set(after.audit.violations.filter((v) => v.severity === "hard").map((v) => v.rule))];
+  console.warn(`    repair: still invalid — ${after.gate || stillBad.join(",") || "unknown"}`);
+  return null;
+}
+
+// Commit a repair: the row keeps its id, its wines, its key and its model answer. Only the stem, the
+// mark total and the quarantine flag change — which is why this needs no archive and no replacement.
+async function commitRepair(questionId, repaired) {
+  await sql`
+    UPDATE generated_questions
+    SET question_text = ${repaired.text},
+        total_marks = ${repaired.marks},
+        invalid_reasons = NULL,
+        metadata = COALESCE(metadata, '{}'::jsonb) || ${JSON.stringify({ repaired_at: new Date().toISOString(), repaired_by: repaired.how })}::jsonb
+    WHERE question_id = ${questionId}`;
+  await sql`
+    UPDATE stem_answer_keys SET validated = true, invalid_reasons = NULL
+    WHERE question_id = ${questionId} AND invalid_reasons IS NOT NULL`;
 }
 
 // Mark a failed candidate row archived so it never enters the pool or the audit.
@@ -344,8 +557,28 @@ async function main() {
     : null;
 
   const results = [];
+  let repairedCount = 0;
   for (const old of targets) {
     console.log(`▶ ${old.question_id} (P${old.paper} ${old.family})`);
+
+    // TIER 1 FIRST, ALWAYS. Cheapest sufficient fix wins, and the validator decides whether it was
+    // sufficient — so this can never be the reason a broken question returns to service. A question
+    // whose wines are fine and whose marks are merely mis-split keeps its flight, its key, its model
+    // answer, its id and any review history attached to that id.
+    const repaired = await tryRepair(old);
+    if (repaired) {
+      if (APPLY) await commitRepair(old.question_id, repaired);
+      repairedCount++;
+      console.log(`  ✓ REPAIRED in place (${repaired.how}, ${repaired.marks} marks)${APPLY ? "" : " [dry run]"}\n`);
+      results.push({ old: old.question_id, ok: true, repaired: true });
+      continue;
+    }
+    if (REPAIR_ONLY) {
+      console.log(`  – not repairable in place; left for the regeneration pass\n`);
+      results.push({ old: old.question_id, ok: false, deferred: true });
+      continue;
+    }
+
     // Dedup against existing wines for this paper so the replacement is novel.
     const existing = [];
     for (const q of await getQuestionsByFilter(old.paper)) {
@@ -384,9 +617,18 @@ async function main() {
   }
 
   console.log("──────── REMEDIATION SUMMARY ────────");
-  for (const r of results) console.log(`  ${r.ok ? "✓" : "✗"} ${r.old}${r.new ? " → " + r.new : ""}`);
+  for (const r of results)
+    console.log(
+      `  ${r.ok ? "✓" : r.deferred ? "–" : "✗"} ${r.old}` +
+        `${r.repaired ? " (repaired in place)" : r.new ? " → " + r.new : r.deferred ? " (deferred to regeneration)" : ""}`
+    );
   const okCount = results.filter((r) => r.ok).length;
-  console.log(`\n${okCount}/${results.length} regenerated valid.${APPLY ? " Committed + old rows archived." : " (dry run — pass --apply to commit)"}`);
+  const deferred = results.filter((r) => r.deferred).length;
+  console.log(
+    `\n${okCount}/${results.length} fixed — ${repairedCount} repaired in place, ${okCount - repairedCount} regenerated` +
+      `${deferred ? `, ${deferred} deferred to the regeneration pass` : ""}.` +
+      `${APPLY ? " Committed." : " (dry run — pass --apply to commit)"}`
+  );
 }
 
 await main();

@@ -30,7 +30,11 @@ const crons = config.crons ?? [];
 /** A field pins a single value only when it is a bare number — `*`, `,`, `-` and `/` all repeat. */
 const isFixed = (field: string) => /^\d+$/.test(field);
 
-describe("vercel.json crons (Hobby plan limits)", () => {
+// Pro (since 2026-08-09) does not cap crons at two-per-day the way Hobby did, so this gate is now
+// stricter than the platform requires. It stays: the 2026-08-03 outage was a sub-daily cron being
+// REJECTED AT DEPLOYMENT CREATION, which silently stopped git auto-deploy for every later commit —
+// four hours dark with no failed build to look at. Cheap insurance against re-learning that.
+describe("vercel.json crons (kept at Hobby limits deliberately)", () => {
   it("declares at most two cron jobs", () => {
     expect(crons.length).toBeLessThanOrEqual(2);
   });
@@ -50,19 +54,26 @@ describe("vercel.json crons (Hobby plan limits)", () => {
   });
 });
 
-describe("vercel.json git deploys (Hobby plan deployment quota)", () => {
-  // Bot branches must NOT create deployments. Every branch push used to spawn a preview
-  // deployment; on 2026-08-06 that exhausted the Hobby plan's 100-deployments/day quota
-  // ("api-deployments-free-per-day") and production deploys of merged fixes were rate-limited for
-  // hours. Note an ignoreCommand skip does NOT save quota — the deployment is still created — so
-  // these must stay deploymentEnabled exclusions, which stop creation entirely. The patterns are
-  // the work branches of the three bot pipelines (auto-feedback.yml, incl. bin-fix dispatches, and
-  // feature-build.yml) plus claude/* worktree branches.
-  const excludedBotBranches = ["claude/*", "auto-feedback/*", "bin-fix/*", "feature-request/*"];
-  it.each(excludedBotBranches)("disables deployments for %s branches", (pattern) => {
+describe("vercel.json git deploys", () => {
+  // HISTORY, because this list has now been wrong in both directions.
+  //
+  // Every branch push used to spawn a preview deployment; on 2026-08-06 that exhausted the Hobby
+  // plan's 100-deployments/day quota and production deploys of merged fixes were rate-limited for
+  // hours, so the four bot branch patterns were set to false. On 2026-08-09 the account moved to Pro
+  // (6,000/day) and the exclusions became pure cost: a bot PR could not be looked at before merging
+  // it, on the pipelines whose output is least reviewed. They are true again.
+  //
+  // The patterns stay LISTED rather than deleted. Unlisted branches default to enabled, so deleting
+  // them would read identically to Vercel and lose the record that these four are a deliberate,
+  // revisited decision — the next quota incident should re-flip a value, not re-derive the list.
+  const botBranches = ["claude/*", "auto-feedback/*", "bin-fix/*", "feature-request/*"];
+  it.each(botBranches)("keeps an explicit deployment decision for %s branches", (pattern) => {
     const enabled = config.git?.deploymentEnabled;
     expect(typeof enabled, "deploymentEnabled must be the per-branch object form").toBe("object");
-    expect((enabled as Record<string, boolean>)[pattern]).toBe(false);
+    expect(
+      (enabled as Record<string, boolean>)[pattern],
+      `${pattern} must be listed explicitly, true or false`
+    ).toBeTypeOf("boolean");
   });
 
   it("does not disable master (git auto-deploy is the only production deploy path)", () => {

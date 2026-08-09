@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     // rendering the app, so three round-trips here would be three chances to flash the wrong state.
     const keyRows = await sql`
       SELECT provider FROM user_api_keys
-      WHERE user_id = ${user.id} AND provider IN ('anthropic', 'tavily', 'elevenlabs')
+      WHERE user_id = ${user.id} AND provider IN ('anthropic', 'tavily', 'elevenlabs', 'grok')
     `;
     const stored = new Set(keyRows.map((r) => r.provider as string));
     // Admins fall back to the server key for each — the BYOK exemption, applied per provider so an
@@ -24,6 +24,8 @@ export async function GET(request: Request) {
     const hasApiKey = stored.has("anthropic") || (user.isAdmin && !!process.env.ANTHROPIC_API_KEY);
     const hasTavilyKey = stored.has("tavily") || (user.isAdmin && !!process.env.TAVILY_API_KEY);
     const hasVoiceKey = stored.has("elevenlabs") || (user.isAdmin && !!process.env.ELEVENLABS_API_KEY);
+    // Gates the Unhinged persona. Admin-only server fallback, like the rest — everyone else BYOK.
+    const hasGrokKey = stored.has("grok") || (user.isAdmin && !!process.env.GROK_API_KEY);
 
     // Stem Detail default (migration 013) — used to preselect the dial on the setup screen.
     // Study defaults (migration 047) — the onboarding choices; questionSourceDefault drives which
@@ -62,6 +64,7 @@ export async function GET(request: Request) {
         hasApiKey,
         hasTavilyKey,
         hasVoiceKey,
+        hasGrokKey,
         stemDetailDefault,
         questionSourceDefault,
         reasoningStreamDefault,

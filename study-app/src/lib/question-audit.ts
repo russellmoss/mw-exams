@@ -13,7 +13,7 @@
 // human is watching the diff.
 
 import { neon } from "@neondatabase/serverless";
-import { validateQuestion, type AuditWine, type Violation } from "./question-validator";
+import { validateQuestion, applyWineProfiles, type AuditWine, type Violation } from "./question-validator";
 import { GROUND_TRUTH_INDEPENDENT_RULES } from "./question-rules.mjs";
 // Registers the appellation → primary-variety fallback that R-COLOUR needs. Without it
 // detectPrimaryVariety returns "unknown" for every appellation-only label — Hermitage,
@@ -69,34 +69,23 @@ export async function auditAndQuarantineQuestion(
   const bySlot = new Map<number, string>(
     (Array.isArray(raw) ? raw : []).map((w: { slot: number; fullText?: string }) => [w.slot, w.fullText ?? ""])
   );
-  // Zip the RESOLVED COLOUR on too, from wine_profiles. ground_truth carries varieties, which usually
-  // settle colour — but not for a red grape bottled as a white ("Touriga Nacional Branco"), and not
-  // when the key's varieties are empty. The enrichment step judged the wine in the glass, so prefer it.
-  const profilesRaw = (typeof r.wine_profiles === "string" ? JSON.parse(r.wine_profiles) : r.wine_profiles) as
-    | Record<string, { colour?: unknown } | undefined>
-    | null;
-  const colourBySlot = new Map<number, "white" | "red" | "rose" | "orange">();
-  for (const [slot, p] of Object.entries(profilesRaw ?? {})) {
-    const c = p?.colour;
-    if (c === "white" || c === "red" || c === "rose" || c === "orange") colourBySlot.set(Number(slot), c);
-  }
-
   // A row with no key has no resolved variety/region/country at all, so the wines it can offer the
   // rule layer are bare labels — exactly what the sweep does for the same case. Everything the rules
   // infer from a key is simply absent, and the filter below is what stops that absence being read as
   // evidence of a defect.
-  const wines: AuditWine[] = hasKey
-    ? gt.map((w) => ({
-        ...w,
-        ...(bySlot.has(w.slot) ? { fullText: bySlot.get(w.slot) } : {}),
-        ...(colourBySlot.has(w.slot) ? { colour: colourBySlot.get(w.slot) } : {}),
-      }))
+  const keyed: AuditWine[] = hasKey
+    ? gt.map((w) => ({ ...w, ...(bySlot.has(w.slot) ? { fullText: bySlot.get(w.slot) } : {}) }))
     : (Array.isArray(raw) ? raw : []).map((w: { slot: number; fullText?: string }) => ({
         slot: w.slot,
         varieties: [],
         region: "",
         fullText: w.fullText,
       }));
+
+  // Then layer on what the ENRICHMENT knows — the resolved colour, and the full grape list the key
+  // reduces to a dominant grape. Shared with the corpus sweep so both audits see the same wine; see
+  // applyWineProfiles for why it is additive rather than authoritative.
+  const wines = applyWineProfiles(keyed, r.wine_profiles);
 
   const res = validateQuestion({
     questionId: r.question_id as string,

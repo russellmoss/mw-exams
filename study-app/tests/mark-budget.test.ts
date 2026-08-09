@@ -15,6 +15,7 @@
 // MARKS_TOTAL_MISMATCH, and rejects an under-floor written task with MARKS_BELOW_FLOOR.
 import { describe, it, expect } from "vitest";
 import { validateMarkBudget, type QuestionForAudit, type AuditWine } from "../src/lib/question-validator";
+import { normalizeMarkAllocation } from "../src/lib/question-engine";
 
 const wines = (n: number): AuditWine[] =>
   Array.from({ length: n }, (_, i) => ({
@@ -56,6 +57,53 @@ b) Comment on the style, method of production and quality of each wine. (2 x 28 
     expect(hit!.severity).toBe("hard");
     expect(hit!.detail).toMatch(/70/);
     expect(hit!.detail).toMatch(/25 × 2 wines = 50/);
+  });
+});
+
+describe("validateMarkBudget — whole marks only (MARKS_FRACTIONAL)", () => {
+  // Live bank gen_p2_F1_1785898742363, rejected by the reviewer on 2026-08-09: "stop giving half
+  // marks. Never in the history of never have they ever given a half a mark for anything … you would
+  // have 65 marks, which is wrong for two wines."
+  const escaped = `Wines 1 and 2 are made from the same single grape variety but come from different countries.
+
+With reference to all wines:
+
+a) Identify the grape variety. (20 marks)
+
+For each wine:
+
+b) Identify the country and region of origin as closely as possible. (2 x 5 marks)
+
+c) Comment on the style and the key winemaking decisions behind it. (2 x 10 marks)
+
+d) Assess the quality, state of maturity and commercial position. (2 x 7.5 marks)`;
+
+  it("fails the escaped stem on BOTH counts: fractional marks and a 65-mark total", () => {
+    const v = validateMarkBudget(q(escaped, 2));
+    const frac = v.find((x) => x.rule === "MARKS_FRACTIONAL");
+    expect(frac).toBeDefined();
+    expect(frac!.severity).toBe("hard");
+    expect(frac!.detail).toMatch(/7\.5/);
+    const mismatch = v.find((x) => x.rule === "MARKS_TOTAL_MISMATCH");
+    expect(mismatch).toBeDefined();
+    expect(mismatch!.detail).toMatch(/65/);
+  });
+
+  it("fails '2 x 12.5 marks' even though it sums to a clean 25 per wine", () => {
+    const text = `Wines 1 and 2 are from the same region.
+For each wine:
+a) Identify the grape variety and origin as closely as possible. (2 x 12.5 marks)
+b) Comment on the style, quality and commercial position. (2 x 12.5 marks)`;
+    // 25 + 25 = 50 = 25 × 2 — the total is clean, and the marks are still illegal.
+    const v = validateMarkBudget(q(text, 2));
+    expect(v.find((x) => x.rule === "MARKS_TOTAL_MISMATCH")).toBeUndefined();
+    expect(v.filter((x) => x.rule === "MARKS_FRACTIONAL")).toHaveLength(2);
+  });
+
+  it("never repairs around a fractional token — normalizeMarkAllocation leaves the stem for the validator", () => {
+    // Rebalancing the OTHER parts around "(2 x 7.5 marks)" would produce a verified 50 with the half
+    // marks still in it; the repairer must refuse so the fractional rule can reject outright.
+    expect(normalizeMarkAllocation(escaped, 2)).toBe(escaped);
   });
 });
 

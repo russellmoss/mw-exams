@@ -1,0 +1,335 @@
+{
+  "$comment": [
+    "banker_signals.json — the single source of truth for what counts as a BANKER (a classic benchmark",
+    "expression that gives a candidate a route to the country) versus a CURVEBALL.",
+    "",
+    "WHY THIS IS A DATA FILE AND NOT A TS ARRAY. This table used to live inline in",
+    "study-app/src/lib/question-validator.ts. It is the one piece of wine knowledge in the codebase that",
+    "an expert reviewer routinely corrects — several entries below carry a reviewer's name in their note",
+    "because they were hand-transcribed from a rejection. Hand-transcription does not scale and does not",
+    "survive review: an upheld role ruling now opens a PR editing ONLY this file (plus its test), which is",
+    "mechanical, small, and readable by someone who knows wine but not TypeScript.",
+    "",
+    "IT FEEDS BOTH ENDS. question-validator.ts compiles `signals` into the isBanker() predicate that gates",
+    "flight composition, single-wine flights and the id-mark tariff; question-generation-prompt.ts renders",
+    "the same list (and `notCounted`) into the generator's banker guidance. Before this file existed those",
+    "two disagreed by construction — the validator had a 40-entry regex table and the prompt had prose.",
+    "",
+    "THE DEFAULT IS CURVEBALL. An unrecognised wine is a curveball, so the rule fails SAFE (an unplaceable",
+    "wine counts against the flight, never for it). That is why this list only needs the wines a reasonable",
+    "examiner would call a banker, and why adding an entry is the change that carries risk, not omitting one.",
+    "",
+    "Matching, mirrored exactly in isBanker(): `region` is tested against the wine's region + country + raw",
+    "label, lowercased and de-accented. `variety` is tested against the RESOLVED, canonicalised varieties —",
+    "and an UNRESOLVED variety does not veto a region match (an unknown grape is skipped, not treated as a",
+    "veto; see the isBanker docstring). `exclude` is tested against the same string as `region` and VETOES",
+    "the match.",
+    "",
+    "Sync: scripts/sync-stem-data.mjs copies this into study-app/public/data/ at prebuild, the same way",
+    "variety_lexicon.json and appellation_varieties.json are synced. Edit THIS copy, never the public one.",
+    "Test: study-app/tests/banker-signals.test.ts (shape, compilability, and the pinned calibration).",
+    "",
+    "`source` provenance: \"seed\" = migrated from the original in-code table. \"ruling:<id>\" = added or",
+    "amended by an upheld reviewer role ruling (wine_role_rulings.id), which is the audit trail linking a",
+    "line of wine knowledge back to the expert who asserted it and the adjudication that upheld it."
+  ],
+  "version": 1,
+  "signals": [
+    {
+      "id": "fr-burgundy-white-cotedebeaune",
+      "region": "\\bchablis\\b|\\bmeursault\\b|puligny|chassagne|montrachet|cote de beaune|\\bbeaune\\b",
+      "source": "seed"
+    },
+    {
+      "id": "fr-cote-de-nuits-pinot",
+      "region": "gevrey|chambolle|\\bvosne\\b|pommard|volnay|cote de nuits",
+      "variety": "pinot noir",
+      "source": "seed"
+    },
+    {
+      "id": "fr-central-loire-sauvignon",
+      "region": "\\bsancerre\\b|pouilly-?fume",
+      "variety": "sauvignon",
+      "source": "seed"
+    },
+    {
+      "id": "fr-chateauneuf-rouge",
+      "region": "chateauneuf",
+      "exclude": "\\bblanc\\b",
+      "note": "Rouge only. The appellation-only signal is colour-blind, so it also matched Château Rayas Châteauneuf-du-Pape BLANC in a Paper 1 flight and keyed it a banker. CdP Blanc is a few percent of the appellation and rarely poured — a debrief calling it 'the classic curveball here' was right and the table was wrong (attempt 249). A variety gate cannot express this: the white's grapes include Grenache Blanc, so /grenache/ matches it.",
+      "source": "seed"
+    },
+    {
+      "id": "fr-tavel-rose",
+      "region": "\\btavel\\b",
+      "note": "The benchmark serious dry rosé, and until it was added the table's only rosé blind spot. Côtes de Provence and Bandol rosé already match via the provence entry and Rioja rosado via rioja, so Tavel was the whole gap: measured on a generated P3 flight where the generator declared a Château d'Aqueria Tavel an anchor and the table read it a curveball, leaving the role unkeyed. Region-only is safe here in a way it is NOT for chateauneuf — Tavel is rosé by law and makes no red or white, so there is no other colour for a bare region match to catch.",
+      "source": "seed"
+    },
+    {
+      "id": "fr-northern-rhone-syrah",
+      "region": "cote-?rotie|\\bhermitage\\b|\\bcornas\\b|crozes",
+      "variety": "syrah|shiraz",
+      "source": "seed"
+    },
+    { "id": "fr-champagne", "region": "\\bchampagne\\b", "source": "seed" },
+    {
+      "id": "fr-sauternes",
+      "region": "\\bsauternes\\b|\\bbarsac\\b",
+      "exclude": "blanc\\s*sec",
+      "note": "Sweet only. Sauternes AOC is a sweet wine by law, so the dry wine of a Sauternes château is not Sauternes at all — it is Bordeaux Blanc, which is how the real corpus labels the one it pours (2024 P3, 'Château Rieussec R de Rieussec, 2021. Bordeaux Blanc Sec'). A label reading 'Sauternes Blanc Sec' therefore either means that dry wine or is mislabelled, and neither is the botrytis benchmark this signal stands for. Reviewer attempt #457 on gen_p1_F2_1786071913239: 'in here we've got a Sauternes blanc sec. Instead of this you typically would see a Bordeaux blanc, which is going to have a little bit more oak usage and a little bit more typicity.' No wine in the 540-wine corpus matches this exclude, so it removes nothing the Institute has poured.",
+      "source": "seed"
+    },
+    {
+      "id": "fr-bordeaux",
+      "region": "\\bmedoc\\b|pauillac|margaux|saint-?julien|saint-?estephe|saint-?emilion|\\bpomerol\\b|pessac|\\bgraves\\b|\\bbordeaux\\b",
+      "source": "seed"
+    },
+    {
+      "id": "fr-beaujolais-gamay",
+      "region": "beaujolais|\\bfleurie\\b|\\bmorgon\\b|moulin-?a-?vent",
+      "variety": "gamay",
+      "source": "seed"
+    },
+    {
+      "id": "fr-loire-chenin",
+      "region": "vouvray|savennieres|\\bmontlouis\\b",
+      "variety": "chenin",
+      "source": "seed"
+    },
+    {
+      "id": "fr-alsace-noble",
+      "region": "\\balsace\\b",
+      "variety": "riesling|gewurztraminer|pinot gris|muscat|pinot blanc",
+      "exclude": "vendanges?\\s*tardives?|selection\\s*de\\s*grains\\s*nobles|\\bsgn\\b|late\\s*harvest",
+      "note": "EK-0131: in Alsace only the noble grapes anchor. Sylvaner and Auxerrois are curveballs and are deliberately absent from the variety gate. The exclude carries that same idea one step further, to STYLE: this signal stands for the dry varietal Alsace a candidate can place cold, and a Vendanges Tardives or SGN is a sweet late-harvest wine that happens to share the region and the grape. Reviewer attempt #474 on gen_p1_any_1786046784601 called a Schoffit Rangen de Thann Pinot Gris Vendanges Tardives obscure while the table read it a banker on 'Alsace' + 'pinot gris'. Checked against the corpus: the single VT the Institute pours (2011 P1, Rolly Gassmann Pinot Gris VT) sits in an ALL-Alsace flight beside a dry Muscat and a dry Riesling, so the region is still anchored twice over and the question's verdict does not change.",
+      "source": "seed"
+    },
+    {
+      "id": "it-piedmont-nebbiolo",
+      "region": "\\bbarolo\\b|barbaresco|\\bbarbera\\b\\s*d",
+      "variety": "nebbiolo",
+      "source": "seed"
+    },
+    {
+      "id": "it-tuscany-sangiovese",
+      "region": "chianti|brunello|montalcino|vino nobile",
+      "variety": "sangiovese",
+      "source": "seed"
+    },
+    { "id": "it-soave", "region": "\\bsoave\\b", "source": "seed" },
+    { "id": "it-valpolicella", "region": "valpolicella|amarone", "source": "seed" },
+    { "id": "it-prosecco", "region": "\\bprosecco\\b", "source": "seed" },
+    {
+      "id": "es-rioja",
+      "region": "\\brioja\\b",
+      "variety": "tempranillo|grenache",
+      "source": "seed"
+    },
+    {
+      "id": "es-ribera-del-duero",
+      "region": "ribera del duero",
+      "variety": "tempranillo",
+      "source": "seed"
+    },
+    { "id": "es-rias-baixas", "region": "rias baixas", "variety": "albarino", "source": "seed" },
+    {
+      "id": "es-sherry",
+      "region": "\\bjerez\\b|\\bsherry\\b|manzanilla|montilla",
+      "source": "seed"
+    },
+    { "id": "pt-douro-port", "region": "\\bdouro\\b|\\bport\\b|\\bporto\\b", "source": "seed" },
+    {
+      "id": "de-riesling",
+      "region": "\\bmosel\\b|rheingau|\\bpfalz\\b|\\bnahe\\b|rheinhessen",
+      "variety": "riesling",
+      "source": "seed"
+    },
+    {
+      "id": "at-wachau-kamptal",
+      "region": "\\bwachau\\b|kamptal|kremstal",
+      "variety": "gruner|riesling",
+      "source": "seed"
+    },
+    { "id": "nz-marlborough-sauvignon", "region": "marlborough", "variety": "sauvignon", "source": "seed" },
+    {
+      "id": "nz-pinot",
+      "region": "central otago|martinborough",
+      "variety": "pinot noir",
+      "source": "seed"
+    },
+    {
+      "id": "au-barossa-mclaren",
+      "region": "barossa|mclaren vale",
+      "variety": "shiraz|syrah|grenache",
+      "source": "seed"
+    },
+    { "id": "au-coonawarra-cabernet", "region": "coonawarra", "variety": "cabernet", "source": "seed" },
+    {
+      "id": "au-clare-eden-riesling",
+      "region": "clare valley|eden valley",
+      "variety": "riesling",
+      "source": "seed"
+    },
+    {
+      "id": "au-hunter",
+      "region": "hunter valley",
+      "variety": "semillon|shiraz",
+      "source": "seed"
+    },
+    { "id": "au-margaret-yarra", "region": "margaret river|\\byarra\\b", "source": "seed" },
+    {
+      "id": "au-rutherglen-muscat",
+      "region": "rutherglen",
+      "variety": "muscat|muscadelle|topaque|tokay",
+      "source": "seed"
+    },
+    { "id": "us-napa-sonoma", "region": "\\bnapa\\b|sonoma|russian river|carneros", "source": "seed" },
+    { "id": "us-willamette-pinot", "region": "willamette", "variety": "pinot noir", "source": "seed" },
+    {
+      "id": "cl-maipo-colchagua",
+      "region": "\\bmaipo\\b|colchagua",
+      "variety": "cabernet|carmenere",
+      "source": "seed"
+    },
+    {
+      "id": "za-stellenbosch",
+      "region": "stellenbosch",
+      "variety": "cabernet|chenin|syrah|shiraz",
+      "exclude": "late\\s*harvest|\\bnoble\\s*late\\b",
+      "note": "Same style argument as fr-alsace-noble: the signal stands for dry Stellenbosch Cabernet, Chenin and Syrah, and a Noble Late Harvest Chenin is a dessert wine sharing the region and the grape. The corpus pours exactly one (2022 P3, Ken Forrester 'T Noble Late Harvest Chenin Blanc') and it appears on Paper 3 among sweet wines, where it is the subject rather than the route to the country.",
+      "source": "seed"
+    },
+    {
+      "id": "fr-burgundy-generic",
+      "region": "\\bburgundy\\b|\\bbourgogne\\b",
+      "variety": "pinot noir|chardonnay",
+      "note": "Measured as a repeat curveball across the 160 real IMW questions (scripts/corpus-false-positive-rate.mjs), which is the wrong verdict on a wine the Institute pours as an anchor. The variety gate is what stops the region alone promoting an oddity: bare Burgundy counts for Pinot Noir and Chardonnay, not for Aligoté.",
+      "source": "seed"
+    },
+    {
+      "id": "fr-loire-cabernet-franc",
+      "region": "\\bchinon\\b|bourgueil|\\bsaumur\\b|\\bloire\\b",
+      "variety": "cabernet franc",
+      "source": "seed"
+    },
+    {
+      "id": "fr-muscadet",
+      "region": "muscadet|\\bloire\\b",
+      "variety": "melon de bourgogne",
+      "source": "seed"
+    },
+    {
+      "id": "fr-condrieu-viognier",
+      "region": "\\bcondrieu\\b|\\brhone\\b",
+      "variety": "viognier",
+      "source": "seed"
+    },
+    { "id": "es-penedes-cava", "region": "\\bpenedes\\b|\\bcava\\b", "source": "seed" },
+    { "id": "hu-tokaj", "region": "\\btokaj", "variety": "furmint|harslevelu", "source": "seed" },
+    {
+      "id": "it-piedmont-generic",
+      "region": "\\bpiedmont\\b|\\bpiemonte\\b|\\basti\\b|\\balba\\b",
+      "variety": "barbera|dolcetto|nebbiolo|moscato",
+      "source": "seed"
+    },
+    { "id": "pt-madeira", "region": "\\bmadeira\\b", "source": "seed" },
+    {
+      "id": "fr-provence",
+      "region": "provence",
+      "variety": "grenache|cinsault|mourvedre|syrah|rolle|vermentino",
+      "source": "seed"
+    },
+    {
+      "id": "it-tuscany-generic",
+      "region": "\\btuscany\\b|\\btoscana\\b|bolgheri",
+      "variety": "sangiovese|cabernet|merlot",
+      "source": "seed"
+    },
+    {
+      "id": "au-south-australia",
+      "region": "south australia",
+      "variety": "shiraz|syrah|cabernet|riesling|chardonnay",
+      "source": "seed"
+    },
+    {
+      "id": "us-california-generic",
+      "region": "\\bcalifornia\\b",
+      "variety": "zinfandel|cabernet|chardonnay|pinot noir|merlot",
+      "source": "seed"
+    }
+  ],
+  "notCounted": [
+    {
+      "id": "ar-mendoza-malbec",
+      "label": "Mendoza / Uco Valley Malbec",
+      "why": "EK-0029 (STRONG SIGNAL): the anchor of a 3+ wine flight has to be a wine the candidate knows cold at classified/benchmark level (Bordeaux classed growth, Barolo, 1er Cru Burgundy, Rioja Gran Reserva, Marlborough Sauvignon). A bare regional Mendoza Malbec reads as a competent but standard wine, not the route-to-country anchor — and a region+variety detector cannot tell an iconic single-vineyard from a supermarket bottling, so it fails safe to curveball. Flagged on gen_p2_F6_1779988985396, a bankerless 4-wine P2 flight that had been passing only because this signal miscounted its Mendoza Malbec as the banker.",
+      "source": "seed"
+    },
+    {
+      "id": "gr-santorini-assyrtiko",
+      "label": "Santorini Assyrtiko",
+      "why": "The reviewer's own calibration treats this as a curveball; study-app/tests/flight-composition.test.ts pins it.",
+      "source": "seed"
+    },
+    {
+      "id": "fr-jura-savagnin",
+      "label": "Jura Savagnin",
+      "why": "Reviewer-calibrated curveball; pinned by tests/flight-composition.test.ts.",
+      "source": "seed"
+    },
+    {
+      "id": "hu-somlo-furmint",
+      "label": "Somló Furmint",
+      "why": "Reviewer-calibrated curveball; pinned by tests/flight-composition.test.ts. Note this does NOT contradict the Tokaj signal — Tokaji Furmint is the banker, Somló is not.",
+      "source": "seed"
+    },
+    {
+      "id": "at-mittelburgenland-blaufrankisch",
+      "label": "Mittelburgenland Blaufränkisch",
+      "why": "Reviewer-calibrated curveball; pinned by tests/flight-composition.test.ts.",
+      "source": "seed"
+    },
+    {
+      "id": "gr-naoussa-xinomavro",
+      "label": "Naoussa Xinomavro",
+      "why": "Reviewer-calibrated curveball; pinned by tests/flight-composition.test.ts.",
+      "source": "seed"
+    },
+    {
+      "id": "fr-arbois-trousseau",
+      "label": "Arbois Trousseau",
+      "why": "Reviewer-calibrated curveball; pinned by tests/flight-composition.test.ts.",
+      "source": "seed"
+    },
+    {
+      "id": "nz-marlborough-pinot-noir",
+      "label": "Marlborough Pinot Noir",
+      "why": "Marlborough is a banker for Sauvignon Blanc ONLY. Its Pinot Noir is not the route-to-country anchor, which is why the marlborough signal carries a variety gate.",
+      "source": "seed"
+    },
+    {
+      "id": "us-oregon-pinot-gris",
+      "label": "Oregon Pinot Gris",
+      "why": "Willamette is a banker for Pinot Noir only.",
+      "source": "seed"
+    },
+    {
+      "id": "de-baden-spatburgunder",
+      "label": "Baden Spätburgunder",
+      "why": "Germany anchors on Riesling; its Pinot Noir is not a benchmark a candidate is expected to place.",
+      "source": "seed"
+    },
+    {
+      "id": "fr-roussillon-grenache",
+      "label": "Roussillon Grenache",
+      "why": "Reviewer-calibrated curveball — the southern Rhône (Châteauneuf) is the Grenache anchor, not Roussillon.",
+      "source": "seed"
+    },
+    {
+      "id": "it-etna",
+      "label": "Etna (Nerello Mascalese / Carricante)",
+      "why": "Fashionable but not a benchmark a well-prepared candidate places cold; reviewer-calibrated curveball.",
+      "source": "seed"
+    }
+  ]
+}

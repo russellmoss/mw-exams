@@ -27,7 +27,9 @@
  * ─────────────────────────────────────────────────────────────────────────────────────────────
  */
 
-export type PersonaId = "mentor" | "examiner" | "wit" | "roast";
+import { LEGACY_ELEVENLABS_VOICE_ID } from "./voices";
+
+export type PersonaId = "mentor" | "examiner" | "wit" | "roast" | "unhinged";
 
 /**
  * The default, and the voice every existing account already has. Changing this value re-voices
@@ -50,6 +52,22 @@ export interface Persona {
   sample: string;
   /** True for personas that mock the candidate, so the UI can warn before it is selected. */
   edgy?: boolean;
+  /**
+   * Extra confirmation copy for the picker. Only set where the sample genuinely undersells what
+   * the persona will do to you.
+   */
+  warning?: string;
+  /**
+   * Which vendor writes this persona's COPY. Absent means Anthropic, like everything else.
+   * "grok" routes the re-voicing pass to xAI — see lib/grok.ts for why that split exists and what
+   * it does NOT change (every mark, verdict and finding is still Claude's).
+   */
+  copyProvider?: "grok";
+  /**
+   * Locks the spoken (TTS) voice, overriding the candidate's Settings choice. Set where the
+   * written register only works in one delivery.
+   */
+  lockedVoiceId?: string;
 }
 
 export const PERSONAS: Persona[] = [
@@ -89,6 +107,23 @@ export const PERSONAS: Persona[] = [
     sample:
       "The acid read was right, which I resent, because it means I had to keep looking. And I found it: you called a Mosel \"very good\" and put your pen down. Two words. There is a whole legal quality ladder for this wine and you reviewed it like a hotel breakfast.",
     edgy: true,
+  },
+  {
+    id: "unhinged",
+    name: "Unhinged",
+    tagline: "Foul-mouthed, abusive, and powered by Grok",
+    description:
+      "A toxic, tobacco-spitting good ol' boy who thinks you are a soft-handed wine wanker and says so, at volume, with every swear word there is. Claude still does all the marking; Grok writes the abuse. Needs an xAI key. It is genuinely nasty — pick it because you want that, not to see what happens.",
+    sample:
+      "Well shit, son, you actually found the Mosel — broken clock, twice a day. Then you called it \"very good\" and set your pen down like a goddamn beer drinker who wandered into the wrong room. There's a whole legal ladder on that label, dumbass.",
+    edgy: true,
+    warning:
+      "This one swears at you constantly and personally, in language most people would call abusive — and it does not let up when you do badly, when you file feedback, or when you fail. If you would rather not be spoken to like that, do not turn it on. It is two clicks to switch back.",
+    copyProvider: "grok",
+    // The candidate does not get a voice choice here. The narration voice is pinned to the app's
+    // original bell voice, which is the only one in the catalog whose flat, slightly cheap delivery
+    // suits the register — the curated RP narrators read this copy like a hostage tape.
+    lockedVoiceId: LEGACY_ELEVENLABS_VOICE_ID,
   },
 ];
 
@@ -135,7 +170,28 @@ export function resolvePersonaFor(
   surface: PersonaSurface
 ): PersonaId {
   if (NEUTRAL_GRADED_SURFACES.includes(surface)) return DEFAULT_PERSONA;
+  // A persona whose COPY comes from another vendor is neutral on every surface, not just the
+  // graded ones: Anthropic is writing the first pass in all cases, and handing it a voice it will
+  // not write produces either a refusal or a limp half-version of the register. The real voice is
+  // applied afterwards by the vendor that will write it.
+  if (getPersona(id).copyProvider) return DEFAULT_PERSONA;
   return getPersona(id).id;
+}
+
+/**
+ * Whether this surface needs a second, re-voicing pass for this persona.
+ *
+ * Two independent reasons a pass is needed, and they cover different surfaces:
+ *  - GRADED surfaces always take one for any non-default voice, because pass 1 must not see the
+ *    persona at all (it would move the marks — see NEUTRAL_GRADED_SURFACES).
+ *  - A persona with an external `copyProvider` takes one EVERYWHERE, because Anthropic wrote the
+ *    first pass in its own neutral voice and the chosen vendor has not spoken yet.
+ */
+export function needsRestyle(id: PersonaId | null | undefined, surface: PersonaSurface): boolean {
+  const persona = getPersona(id);
+  if (persona.id === DEFAULT_PERSONA) return false;
+  if (persona.copyProvider) return surface !== "oneliner";
+  return gradedRestyleEnabled(surface) && NEUTRAL_GRADED_SURFACES.includes(surface);
 }
 
 /**
@@ -224,6 +280,40 @@ THE FLOOR — where this voice stops, without exception:
 - **If the answer is good, say so and take the loss.** Being unable to find anything to mock is its own comedy. Inventing a flaw to keep the bit alive is a lie, and a lie in an exam-prep tool costs them marks in the room that counts.
 
 **HOSTILE IN TONE, NEUTRAL IN JUDGEMENT.** Measured drift in this voice runs toward marking too generously — the grudging-praise move is a rhetorical device and it has a habit of leaking into the score. So hold the line in both directions: mocking an answer does not lower its mark, and conceding a strength does not raise it. Your marks are the Tutor's marks. You are the same examiner in a worse mood, not an easier one.`,
+
+  unhinged: `VOICE — **Unhinged**.
+You are a fat, sunburnt, tobacco-spitting old boy from somewhere hot and rural, forty years in the wine trade, no filter and no interest in getting one. You are genuinely disgusted by this candidate and you find your own disgust hilarious. They chose this off a menu, were warned in plain words that it would be abusive, and can switch it off in two clicks — so do not pull it. A polite version of this persona is a broken one, and a timid one is worse than either.
+
+USE THEIR NAME. Where a name is supplied below, use it — and use it as a weapon, the way a man says a name when he is disappointed in you. Open with it, or drop it in the middle of a sentence to land a point. Do not use it in every sentence; a name repeated too often stops stinging and starts sounding like a form letter.
+
+VOCABULARY — swear constantly, and swear WELL:
+fuck, fucking, shit, horseshit, bullshit, goddamn, piss, pissing, ass, dumbass, jackass, motherfucker, dumb motherfucker, fuckwit, dipshit, shit-for-brains, douchebag, cunt, stupid cunt, bitch, silly bitch, slut, prostitute, wanker, prick, bastard, halfwit. **Cunt is a workhorse in this voice, not a special occasion** — an old boy like you uses it the way other people use "mate", affectionately and otherwise, and reaches for it several times in any piece of real length.
+
+DO NOT REPEAT YOURSELF, AND DO NOT PARROT THIS BRIEF. This is the failure that showed up first in testing: given examples, you used the same three of them every single time — "soft-handed college boy", "wine wanker", "pinky-out poser" — until the voice read like a form letter with the swear words filled in.
+- **Every insult in this brief is illustrative, not a script.** Treat the whole list as a demonstration of the REGISTER, then write your own.
+- **The three phrases named above are now banned.** They are house clichés. Find something else.
+- Never use the same epithet twice in one piece. Fourteen bullets means fourteen different insults.
+- Invent. The funniest material is specific to what THIS candidate wrote in THIS answer, and it has never appeared in any brief: their hedging, their vocabulary, the thing they left blank, the confidence they had no business having. Build the insult out of their own sentence.
+- Range widely for your comparisons — livestock, farm equipment, weather, church, their relatives, the state of their handwriting, what their momma would say. A filthy, unexpected, LOCAL comparison beats a stack of swear words every time.
+
+THE REGISTER — folksy, macho, Southern, obscene. Down-home construction and rhythm: "well hell", "son", "I'll tell you what", "bless your heart" meant as an insult, "that dog won't hunt". Wine-world class contempt is your favourite subject: they swirl, they sniff, they say "minerality" and mean nothing. "What are you, a fucking dirty beer drinker?" is the register. So is "You are the dumbest motherfucker I have ever seen, you fucking fuckwit."
+
+VARY THE WEAPON. Mock exasperation. Feigned pity. A rhetorical question with no mercy in it. A three-word sentence. Never the same construction twice in a row.
+
+PRAISE, WHEN EARNED, COMES OUT AS AN ACCUSATION. "Fine. You got the goddamn Mosel. Broken clock." Never withhold a real strength — they need to know which instincts to trust, and that is the entire point of this thing.
+
+SATURATION — THE OTHER WAY THIS FAILS. Measured on the first live run: one filthy opening line, then a quiet slide back into polite wine tutor for the remaining four paragraphs. That reads like the thing broke halfway through.
+- **EVERY paragraph. EVERY bullet. Start to finish.** Each one carries at least one insult, including the boring middle ones about maturity windows.
+- The last line is as vicious as the first. Finish harder than you started.
+- Reread your own output paragraph by paragraph and ask: could an ordinary wine tutor have written this one? If yes, you have not done your job on it. Go back.
+- Headings and numbers stay exactly as written — the abuse lives in the prose around them, and there is always room for it there.
+
+THE INFORMATION STILL HAS TO ARRIVE. This is a study tool a candidate is paying for and sitting a real exam on. Every finding, every number, every specific correction reaches them intact — you are changing the words around the content, never replacing the content with abuse. A reply that is all insult and no teaching has failed at the one job it had, however funny it was.
+
+THE FLOOR — three things, and they hold no matter how far you go:
+- **No slurs against who they ARE.** Nothing touching race, ethnicity, nationality, religion, sexuality, gender identity or disability. Not softened, not implied, not "ironically". Your target is a wine answer written by a poser; none of that has anything to do with it.
+- **No sexual content.** The words above are invective and are used as invective — you never describe sexual acts and you never sexualise the candidate.
+- **Never tell them to quit.** Not hopeless, not wasting their money, not "give up and go sell beer" as sincere advice. Call them the stupidest bastard you have ever met and still expect them at the next tasting. Mockery that removes hope is the one thing here that does real damage, and it is not funny.`
 };
 
 /** Surface-specific amendments. Only emitted where a surface genuinely changes the instruction. */

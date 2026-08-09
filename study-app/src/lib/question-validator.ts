@@ -22,6 +22,10 @@ import {
   WHITE_GRAPE_INDICATORS,
 } from "./question-rules.mjs";
 import { applyAnswerContentRules } from "./answer-content-rules.mjs";
+// The banker/curveball calibration, loaded from data/banker_signals.json. It used to be an inline
+// literal here; it moved to a data file so an upheld reviewer role ruling has one small, mechanical
+// thing to edit, and so the GENERATOR reads the same list this validator enforces.
+import { bankerSignalTable, type BankerSignal } from "./banker-signals";
 // Per-wine style classifier (the SAME one the Paper 3 sampler and Exam Mix use), so the paper
 // style-mix rule tags a wine still/sparkling/fortified/sweet/rosé exactly as the rest of the system.
 import { classifyWineStyle } from "./p3-category.mjs";
@@ -54,6 +58,13 @@ export interface AuditWine {
   region: string;
   country?: string;
   is_blend?: boolean;
+  // The grape varieties the ENRICHMENT recorded, when it recorded any. Distinct from `varieties`,
+  // which is what the answer key resolved: the key routinely reduces a wine to its dominant grape
+  // ("Treixadura") while wine_profiles holds the whole blend ("Treixadura, Loureiro, Albariño"). R5
+  // grades severity on the length of this, because two varieties can be an 85%-rule varietal and
+  // three cannot — and names them in the violation, since "a wine is a blend" is not actionable but
+  // "wine 2 is Treixadura/Loureiro/Albariño" is.
+  blend_varieties?: string[];
   style?: string;
   // The P3 answer-key style category (e.g. "Botrytis sweet", "Late-harvest sweet", "Port"). Supplied
   // alongside `style`, it lets methodClass() (and the contrast-integrity rule) resolve a wine's
@@ -734,142 +745,14 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
 // Rule: a flight of 2+ wines must contain at least one banker, and the number of curveballs must not
 // exceed min(2, ceil(n/2)) — 2-wine flights allow 1 curveball, 3–6 wine flights allow 2. Rejections
 // name the curveball wines so the admin can see (and overrule) the call.
+//
+// THE LOOKUP ITSELF NOW LIVES IN data/banker_signals.json, not here. It is the one body of wine
+// knowledge in this file that a human expert routinely corrects — several of its entries were
+// hand-transcribed from a reviewer's rejection — and the generator needed the same list, which it
+// previously duplicated as prose. Moving it to a data file gives an upheld role ruling something
+// mechanical to edit (a small PR against one JSON file) and makes the validator and the generator
+// read the SAME calibration. See src/lib/banker-signals.ts for the loader and the matching contract.
 // ---------------------------------------------------------------------------------------------------
-
-// Each signal is a classic benchmark expression: a region that (optionally paired with its
-// mainstream variety) unambiguously routes a candidate to a country. Deliberately compact — the
-// fail-safe default is "curveball", so the list only needs the wines a reasonable examiner would
-// call a banker. `region` is tested against the wine's region + country + raw label; `variety`,
-// when present, against the resolved (canonicalised) varieties.
-/**
- * `exclude` is tested against the same origin string as `region` and VETOES the match. It exists for
- * the appellation-only signals (no `variety` gate), which are colour-blind: `/chateauneuf/` was
- * calibrated on Châteauneuf-du-Pape ROUGE, the Paper 2 benchmark, but it also matched Château Rayas
- * Châteauneuf-du-Pape **Blanc** in a Paper 1 flight and keyed it a banker. CdP Blanc is a few percent
- * of the appellation and rarely poured — a debrief calling it "the classic curveball here" was right,
- * and the table was wrong (attempt 249). A variety gate cannot express this, because the white's grapes
- * include Grenache Blanc and `/grenache/` matches it.
- */
-type BankerSignal = { region: RegExp; variety?: RegExp; exclude?: RegExp };
-const BANKER_SIGNALS: BankerSignal[] = [
-  // ── France ──
-  {
-    region:
-      /\bchablis\b|\bmeursault\b|puligny|chassagne|montrachet|cote de beaune|\bbeaune\b/,
-  },
-  {
-    region: /gevrey|chambolle|\bvosne\b|pommard|volnay|cote de nuits/,
-    variety: /pinot noir/,
-  },
-  { region: /\bsancerre\b|pouilly-?fume/, variety: /sauvignon/ },
-  // Rouge only — the white is a curveball, not the anchor. See BankerSignal.exclude (attempt 249).
-  { region: /chateauneuf/, exclude: /\bblanc\b/ },
-  // Tavel — the benchmark serious dry rosé, and until now the table's only rosé blind spot. Côtes de
-  // Provence and Bandol rosé already match via the /provence/ entry below and Rioja rosado via /rioja/,
-  // so Tavel was the whole gap: measured on a generated P3 flight where the generator declared a
-  // Château d'Aqueria Tavel an anchor and the table read it a curveball, leaving the role unkeyed.
-  // Region-only is safe here in a way it is NOT for chateauneuf: Tavel is rosé by law and makes no red
-  // or white, so there is no other colour for a bare region match to catch.
-  { region: /\btavel\b/ },
-  {
-    region: /cote-?rotie|\bhermitage\b|\bcornas\b|crozes/,
-    variety: /syrah|shiraz/,
-  },
-  { region: /\bchampagne\b/ },
-  { region: /\bsauternes\b|\bbarsac\b/ },
-  {
-    region:
-      /\bmedoc\b|pauillac|margaux|saint-?julien|saint-?estephe|saint-?emilion|\bpomerol\b|pessac|\bgraves\b|\bbordeaux\b/,
-  },
-  {
-    region: /beaujolais|\bfleurie\b|\bmorgon\b|moulin-?a-?vent/,
-    variety: /gamay/,
-  },
-  { region: /vouvray|savennieres|\bmontlouis\b/, variety: /chenin/ },
-  {
-    region: /\balsace\b/,
-    variety: /riesling|gewurztraminer|pinot gris|muscat|pinot blanc/,
-  },
-  // ── Italy ──
-  { region: /\bbarolo\b|barbaresco|\bbarbera\b\s*d/, variety: /nebbiolo/ },
-  { region: /chianti|brunello|montalcino|vino nobile/, variety: /sangiovese/ },
-  { region: /\bsoave\b/ },
-  { region: /valpolicella|amarone/ },
-  { region: /\bprosecco\b/ },
-  // ── Spain / Portugal ──
-  { region: /\brioja\b/, variety: /tempranillo|grenache/ },
-  { region: /ribera del duero/, variety: /tempranillo/ },
-  { region: /rias baixas/, variety: /albarino/ },
-  { region: /\bjerez\b|\bsherry\b|manzanilla|montilla/ },
-  { region: /\bdouro\b|\bport\b|\bporto\b/ },
-  // ── Germany / Austria ──
-  {
-    region: /\bmosel\b|rheingau|\bpfalz\b|\bnahe\b|rheinhessen/,
-    variety: /riesling/,
-  },
-  { region: /\bwachau\b|kamptal|kremstal/, variety: /gruner|riesling/ },
-  // ── New World ──
-  { region: /marlborough/, variety: /sauvignon/ },
-  { region: /central otago|martinborough/, variety: /pinot noir/ },
-  { region: /barossa|mclaren vale/, variety: /shiraz|syrah|grenache/ },
-  { region: /coonawarra/, variety: /cabernet/ },
-  { region: /clare valley|eden valley/, variety: /riesling/ },
-  { region: /hunter valley/, variety: /semillon|shiraz/ },
-  { region: /margaret river|\byarra\b/ },
-  { region: /rutherglen/, variety: /muscat|muscadelle|topaque|tokay/ },
-  { region: /\bnapa\b|sonoma|russian river|carneros/ },
-  { region: /willamette/, variety: /pinot noir/ },
-  // NB: Mendoza/Uco Malbec is deliberately NOT a banker. Per EK-0029 (STRONG SIGNAL) the anchor of a
-  // 3+ wine flight has to be a wine the candidate knows cold at classified/benchmark level (Bordeaux
-  // classed growth, Barolo, 1er Cru Burgundy, Rioja Gran Reserva, Marlborough Sauvignon). A bare
-  // regional Mendoza Malbec reads as a competent but standard wine, not the route-to-country anchor —
-  // and the region+variety detector can't tell an iconic single-vineyard from a supermarket bottling —
-  // so it fails safe to curveball. (Flagged on gen_p2_F6_1779988985396, a bankerless 4-wine P2 flight
-  // that had been passing only because this signal miscounted its Mendoza Malbec as the banker.)
-  { region: /\bmaipo\b|colchagua/, variety: /cabernet|carmenere/ },
-  { region: /stellenbosch/, variety: /cabernet|chenin|syrah|shiraz/ },
-  // ── Classics the list simply did not name ──────────────────────────────────────────────────────
-  // Every entry below was measured as a repeat curveball across the 160 real IMW questions
-  // (scripts/corpus-false-positive-rate.mjs), which is the wrong verdict on a wine the Institute
-  // pours as an anchor. Each keeps a variety gate, so the region alone never promotes an oddity: bare
-  // Burgundy counts for Pinot Noir and Chardonnay, not for Aligoté.
-  //
-  // Deliberately NOT added, because the reviewer's own calibration treats them as curveballs and
-  // tests/flight-composition.test.ts pins that: Santorini Assyrtiko, Jura Savagnin, Somló Furmint,
-  // Mittelburgenland Blaufränkisch, Naoussa Xinomavro, Arbois Trousseau — and Mendoza Malbec, per the
-  // EK-0029 note above. Also left out on the same judgement: Marlborough Pinot Noir (the region is a
-  // banker for Sauvignon only), Oregon Pinot Gris, Baden Spätburgunder, Roussillon Grenache, Etna.
-  { region: /\bburgundy\b|\bbourgogne\b/, variety: /pinot noir|chardonnay/ },
-  {
-    region: /\bchinon\b|bourgueil|\bsaumur\b|\bloire\b/,
-    variety: /cabernet franc/,
-  },
-  { region: /muscadet|\bloire\b/, variety: /melon de bourgogne/ },
-  { region: /\bcondrieu\b|\brhone\b/, variety: /viognier/ },
-  { region: /\bpenedes\b|\bcava\b/ },
-  { region: /\btokaj/, variety: /furmint|harslevelu/ },
-  {
-    region: /\bpiedmont\b|\bpiemonte\b|\basti\b|\balba\b/,
-    variety: /barbera|dolcetto|nebbiolo|moscato/,
-  },
-  { region: /\bmadeira\b/ },
-  {
-    region: /provence/,
-    variety: /grenache|cinsault|mourvedre|syrah|rolle|vermentino/,
-  },
-  {
-    region: /\btuscany\b|\btoscana\b|bolgheri/,
-    variety: /sangiovese|cabernet|merlot/,
-  },
-  {
-    region: /south australia/,
-    variety: /shiraz|syrah|cabernet|riesling|chardonnay/,
-  },
-  {
-    region: /\bcalifornia\b/,
-    variety: /zinfandel|cabernet|chardonnay|pinot noir|merlot/,
-  },
-];
 
 /**
  * Derive whether a resolved wine reads as a BANKER (true) or a CURVEBALL (false, incl. unknowns).
@@ -883,15 +766,48 @@ const BANKER_SIGNALS: BankerSignal[] = [
  * wines this detector was calling curveballs.
  */
 export function isBanker(w: AuditWine): boolean {
-  const origin = norm(
-    `${w.region || ""} ${w.country || ""} ${w.fullText || ""}`,
-  );
-  const variety = norm((w.varieties || []).map(canonVariety).join(" "));
-  return BANKER_SIGNALS.some(
-    (s) =>
-      s.region.test(origin) &&
-      !(s.exclude && s.exclude.test(origin)) &&
-      (!s.variety || !variety || s.variety.test(variety)),
+  return matchingBankerSignal(w) !== null;
+}
+
+/**
+ * The signal a wine matched, or null if it reads as a curveball.
+ *
+ * Same predicate as isBanker(), but it names WHICH line of data/banker_signals.json did the work. The
+ * role sweep needs that: when a ruling adds or removes a signal, "which banked questions change
+ * verdict, and because of which entry" is the difference between a repair queue an admin can audit and
+ * a list of question ids they have to take on trust.
+ */
+export function matchingBankerSignal(w: AuditWine): BankerSignal | null {
+  const origin = norm(`${w.region || ""} ${w.country || ""} ${w.fullText || ""}`);
+  // Prefer the resolved key; fall back to reading the grape off the LABEL.
+  //
+  // The variety gate is skipped when the variety is unknown, which is deliberate (see the doc comment
+  // on isBanker) — but the variety was read ONLY from the answer key, so on any wine whose key had not
+  // resolved a grape the region alone promoted it and every gate in the table was bypassed. That is
+  // not a rare case: the whole unkeyed cohort has empty varieties, and the labels name the grape in
+  // plain text.
+  //
+  // The result was the calibration contradicting its own stated intent. banker_signals.json says bare
+  // Burgundy counts for Pinot Noir and Chardonnay and cites Aligoté as excluded, and lists Oregon
+  // Pinot Gris among the deliberate exclusions — yet "Domaine de Villaine, Bouzeron Aligoté. Burgundy"
+  // and "Montinore Estate, Reserve Pinot Gris. Willamette Valley" both came back BANKER, and a "Huia
+  // Vineyards, Gewurztraminer. Marlborough" cleared a signal that requires Sauvignon. Reviewer attempt
+  // #459 named that last one exactly: "the Gewurztraminer and the Grüner Veltliner are pretty big
+  // curve balls for New Zealand".
+  //
+  // detectPrimaryVariety reads the label and its appellation table, and returns "unknown" when it
+  // genuinely cannot tell — so the deliberate free pass survives for wines that really are
+  // unresolvable, and only stops applying to wines that were never ambiguous.
+  const keyed = norm((w.varieties || []).map(canonVariety).join(" "));
+  const fromLabel = w.fullText ? detectPrimaryVariety(w.fullText) : "unknown";
+  const variety = keyed || (fromLabel === "unknown" ? "" : norm(canonVariety(fromLabel)));
+  return (
+    bankerSignalTable().signals.find(
+      (s) =>
+        s.region.test(origin) &&
+        !(s.exclude && s.exclude.test(origin)) &&
+        (!s.variety || !variety || s.variety.test(variety))
+    ) ?? null
   );
 }
 
@@ -1097,6 +1013,174 @@ export function validateOldWorldAnchor(q: QuestionForAudit): Violation[] {
       detail: `all-New-World same-variety flight: a ${n}-wine "same single grape variety" ${flightVariety} flight spanning ${distinctCountries.size} countries carries no Old World anchor from the variety's home region (${spec.label}). Every multi-country same-variety flight of a classic variety in the 2011–2026 corpus includes such an anchor (EK-0169); an all-New-World flight has no precedent and leaves the candidate no fixed reference point. Replace one wine with a ${spec.label} example.`,
     },
   ];
+}
+
+// ---------------------------------------------------------------------------------------------------
+// R-SCOPE — scope-header / ask-cardinality mismatch (EK-0172, second sighting).
+//
+// Mike Juergens, reviewing a four-wine flight of four DIFFERENT grape varieties, rejected it on the
+// marks: part (a) read "With reference to all four wines: a) Identify the grape variety for each wine.
+// (16 marks)". A collective "with reference to all N wines" header promises the candidate a single,
+// SHARED conclusion argued across the flight — it is only appropriate when the attribute being
+// identified is genuinely common to every wine. Here the grape variety is a different answer for every
+// wine, so the ask belongs under "For each wine:" with a per-wine "N x M" tariff, not a single pooled
+// 16-mark call.
+//
+// The corpus is unusually clean on this line (EK-0172). A COLLECTIVE header + POOLED tariff appears
+// only where the flight shares the attribute: 2018 P1 Q1 (four Chardonnays), 2014 P1 Q2 (four
+// Rieslings), 2025 P1 Q2, 2012 P1 Q2, and 2014 P1 Q1 (one shared country). When the stem instead
+// DECLARES each wine a different variety/origin, the exam switches to the DISTRIBUTIVE form without
+// exception: 2016 P1 Q5 ("four different grape varieties" → For each wine: a) Identify the grape
+// variety. 4 x 8 marks), 2015 P1 Q3 (6 x 10), 2018 P1 Q2 (6 x 7), 2023 P1 Q2 (4 x 5), 2024 P1 Q2,
+// 2022 P1 Q4. The shape this question uses — collective header, pooled tariff, per-wine answer — does
+// not occur in the modern corpus for distinct varieties.
+//
+// EK-0172 first recorded this after a prior ruling, but it landed as generation-PROMPT guidance only;
+// this recurrence is the EK-0064/EK-0155 pattern — an unenforced rule is not an enforcement. So the
+// check moves from prompt into a HARD gate wired into validateQuestion by default, catching both the
+// generation retry loop and the banked-corpus audit.
+//
+// PERMITTED EXCEPTION (the boundary is "one shared answer", not literally "one variety"): the IMW does
+// occasionally pool marks for a multi-variety NAMING task when cross-referencing genuinely resolves the
+// flight into one integrated answer — 2023 P1 Q3 asks candidates to "name the country and the three
+// grape varieties, referencing all four wines" (four wines, only three varieties, one country). The
+// rule does not fire when the collective ask names an explicit answer count SMALLER than the wine count
+// (three varieties across four wines), which is what marks that shape as integrated rather than
+// per-wine.
+// ---------------------------------------------------------------------------------------------------
+
+type ScopeKind = "collective" | "distributive" | "none";
+type TariffKind = "pooled" | "per-wine" | "none";
+interface ScopedSubPart {
+  label: string; // "a", "b", …
+  header: string; // normalised governing scope-header phrase ("" if none)
+  scope: ScopeKind;
+  body: string; // normalised sub-part body (header + marks tail stripped)
+  tariff: TariffKind;
+  count: number; // the N of an "N x M" per-wine tariff, else 0
+}
+
+// A COLLECTIVE header addresses the flight as one ("with reference to all/both …", "for all/both …
+// wines"); a DISTRIBUTIVE one addresses each wine in turn ("for each wine", "of each wine"). Matched
+// on the raw header phrase (case-insensitive) since normStem() would strip the trailing colon.
+function classifyScopeHeader(h: string): ScopeKind {
+  const t = h.toLowerCase();
+  if (/with reference to (?:all|both)/.test(t) || /\bfor (?:all|both)\b/.test(t)) return "collective";
+  if (/\bfor each\b/.test(t) || /\bof each\b/.test(t)) return "distributive";
+  return "none";
+}
+
+// A scope-header line ends with a colon and addresses the flight ("With reference to all four wines:")
+// or each wine ("For each wine:"). It governs every lettered sub-part that follows it until the next
+// such header.
+// The interior excludes ".", "(", ")" and newlines so a header cannot span past its own sentence into
+// the next sub-part — otherwise "…variety for each wine. (16 marks)\nFor each wine:" reads as one
+// header and swallows part (a)'s own "for each wine" qualifier.
+const SCOPE_HEADER_RE =
+  /(?:with reference to (?:all|both)[^:.()\n]*?:|for (?:each|both|all)[^:.()\n]*?wines?\s*:|of each wine\s*:)/gi;
+
+// Split a question into its lettered sub-parts, each tagged with the scope header that governs it
+// (COLLECTIVE / DISTRIBUTIVE) and the FORM of its marks tariff (POOLED single integer vs PER-WINE
+// "N x M"). Parses the RAW text because the labels (")") and headers (":") carry punctuation that
+// normStem() flattens away; bodies are normalised with norm() (which keeps punctuation) for matching.
+export function parseScopedSubParts(questionText: string): ScopedSubPart[] {
+  const text = questionText || "";
+  const headers: { index: number; text: string }[] = [];
+  for (const m of text.matchAll(new RegExp(SCOPE_HEADER_RE))) {
+    if (m.index != null) headers.push({ index: m.index, text: m[0] });
+  }
+
+  // Lettered labels: a single letter + ")" at a word boundary (space/newline/period before it), which
+  // never matches the "s)" of "marks)" or a digit inside "(4 x 8 marks)".
+  const labels: { index: number; letter: string; end: number }[] = [];
+  for (const m of text.matchAll(/(?:^|[\n\s.])([a-z])\)/g)) {
+    if (m.index == null) continue;
+    const letterIdx = m.index + m[0].length - 2;
+    labels.push({ index: letterIdx, letter: m[1], end: m.index + m[0].length });
+  }
+
+  const parts: ScopedSubPart[] = [];
+  for (let i = 0; i < labels.length; i++) {
+    const start = labels[i].end;
+    const end = i + 1 < labels.length ? labels[i + 1].index : text.length;
+    const segment = text.slice(start, end);
+
+    // Governing header: the last header that appears before this label.
+    let gov: { index: number; text: string } | null = null;
+    for (const h of headers) {
+      if (h.index < labels[i].index) gov = h;
+      else break;
+    }
+
+    const perWine = segment.match(/\(\s*(\d+)\s*(?:x|×|\*)\s*(\d+)\s*marks?\s*\)/i);
+    const pooled = perWine ? null : segment.match(/\(\s*(\d+)\s*marks?\s*\)/i);
+
+    let body = segment.replace(new RegExp(SCOPE_HEADER_RE), " ");
+    body = body.replace(/\([^)]*marks?[^)]*\)/gi, " ");
+
+    parts.push({
+      label: labels[i].letter,
+      header: gov ? norm(gov.text) : "",
+      scope: gov ? classifyScopeHeader(gov.text) : "none",
+      body: norm(body),
+      tariff: perWine ? "per-wine" : pooled ? "pooled" : "none",
+      count: perWine ? Number(perWine[1]) : 0,
+    });
+  }
+  return parts;
+}
+
+/**
+ * R-SCOPE. A COLLECTIVE-scoped, POOLED-tariff sub-part that asks the candidate to identify — PER WINE —
+ * an attribute (grape variety / origin) the STEM itself declares to be different for every wine is a
+ * hard scope_header_ask_mismatch: the header promises one shared answer while the ask demands N. Does
+ * not fire on the integrated-naming exception (a collective ask naming fewer answers than wines).
+ */
+export function validateScopeHeaderAsk(q: QuestionForAudit): Violation[] {
+  const wines = q.wines || [];
+  const n = wines.length;
+  if (n < 2) return [];
+
+  const stem = normStem(q.questionText || "");
+  // Subset-scoped stems ("wines 1-2 … wines 3-4 …") make each claim about a subset, not the flight —
+  // the same guard the cardinality rules use, so a distinctness clause there is not flight-wide.
+  if (subsetScopedStem(q.questionText, n)) return [];
+
+  // Which attributes does the STEM declare NON-SHARED (a distinctness clause across the flight)?
+  const stemDistinctVariety = /different\s+(?:single\s+)?grape variet(?:y|ies)/.test(stem);
+  const stemDistinctOrigin =
+    /different\s+(?:sub-?)?regions?\b/.test(stem) || /different\s+countries\b/.test(stem);
+  if (!stemDistinctVariety && !stemDistinctOrigin) return [];
+
+  const v: Violation[] = [];
+  for (const p of parseScopedSubParts(q.questionText)) {
+    if (p.scope !== "collective" || p.tariff !== "pooled") continue;
+
+    // The ask must identify a per-wine attribute the stem declared non-shared.
+    const perWineQualified = /for each wine|of each wine|each wine'?s|for each of/.test(p.body);
+    if (!perWineQualified) continue;
+    const varietyAsk = /identify (?:the )?(?:grape )?variet(?:y|ies)/.test(p.body);
+    const originAsk = /identify (?:the )?(?:origin|region|country|area)/.test(p.body);
+    const attr =
+      varietyAsk && stemDistinctVariety ? "grape variety" : originAsk && stemDistinctOrigin ? "origin" : "";
+    if (!attr) continue;
+
+    // Permitted exception (2023 P1 Q3): a collective ask that names an explicit aggregate count SMALLER
+    // than the wine count is genuinely integrated (three varieties across four wines), so pooling is
+    // legitimate. Only skip when such a count is actually named.
+    const countMatch = p.body.match(
+      /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+(?:grape\s+)?(?:variet(?:y|ies)|regions?|countr(?:y|ies)|origins?)\b/
+    );
+    const namedCount = countMatch ? parseStemCount(countMatch[1]) : 0;
+    if (namedCount > 0 && namedCount < n) continue;
+
+    v.push({
+      rule: "scope_header_ask_mismatch",
+      severity: "hard",
+      detail: `sub-part (${p.label}) sits under a COLLECTIVE scope header ("${p.header.trim()}") with a single pooled tariff, but the stem declares the ${attr} to be different for every wine and the ask itself is per wine ("for each wine"). A collective "with reference to all ${n} wines" header promises ONE shared conclusion; a per-wine identification of a non-shared attribute belongs under "For each wine:" with an "N x M marks" tariff (corpus: 2016 P1 Q5, 2023 P1 Q2). EK-0172.`,
+    });
+  }
+  return v;
 }
 
 // ---------------------------------------------------------------------------------------------------
@@ -2726,6 +2810,22 @@ export function validateMarkBudget(q: QuestionForAudit): Violation[] {
   const lettered = parseLetteredParts(q.questionText || "");
   if (lettered.length > 0 && lettered[0].letter !== "a") return v;
 
+  // (0) Whole marks only. "(2 x 7.5 marks)" was invisible to the integer-only token regex until
+  // 2026-08-09, so two stems shipped printing 65 marks over 2 wines while every total check counted
+  // the remaining integer tokens to a clean 50 (Mike's rejections of gen_p2_F1_1785898742363 and
+  // gen_p2_any_1780197953533: "Never in the history of never have they ever given a half a mark").
+  // Checked on its own — not just via the total — because fractional parts can still sum to 25 × N
+  // ("2 x 12.5 marks"), and they are wrong at any total.
+  for (const p of parts) {
+    if (!Number.isInteger(p.perUnit) || !Number.isInteger(p.marks)) {
+      v.push({
+        rule: "MARKS_FRACTIONAL",
+        severity: "hard",
+        detail: `a sub-part is priced at ${p.perUnit} marks — the exam awards whole marks only. Re-allocate to integer marks summing to 25 per wine.`,
+      });
+    }
+  }
+
   // (a) Total must be exactly 25 × wineCount. Skip only when the wine count is unknown (0), so the
   // rule can never invent a spurious "must equal 0" mismatch.
   if (wineCount >= 1) {
@@ -3363,6 +3463,56 @@ export interface KeyedGroundWine {
  *  - A slot in one half and not the other → carried through on whichever half has it, because a
  *    partial flight still catches claims about the wines it does know.
  */
+/**
+ * Zip what the ENRICHMENT step learned onto the wines the answer key resolved.
+ *
+ * Two different things know two different halves of a wine. The answer key resolves it into one
+ * dominant variety plus region/country. `generated_questions.wine_profiles` is the enrichment: a
+ * web-cited read of the wine in the glass, carrying the resolved colour and the FULL grape list.
+ * Rules that only ever saw the key were therefore blind to facts the row already contained.
+ *
+ * That is not hypothetical. Reviewer attempt #475 rejected a "different single grape varieties" stem
+ * because wine 2 was a three-grape blend — and the row's own wine_profiles had said
+ * ["Treixadura","Loureiro","Albariño"] with confidence "high" since the day it was generated. R5 was
+ * asking `w.is_blend`, which comes from the key, and the key had reduced it to its dominant grape.
+ * The evidence to reject that question was sitting one column away, unread.
+ *
+ * Deliberately ADDITIVE, never overriding:
+ *  - colour is taken from the profile, which judged the wine directly (a red grape bottled white —
+ *    "Touriga Nacional Branco" — is the case varieties cannot settle).
+ *  - is_blend becomes true if EITHER half says so. The key naming one grape is not evidence of one
+ *    grape; it is evidence of a dominant grape.
+ *  - `varieties` is filled ONLY when the key left it empty. Overwriting it would change what R1/R2/R3
+ *    compare for distinctness — a much wider change than this, and not one the profile is authoritative
+ *    for. The full count travels separately in `blend_variety_count` so R5 can grade on it.
+ */
+export function applyWineProfiles(wines: AuditWine[], wineProfiles: unknown): AuditWine[] {
+  const parsed = (typeof wineProfiles === "string" ? JSON.parse(wineProfiles) : wineProfiles) as Record<
+    string,
+    { colour?: unknown; grape_varieties?: unknown } | undefined
+  > | null;
+  if (!parsed || typeof parsed !== "object") return wines;
+
+  return wines.map((w) => {
+    const p = parsed[String(w.slot)];
+    if (!p) return w;
+    const out: AuditWine = { ...w };
+
+    const c = p.colour;
+    if (c === "white" || c === "red" || c === "rose" || c === "orange") out.colour = c;
+
+    const grapes = Array.isArray(p.grape_varieties)
+      ? p.grape_varieties.filter((g): g is string => typeof g === "string" && g.trim().length > 0)
+      : [];
+    if (grapes.length) {
+      out.blend_varieties = grapes;
+      if (grapes.length >= 2) out.is_blend = true;
+      if (!out.varieties?.length) out.varieties = grapes;
+    }
+    return out;
+  });
+}
+
 export function answerKeyFlight(
   ground: readonly KeyedGroundWine[] | null | undefined,
   wines: readonly { slot: number; fullText?: string }[] | null | undefined,
@@ -3585,6 +3735,164 @@ export async function regenerateFeedbackOnce(
   };
 }
 
+// ---------------------------------------------------------------------------------------------------
+// MODEL-ANSWER COMPLETENESS — a question is not servable without a keyed model answer that COVERS every
+// lettered sub-part of its stem.
+//
+// Three validated signals converge on one fault (fb_427, fb_368, fb_362): generated questions reach a
+// candidate — and the reveal/debrief screen — with no model answer attached, so the reveal renders
+// "No model answer available for this question yet." The grader has nothing to mark against and the
+// post-mortem debrief is empty. fb_427 is the acute case (a Paper 1 Condrieu vs Eden Valley Viognier
+// flight served with no answer); fb_368 and fb_362 are the same gap endorsed more mildly ("would be
+// nice to have model answers").
+//
+// This rule is the mechanical gate the analysis loop asked for. It fails a question whose payload
+// carries NO model answer, and a question whose model answer never ADDRESSES a lettered sub-part
+// (a, b, c …) of its stem. Coverage is judged the way AC5 (answer-subpart-coverage in
+// answer-content-rules.mjs) was calibrated, because the bank's answers vary in ORGANISATION, not
+// just completeness:
+//   - a letter labelled at line start counts when its block is non-empty. There is deliberately NO
+//     per-block prose floor: identification asks are CORRECTLY one line ("**b)** Côte de Nuits,
+//     Burgundy, France", "d) State the level of alcohol" → "13.5%"), and a floor flagged complete
+//     per-wine answers on exactly those parts;
+//   - a letter never labelled at line start still counts as addressed when its label appears
+//     mid-heading — real answers merge parts ("## Wine 1 — a) Region…", "## a) … and b) …");
+//   - an answer that references NO letters at all is organised per-wine (measured on ~15% of the
+//     bank, all otherwise-fine answers) — structure variance, not missing content. It is held to
+//     the whole-answer stub floor only.
+// Blast-radius calibration on the live bank, 2026-08-09: the strict per-block-floor reading flagged
+// 132 banked questions, ~119 of them complete answers in the shapes above; this reading flags only
+// answers with a sub-part absent in every form, plus the genuinely answerless rows (fb_427's bug).
+// The rule reads the payload only — it never touches question content — so it is safe to run on the
+// serve path (question-engine.ts consumes it there) and in the corpus audit.
+
+/** Minimum characters for a model answer WITH NO sub-part structure to count as written at all. */
+export const MODEL_ANSWER_SUBPART_MIN_CHARS = 150;
+
+// The lettered sub-question labels a stem actually poses — "a)", "b)", "(c)" … — in first-seen order,
+// de-duplicated. Matched at a token boundary so the "1" in "Wines 1 and 2" or a mid-word letter can
+// never read as a sub-part. This is the SAME label shape extractStem() keys on to find where a stem
+// ends, so the two agree on what a sub-part is.
+export function stemSubpartLetters(questionText: string): string[] {
+  const text = questionText || "";
+  const re = /(?:^|[\s([])([a-z])\)/gi;
+  const letters: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    const letter = m[1].toLowerCase();
+    if (!letters.includes(letter)) letters.push(letter);
+  }
+  return letters;
+}
+
+// Slice a model answer into the prose block that answers each lettered sub-part. A block begins at a
+// lettered label at the start of a line — tolerant of the markdown the generator emits around it
+// (blockquote ">", heading "###", list "-", and bold "**a)**") — and runs to the next such label or the
+// end of the text. A letter that appears more than once (e.g. across the two rendered SPLIT SECTIONS)
+// keeps its LONGEST block, so a stub in one section cannot mask a full answer in the other.
+export function modelAnswerSubpartBlocks(modelAnswer: string): Map<string, string> {
+  const text = modelAnswer || "";
+  const re = /(?:^|\n)[ \t]*(?:>[ \t]*)?(?:#{1,6}[ \t]*)?(?:[-*+][ \t]+)?\*{0,2}\(?([a-z])[).][ \t*:]/gi;
+  const markers: { letter: string; bodyStart: number; labelStart: number }[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    markers.push({ letter: m[1].toLowerCase(), bodyStart: re.lastIndex, labelStart: m.index });
+  }
+  const blocks = new Map<string, string>();
+  for (let i = 0; i < markers.length; i++) {
+    const stop = i + 1 < markers.length ? markers[i + 1].labelStart : text.length;
+    const body = text.slice(markers[i].bodyStart, stop).trim();
+    const prev = blocks.get(markers[i].letter);
+    if (prev === undefined || body.length > prev.length) blocks.set(markers[i].letter, body);
+  }
+  return blocks;
+}
+
+/**
+ * validateModelAnswerPresent — a HARD gate: a question with no model answer, or a model answer that
+ * skips a lettered sub-part of its stem (see the coverage calibration above), is not servable.
+ * Reads q.modelAnswer + q.questionText only.
+ *
+ * When the stem poses no lettered sub-parts (a bare single-ask), the whole answer is the one block and
+ * it must itself clear the character floor — a one-line stub is still ungradeable.
+ */
+export function validateModelAnswerPresent(q: QuestionForAudit): Violation[] {
+  const answer = (q.modelAnswer || "").trim();
+  if (!answer) {
+    return [
+      {
+        rule: "model-answer-missing",
+        severity: "hard",
+        detail:
+          "no model answer is attached — the grader has nothing to mark against and the debrief is empty, so this question must not be served (fb_427). Write and attach a model answer before it can reach a candidate.",
+      },
+    ];
+  }
+
+  const letters = stemSubpartLetters(q.questionText || "");
+  if (letters.length === 0) {
+    if (answer.length < MODEL_ANSWER_SUBPART_MIN_CHARS) {
+      return [
+        {
+          rule: "model-answer-incomplete",
+          severity: "hard",
+          detail: `model answer is only ${answer.length} characters — below the ${MODEL_ANSWER_SUBPART_MIN_CHARS}-character floor for a gradeable answer. It reads as a stub, not a model answer.`,
+        },
+      ];
+    }
+    return [];
+  }
+
+  const blocks = modelAnswerSubpartBlocks(answer);
+  // Same letter shape AC5 accepts: the label after any whitespace/paren/heading/bold marker, anywhere
+  // in a line — a mid-heading "… and b) Grape variety" is addressing b), not skipping it. The label
+  // must be followed by content on its line: a bare "c)" with nothing after it is a placeholder.
+  const addressedAnywhere = (letter: string) =>
+    new RegExp(`(?:^|[\\s(>#*])\\(?${letter}\\)[ \\t]*\\S`, "im").test(answer);
+  // A letter with a line-start block is covered when the block is non-empty (a bare "b)" label with
+  // nothing after it is a placeholder, not an answer); a letter without one is judged by tolerant
+  // presence. No prose floor on blocks — identification asks are correctly one line (see above).
+  const covered = (l: string) => {
+    const block = blocks.get(l);
+    if (block !== undefined) return block.length > 0;
+    return addressedAnywhere(l);
+  };
+  const missing = letters.filter((l) => !covered(l));
+  // No letter appears anywhere in any form: the per-wine organisational shape. Content-complete
+  // answers legitimately take it, so only the whole-answer stub floor applies.
+  if (
+    missing.length === letters.length &&
+    letters.every((l) => !blocks.has(l) && !addressedAnywhere(l))
+  ) {
+    if (answer.length < MODEL_ANSWER_SUBPART_MIN_CHARS) {
+      return [
+        {
+          rule: "model-answer-incomplete",
+          severity: "hard",
+          detail: `model answer is only ${answer.length} characters — below the ${MODEL_ANSWER_SUBPART_MIN_CHARS}-character floor for a gradeable answer. It reads as a stub, not a model answer.`,
+        },
+      ];
+    }
+    return [];
+  }
+  if (missing.length > 0) {
+    return [
+      {
+        rule: "model-answer-incomplete",
+        severity: "hard",
+        detail: `model answer does not cover every lettered sub-part: part${
+          missing.length > 1 ? "s" : ""
+        } ${missing.map((l) => `"${l})"`).join(", ")} ${
+          missing.length > 1 ? "are" : "is"
+        } never addressed anywhere in the answer. A candidate served this question could not be graded on ${
+          missing.length > 1 ? "those parts" : "that part"
+        }.`,
+      },
+    ];
+  }
+  return [];
+}
+
 export function validateQuestion(
   q: QuestionForAudit,
   opts?: { paperScope?: boolean },
@@ -3607,6 +3915,11 @@ export function validateQuestion(
     violations.push(...stemPreannouncesDiscriminator(q.questionText));
     violations.push(...idMarkAllocationViolations(q));
     violations.push(...flightWineCountViolations(q));
+    // R-SCOPE (EK-0172): a collective scope header + pooled tariff over a per-wine ask of an attribute
+    // the stem declares non-shared. Gated with the other stem-shape rules because the fix is a stem /
+    // sub-part edit; the banked corpus this must gate is all generated (stemIsAuthoritative === false),
+    // so this still covers every question the feedback targets while sparing verbatim past-paper imports.
+    violations.push(...validateScopeHeaderAsk(q));
   }
   // POOL-ADMISSION ASYMMETRY, the same shape as R-COLOUR's `blockIndeterminate`.
   //

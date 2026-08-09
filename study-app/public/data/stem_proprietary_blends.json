@@ -327,6 +327,48 @@
       "is_blend": true,
       "confidence": "high",
       "source": "https://www.villiera.com — MCC blend"
+    },
+    {
+      "match": "faithful hound",
+      "wine": "Mulderbosch Faithful Hound",
+      "country": "South Africa",
+      "region": "Stellenbosch",
+      "varieties": [
+        "Cabernet Franc",
+        "Cabernet Sauvignon",
+        "Merlot",
+        "Malbec",
+        "Petit Verdot"
+      ],
+      "dominant": "Cabernet Franc",
+      "is_blend": true,
+      "confidence": "high",
+      "source": "https://www.mulderbosch.co.za/our-wines/faithful-hound/",
+      "notes": "Red Bordeaux-style blend — NOT a Sauvignon Blanc, and invalid for Paper 1. Mulderbosch also make a well-known white 'Sauvignon Blanc' under a different label; the flagship name 'Faithful Hound' does not disclose its grape, so a producer-level lookup can wrongly resolve it to the white. Keyed here so the colour-conflict veto in resolveVariety catches the mis-key."
+    },
+    {
+      "match": "montevetrano",
+      "wine": "Montevetrano",
+      "country": "Italy",
+      "region": "Colli di Salerno IGT, Campania",
+      "varieties": [
+        "Cabernet Sauvignon",
+        "Merlot",
+        "Aglianico"
+      ],
+      "dominant": "Cabernet Sauvignon",
+      "is_blend": true,
+      "confidence": "high",
+      "source": "https://www.montevetrano.it — Colli di Salerno IGT (Cabernet Sauvignon/Merlot/Aglianico)",
+      "notes": "International-variety Bordeaux-style blend (Cabernet Sauvignon-led with Merlot and a minority of Aglianico) from a boutique Campania estate under a generic IGT — a CURVEBALL, not a banker (EK-0162): it carries no DOCG and no quality-ladder position a candidate can reach from the glass, and its name does not disclose the grape. Keyed here so the name-label cross-check (EK-0043/EK-0065) resolves its true blend instead of defaulting the label to a Campanian indigenous variety, and the confusable captures the pure-Aglianico trap.",
+      "confusables": [
+        {
+          "variety": "Aglianico",
+          "region": "Taurasi, Campania",
+          "country": "Italy",
+          "note": "deliberate trap: same warm Campanian origin, but Montevetrano is an international-variety blend, not indigenous Aglianico"
+        }
+      ]
     }
   ]
 }

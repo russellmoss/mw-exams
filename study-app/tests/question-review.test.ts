@@ -175,8 +175,12 @@ describe("queue SQL", () => {
     // bankedServeRejection in-process on every question it serves. The two disagreed by exactly the
     // questions the gate refuses, so a reviewer could be handed — and spend a vote on — a flight no
     // candidate could ever see. Imported, never reimplemented, or the two sets drift again.
-    expect(lib).toMatch(/import \{ bankedServeRejection \} from "@\/lib\/question-engine"/);
+    // Deferred rather than static: question-engine drags the whole generation stack in, and a static
+    // import made every consumer of this module pay for it (it timed out the composeReviewFeedback
+    // test on the import alone). The gate must still be the engine's own function, not a copy.
+    expect(lib).toMatch(/await import\("@\/lib\/question-engine"\)/);
     expect(lib).toMatch(/bankedServeRejection\(q\)/);
+    expect(lib).not.toMatch(/^import \{[^}]*bankedServeRejection/m);
   });
 
   it("over-fetches so gating cannot silently short the page", () => {

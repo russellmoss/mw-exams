@@ -22,7 +22,7 @@ import { deriveQuestion, markPhrase } from "@/lib/question-sections";
 import { masterTreeForPaper } from "@/lib/master-trees";
 import { getUserPersona } from "@/lib/persona-server";
 import { restyleForPersona } from "@/lib/persona-restyle";
-import { DEFAULT_PERSONA, gradedRestyleEnabled, personaBlock } from "@/lib/personas";
+import { needsRestyle, personaBlock } from "@/lib/personas";
 
 /**
  * The full-debrief grading core, shared by two callers (flash-notes/grade/produce.ts precedent):
@@ -309,7 +309,7 @@ The two awarded values MUST sum to your overall estimated marks.`;
   // When a rewrite is coming, pass 1's text is NOT forwarded to the client — the candidate watches
   // progress, then the styled prose streams in. Forwarding both would make them read the whole
   // debrief in one voice and then watch it re-write itself in another.
-  const willRestyle = chosenPersona !== DEFAULT_PERSONA && gradedRestyleEnabled("grading");
+  const willRestyle = needsRestyle(chosenPersona, "grading");
 
   const { model, abGroup } = await selectModel("full_debrief", apiKey, "opus");
   const t0 = Date.now();
@@ -426,6 +426,7 @@ The two awarded values MUST sum to your overall estimated marks.`;
             surface: "grading",
             client,
             apiKey,
+            userId,
             usage: { taskType: "debrief_persona_restyle", source: usageSource, userId },
             onDelta: (t) => controller.enqueue(encoder.encode(`data: ${JSON.stringify({ t })}\n\n`)),
           });

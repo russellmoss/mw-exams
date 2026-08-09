@@ -15,10 +15,17 @@ export function PersonaPicker({
   value,
   onChange,
   disabled,
+  /**
+   * Personas the account cannot use yet, with the reason. A persona voiced by an external vendor
+   * needs that vendor's key, and selecting it without one would silently serve the default — which
+   * looks like the setting is broken rather than unavailable.
+   */
+  unavailable,
 }: {
   value: PersonaId;
   onChange: (id: PersonaId) => void;
   disabled?: boolean;
+  unavailable?: Partial<Record<PersonaId, string>>;
 }) {
   // The roast persona asks once before it is applied. Not a dark pattern and not hand-wringing:
   // the other three are self-evident from their sample, while this one is a genuine change in how
@@ -40,12 +47,13 @@ export function PersonaPicker({
       {PERSONAS.map((p) => {
         const selected = value === p.id;
         const asking = confirming === p.id;
+        const blocked = unavailable?.[p.id];
         return (
           <div key={p.id}>
             <button
               type="button"
               onClick={() => pick(p.id, p.edgy)}
-              disabled={disabled}
+              disabled={disabled || !!blocked}
               aria-pressed={selected}
               className={`w-full flex items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors cursor-pointer disabled:opacity-60 ${
                 selected ? "border-accent bg-accent/10" : "border-border hover:border-muted"
@@ -75,6 +83,11 @@ export function PersonaPicker({
                 <span className="block text-xs text-muted mt-1 leading-relaxed">
                   {p.description}
                 </span>
+                {blocked && (
+                  <span className="block text-xs text-borderline mt-1.5 leading-relaxed">
+                    {blocked}
+                  </span>
+                )}
                 <span className="block text-xs text-foreground/80 mt-2 pl-3 border-l-2 border-border italic leading-relaxed">
                   {p.sample}
                 </span>
@@ -84,9 +97,9 @@ export function PersonaPicker({
             {asking && (
               <div className="mt-2 ml-7 rounded-lg border border-borderline/40 bg-borderline/5 p-3">
                 <p className="text-xs text-foreground leading-relaxed">
-                  {p.name} will mock your answers — specifically, and without softening it when you
-                  do badly. It never insults you personally, never tells you to give up, and it
-                  still gives you every finding and the same marks as any other voice. Sure?
+                  {p.warning ??
+                    `${p.name} will mock your answers — specifically, and without softening it when you do badly. It never insults you personally, never tells you to give up, and it still gives you every finding and the same marks as any other voice.`}{" "}
+                  Sure?
                 </p>
                 <div className="flex gap-2 mt-3">
                   <button

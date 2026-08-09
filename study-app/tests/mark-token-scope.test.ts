@@ -77,6 +77,43 @@ describe("expandMarkTokens", () => {
     expect(total(q2012, 3)).toBe(75);
   });
 
+  it("reads '(2 x 7.5 marks)' at its real value instead of skipping it", () => {
+    // Live bank gen_p2_F1_1785898742363, rejected by the reviewer on 2026-08-09: the integer-only
+    // token regex matched nothing in the fractional part, so the stem printed 65 marks over 2 wines
+    // while every sum check totalled the three visible integer tokens to a clean 50.
+    const q = [
+      "Wines 1 and 2 are made from the same single grape variety but come from different countries.",
+      "",
+      "With reference to all wines:",
+      "a) Identify the grape variety. (20 marks)",
+      "",
+      "For each wine:",
+      "b) Identify the country and region of origin as closely as possible. (2 x 5 marks)",
+      "c) Comment on the style and the key winemaking decisions behind it. (2 x 10 marks)",
+      "d) Assess the quality, state of maturity and commercial position. (2 x 7.5 marks)",
+    ].join("\n");
+    const { tokens, total: t } = expandMarkTokens(q, 2);
+    expect(t).toBe(65); // what the candidate actually sees — NOT a clean 50
+    const frac = tokens.filter((tok) => tok.fractional);
+    expect(frac).toHaveLength(1);
+    expect(frac[0].raw).toContain("7.5");
+    expect(frac[0].marks).toBe(15);
+    expect(tokens.filter((tok) => !tok.fractional)).toHaveLength(3);
+  });
+
+  it("still ignores a bare parenthesised decimal — an ABV, not marks — even under the unitless convention", () => {
+    const q = [
+      "Wine 3 is a dry white (13.5).",
+      "With reference to all three wines:",
+      "a) Identify the origin as closely as possible (3 x 10\\)",
+      "b) Discuss the quality (15)",
+    ].join("\n");
+    // 30 + 15; "(13.5)" must not join the unitless convention the "(3 x 10\)" turns on.
+    const { tokens, total: t } = expandMarkTokens(q, 3);
+    expect(t).toBe(45);
+    expect(tokens.every((tok) => !tok.fractional)).toBe(true);
+  });
+
   it("never reads a parenthesised vintage as marks in a normally-marked question", () => {
     // The convention is off — every token here says "marks" — so "(2015)" is not a mark token.
     const q = "Wines 1-2 are from the same vintage (2015).\nFor each wine:\na) Identify the origin. (2 x 25 marks)";

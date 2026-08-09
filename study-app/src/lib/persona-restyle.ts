@@ -25,10 +25,14 @@ import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import {
   DEFAULT_PERSONA,
+  getPersona,
   personaBlock,
   type PersonaId,
   type PersonaSurface,
 } from "@/lib/personas";
+import { getGrokKeyForUserId } from "@/lib/grok-key";
+import { getUserFirstName } from "@/lib/persona-server";
+import { grokComplete } from "@/lib/grok";
 
 /** Why a restyle did not end up being used. Logged, and useful telemetry on its own. */
 export type RestyleOutcome =
@@ -37,6 +41,8 @@ export type RestyleOutcome =
   | "disabled"
   | "empty_output"
   | "assessment_drift"
+  /** The persona's copy vendor needs a key this user does not have. Degrades to the neutral text. */
+  | "no_copy_key"
   | "error";
 
 export interface RestyleResult {
@@ -111,23 +117,38 @@ export function assessmentDrift(
 
 // ── The pass ─────────────────────────────────────────────────────────────────────────────────
 
-function buildRestyleSystem(persona: PersonaId, surface: PersonaSurface): string {
+/** Exported for tests: the constraints below are the only thing standing between a re-voicing
+ *  and a mangled mark, so they are asserted rather than assumed. */
+export function buildRestyleSystem(
+  persona: PersonaId,
+  surface: PersonaSurface,
+  candidateName?: string | null
+): string {
   return `You are re-voicing a piece of exam feedback that has ALREADY been marked by an examiner. The grading is finished, it is not yours, and you are not reviewing it. Your only job is to say the same things in a different voice.
 
-## ABSOLUTE CONSTRAINTS
-Your output is machine-checked against the original and DISCARDED WHOLESALE if any of these moved. There is no partial credit — one changed digit throws away the entire rewrite and the candidate gets the original back.
+## WHAT IS FROZEN, AND WHAT MUST CHANGE
 
-1. **Every number stays.** Marks, fractions like 12/15, mark totals, percentages, alcohol figures, years, prices. Reproduce each one exactly, in the same order.
-2. **Every verdict stays.** PASS, BORDERLINE and FAIL appear the same number of times, in the same places, spelled the same way. You may not soften a FAIL or upgrade a BORDERLINE, and you may not editorialise about whether the verdict was right.
-3. **Every heading stays, character for character.** They are parsed by the app. Do not reword, reorder, merge, split, add or drop one.
-4. **Every list item stays, one for one.** If the original has fourteen bullets, yours has fourteen bullets, each carrying the same claim as the one it replaces. Never merge two points, never drop one for being repetitive, never add one of your own.
-5. **Copy [[IMG:...]] tokens and <!-- ... --> comments through byte for byte**, in place. They are machine-read; if you find them ugly, that is not your problem to solve.
-6. **No new judgements.** Do not add a criticism the examiner did not make, do not invent an error to be funny about, do not drop a criticism to be kind, and do not add praise that was not earned in the original.
+Two different things, and confusing them is how this goes wrong in both directions. Read both lists.
 
-What you MAY change is the wording: sentence shape, register, humour, length of the connective tissue between points. That is the whole of your remit.
+### FROZEN — machine-checked, and your whole rewrite is DISCARDED if any of it moves
+1. **Every number.** Marks, fractions like 12/15, totals, percentages, alcohol figures, years, prices — reproduced exactly, in the same order.
+2. **Every verdict.** PASS, BORDERLINE and FAIL appear the same number of times, in the same places, spelled the same. You may not soften a FAIL or upgrade a BORDERLINE, and you may not editorialise about whether it was right.
+3. **Every heading, character for character**, including its \`#\` markers. \`### Overall Assessment\` stays \`### Overall Assessment\` — do not restyle it, bold it, merge it, reorder it or drop it. The app parses these.
+4. **The NUMBER of list items**, and the claim each one makes. Fourteen bullets in, fourteen bullets out, each carrying the same point as the one it replaces. Never merge two, never drop one, never add one of your own.
+5. **\`[[IMG:...]]\` tokens and \`<!-- ... -->\` comments**, byte for byte, in place.
+6. **The judgements themselves.** Do not add a criticism the examiner did not make, invent an error to be funny about, drop a criticism to be kind, or add praise that was not earned.
+
+### MUST CHANGE — the prose, all of it
+**Rewrite the actual words of every sentence.** The frozen list above is scaffolding: numbers, headings, tokens, and how many bullets there are. Everything BETWEEN that scaffolding is yours and has to be rewritten in the voice below.
+
+**Passing a sentence through unchanged is a failure.** The specific way this goes wrong: adding one line in the voice at the top and then reproducing the original body verbatim, which technically satisfies every frozen rule and completely fails the job. If a bullet comes back word-for-word identical to the one you were given, you did not do the work on that bullet.
+
+So, concretely: same claim, same number, **different words** — every strength, every "could improve", every paragraph, every takeaway. Say what the original said, in your own mouth.
 
 ${personaBlock(persona, surface, { bypassSurfaceGate: true })}
-
+${candidateName ? `
+THE CANDIDATE'S NAME IS **${candidateName}**. Use it as the voice above directs.
+` : ""}
 ## OUTPUT
 Return the rewritten text and nothing else — no preamble, no explanation, no code fence around it.`;
 }
@@ -153,6 +174,11 @@ export async function restyleForPersona(opts: {
    * the cheaper tier (AB_TASKS `persona_restyle`).
    */
   apiKey: string;
+  /**
+   * Needed to resolve an EXTERNAL copy vendor's key (BYOK, with the usual admin server fallback).
+   * Omitted, a persona voiced by another vendor degrades to the neutral text rather than failing.
+   */
+  userId?: number | null;
   // `source` is optional to match the callers' own usage-meta types, where it is inferred from the
   // key resolution and can be undefined; logClaudeUsage already tolerates that.
   usage: {
@@ -169,6 +195,48 @@ export async function restyleForPersona(opts: {
 
   if (persona === DEFAULT_PERSONA) {
     return { text: neutralText, outcome: "default_persona" };
+  }
+
+  // Resolved here rather than threaded through four call sites — cached, and fail-soft to null,
+  // in which case the voice simply does not address them by name.
+  const candidateName = await getUserFirstName(opts.userId);
+  const system = buildRestyleSystem(persona, surface, candidateName);
+  const userTurn =
+    `Re-voice the following. Reproduce every number, verdict, heading, list item, token and ` +
+    `comment exactly.
+
+<feedback>
+${neutralText}
+</feedback>`;
+
+  // A persona voiced by another vendor never touches the Anthropic path below. Same gate applies
+  // to whatever comes back — the fingerprint does not care who wrote it.
+  const copyProvider = getPersona(persona).copyProvider;
+  if (copyProvider === "grok") {
+    const grokKey = opts.userId != null ? await getGrokKeyForUserId(opts.userId) : null;
+    if (!grokKey) {
+      console.warn(`[persona-restyle] ${persona} needs an xAI key; serving the neutral text`);
+      return { text: neutralText, outcome: "no_copy_key" };
+    }
+    const out = await grokComplete({
+      apiKey: grokKey.key,
+      system,
+      user: userTurn,
+      maxTokens: opts.maxTokens ?? 8000,
+      usage: { taskType: opts.usage.taskType, userId: opts.userId, source: opts.usage.source },
+    });
+    if (!out?.text) return { text: neutralText, outcome: "empty_output" };
+    const grokDrift = assessmentDrift(
+      fingerprintAssessment(neutralText),
+      fingerprintAssessment(out.text)
+    );
+    if (grokDrift.length) {
+      console.warn(`[persona-restyle] discarded ${persona} (grok) rewrite — drift:`, grokDrift);
+      return { text: neutralText, outcome: "assessment_drift", drift: grokDrift };
+    }
+    // Streamed to the client in one go: grokComplete is non-streaming by design (see lib/grok.ts).
+    opts.onDelta?.(out.text);
+    return { text: out.text, outcome: "applied" };
   }
 
   try {

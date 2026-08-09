@@ -9,6 +9,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { selectModel } from "@/lib/model-selector";
 import { getUserPersona } from "@/lib/persona-server";
+import { restyleForPersona } from "@/lib/persona-restyle";
+import { needsRestyle } from "@/lib/personas";
 import { logClaudeUsage } from "@/lib/usage-log";
 import type { ProgressEmitter } from "@/lib/thinking-stream";
 import { resolveCoachState, type CoachState } from "./state";
@@ -137,6 +139,13 @@ export async function runCoachTurn(opts: {
   const { model, abGroup } = await selectModel("coach", opts.apiKey, "sonnet");
 
   let state = await resolveCoachState(opts.userId);
+  // Resolved once for the turn's OUTPUT decision. The system blocks re-read it per hop so
+  // `set_persona` lands mid-turn; this one only decides whether a re-voicing pass follows, and
+  // flipping that halfway through a turn would strand half a reply in each voice.
+  const turnPersona = await getUserPersona(opts.userId);
+  // True only for a persona whose copy comes from another vendor: Claude wrote this turn in its
+  // own neutral voice (resolvePersonaFor pins it), so the chosen voice has not spoken yet.
+  const willRestyle = needsRestyle(turnPersona, "chat");
   const messages: CoachMessage[] = [...opts.messages];
   const toolsUsed: string[] = [];
   const proposals: CoachProposalCard[] = [];
@@ -173,7 +182,9 @@ export async function runCoachTurn(opts: {
     // half-formed JSON and mean nothing to a reader.
     stream.on("text", (delta) => {
       finalText += delta;
-      opts.emit?.({ type: "thinking", delta });
+      // Withheld when a rewrite is coming, so the candidate does not watch the neutral answer
+      // type itself out and then get replaced.
+      if (!willRestyle) opts.emit?.({ type: "thinking", delta });
     });
 
     const message = await stream.finalMessage();
@@ -261,7 +272,7 @@ export async function runCoachTurn(opts: {
     if (finalText && !/\n\n$/.test(finalText)) {
       const sep = finalText.endsWith("\n") ? "\n" : "\n\n";
       finalText += sep;
-      opts.emit?.({ type: "thinking", delta: sep });
+      if (!willRestyle) opts.emit?.({ type: "thinking", delta: sep });
     }
   }
 
@@ -271,6 +282,32 @@ export async function runCoachTurn(opts: {
       "narrowing the question usually gets there faster.*";
   }
 
+  // PASS 2 — hand the finished answer to the persona's own copy vendor. Claude has already done
+  // every lookup, every citation and every judgement in this turn; what comes back is the same
+  // answer in a different mouth, and the fingerprint gate discards it if it is not.
+  if (willRestyle && finalText.trim()) {
+    const restyled = await restyleForPersona({
+      neutralText: finalText,
+      persona: turnPersona,
+      surface: "chat",
+      client,
+      apiKey: opts.apiKey,
+      userId: opts.userId,
+      usage: { taskType: "coach_persona_restyle", source: "user", userId: opts.userId },
+      maxTokens: MAX_TOKENS,
+      onDelta: (delta) => opts.emit?.({ type: "thinking", delta }),
+    });
+    if (restyled.outcome === "applied") {
+      finalText = restyled.text;
+    } else {
+      // Nothing was streamed (the gate rejected before onDelta, or the vendor was unreachable), so
+      // emit the neutral answer now — otherwise the candidate watches a spinner produce nothing.
+      console.warn(`[coach] restyle not applied (${restyled.outcome}); serving the neutral reply`);
+      opts.emit?.({ type: "thinking", delta: finalText });
+    }
+  }
+
+  // Guards run on what the candidate will actually READ, so they have to see the re-voiced text.
   const guarded = runGuards({ text: finalText, toolsUsed, committed: false });
 
   logClaudeUsage(

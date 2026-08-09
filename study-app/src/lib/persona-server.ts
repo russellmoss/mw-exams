@@ -51,6 +51,30 @@ export async function getUserPersona(userId?: number | null): Promise<PersonaId>
   }
 }
 
+/**
+ * The candidate's first name, for personas that address them directly.
+ *
+ * Same cache shape and same fail-soft rule as the persona above: a name lookup must never be able
+ * to stop someone being graded, so a miss returns null and the voice simply does not use one.
+ */
+const nameCache = new Map<number, { name: string | null; at: number }>();
+
+export async function getUserFirstName(userId?: number | null): Promise<string | null> {
+  if (userId == null) return null;
+  const hit = nameCache.get(userId);
+  if (hit && Date.now() - hit.at < TTL_MS) return hit.name;
+  try {
+    const sql = neon(process.env.DATABASE_URL!);
+    const rows = await sql`SELECT name FROM users WHERE id = ${userId}`;
+    const full = (rows[0]?.name as string | null) ?? null;
+    const name = full ? full.trim().split(/\s+/)[0] || null : null;
+    nameCache.set(userId, { name, at: Date.now() });
+    return name;
+  } catch {
+    return nameCache.get(userId)?.name ?? null;
+  }
+}
+
 /** Save this user's voice. Validated by the caller; the CHECK constraint is the backstop. */
 export async function setUserPersona(userId: number, persona: PersonaId): Promise<void> {
   const sql = neon(process.env.DATABASE_URL!);

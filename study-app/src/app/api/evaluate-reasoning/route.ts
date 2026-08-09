@@ -8,7 +8,7 @@ import { IMAGE_TOKEN_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer
 import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
 import { getUserPersona } from "@/lib/persona-server";
 import { restyleForPersona } from "@/lib/persona-restyle";
-import { DEFAULT_PERSONA, gradedRestyleEnabled, personaBlock } from "@/lib/personas";
+import { needsRestyle, personaBlock } from "@/lib/personas";
 
 export const runtime = "nodejs";
 // Generous budget: after the text streams we resolve the hero + up to 3 illustration images.
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     );
 
     const chosenPersona = await getUserPersona(keyResult.user.id);
-    const willRestyle = chosenPersona !== DEFAULT_PERSONA && gradedRestyleEnabled("grading");
+    const willRestyle = needsRestyle(chosenPersona, "grading");
 
     const { model, abGroup } = await selectModel("reasoning_grading", keyResult.apiKey, "opus");
     const t0 = Date.now();
@@ -114,6 +114,7 @@ Please evaluate this stem analysis. What did the candidate identify well? What s
               surface: "grading",
               client,
               apiKey: keyResult.apiKey,
+              userId: keyResult.user.id,
               usage: {
                 taskType: "reasoning_grading_persona_restyle",
                 source: keyResult.source,
