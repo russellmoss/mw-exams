@@ -94,6 +94,16 @@ function promisedCountryCount(stem) {
   return /^\d+$/.test(m[1]) ? Number(m[1]) : COUNTRY_NUMWORD[m[1]] || null;
 }
 
+// True when the stem promises that EACH wine is made from a SINGLE grape variety (e.g. "each wine is
+// made from a different single grape variety"). A wine keyed as a deliberate multi-variety blend then
+// contradicts the stem outright — a hard validity fault, not a difficulty judgement. Returns false when
+// the stem makes no such promise. Kept narrow ("single … variety" / "one … variety") so a stem that
+// only says "different varieties" — which permits blends — is never caught.
+function promisesSingleVarietyPerWine(stem) {
+  const n = norm(stem);
+  return /\bsingle (?:grape )?variet(?:y|ies)\b/.test(n) || /\bone (?:grape )?variet(?:y|ies)\b/.test(n);
+}
+
 const STYLE_CAT_FALLBACK = {
   sparkling: "Sparkling",
   fortified: "Fortified",
@@ -261,6 +271,10 @@ export function createAnswerKeyBuilder(data) {
     const source = {};
     const problems = [];
     const curatedConfusables = [];
+    // Slots keyed as DELIBERATE multi-variety blends (proprietary/icon blends with is_blend). Used to
+    // gate a "single grape variety" stem below. Deliberate blends only — a co-ferment resolved via an
+    // appellation stays a soft matter (EK-0040 R5) and is intentionally not collected here.
+    const deliberateBlendSlots = [];
     for (const w of wines) {
       const prof = wp[String(w.slot)] || {};
       const col = colour(w.fullText, r.paper);
@@ -271,6 +285,7 @@ export function createAnswerKeyBuilder(data) {
       const o = resolveOrigin(w.fullText);
       source[w.slot] = src;
       const pm = proprietaryMatch(w.fullText);
+      if (pm && pm.is_blend) deliberateBlendSlots.push(w.slot);
       if (pm && Array.isArray(pm.confusables)) {
         for (const c of pm.confusables) {
           if (!c || !c.variety || !c.region) continue;
@@ -349,6 +364,17 @@ export function createAnswerKeyBuilder(data) {
         problems.push(
           `country-diversity mismatch (stem promises ${promisedCountries} different countries, ` +
             `keyed origins have only ${distinctCountries.size} distinct)`
+        );
+      }
+    }
+    // Single-variety stem vs blend key: if the stem promises each wine is a single grape variety but a
+    // wine is keyed as a deliberate multi-variety blend, the stem and key contradict. This is a hard
+    // fault (validated=false → dropped from serve paths), the same treatment as country-diversity above.
+    if (deliberateBlendSlots.length && promisesSingleVarietyPerWine(r.question_text || "")) {
+      for (const slot of deliberateBlendSlots) {
+        problems.push(
+          `single-variety stem contradiction (W${slot} is a multi-variety blend, but the stem ` +
+            `states each wine is a single grape variety)`
         );
       }
     }
