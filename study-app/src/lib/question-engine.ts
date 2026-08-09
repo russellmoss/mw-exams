@@ -141,6 +141,7 @@ import { enforceAnswerLength } from "@/lib/answer-length-gate";
 import {
   stemSniperScoringModel,
   flightCompositionViolations,
+  flightAnchorPairingViolations,
   isBanker,
   idMarkAllocationViolations,
   crossCheckStemFacts,
@@ -153,6 +154,10 @@ import {
   validateModelAnswerPresent,
   type AuditWine,
 } from "@/lib/question-validator";
+// The variety×origin anchor table, re-exported so the SELECTION PATH (and its callers) build flights
+// against the SAME classics that judge them — a flight is only anchored when a wine pairs a banker
+// variety with a region genuinely classic for it, which flightAnchorPairingViolations enforces below.
+export { ANCHOR_PAIRS, type AnchorPair } from "@/lib/question-validator";
 // Shared rule layer (single source of truth). The engine delegates the cleanly-separable
 // contradiction rules here and feeds them via the text adapter; its entangled text-only extras
 // (undetectable-variety, name-cross-check, blend-hard, P3 fullText scope, banker, flight-size,
@@ -1855,10 +1860,19 @@ ${repairContext.draft}`,
     // disagreeing is how 144 bankerless/curveball-heavy flights passed generation and were then
     // quarantined post-save. Same relaxation policy as before (advisory interactive, blocking on
     // the bank path via BANK_BLOCKING_RULES).
+    // The banker verdict now also enforces ANCHOR PAIRING (flightAnchorPairingViolations, code
+    // NO_ANCHOR_PAIRING): a flight is only anchored when a wine pairs a banker VARIETY with a region
+    // that is genuinely classic for it, not merely a banker grape in an atypical origin — the Paper 1
+    // reviewer fault cluster this closes. ANCHOR_PAIRS is the SAME table the audit reads, so the
+    // generator builds flights against exactly what judges them (ANCHOR_PAIRS is re-exported above so
+    // this selection path — and its callers — can reason about the anchors a flight must include).
     const bankerViolations =
       pinned || shouldRelaxBanker(attempt, bankPath)
         ? []
-        : flightCompositionViolations(auditWines).map((v) => v.detail);
+        : [
+            ...flightCompositionViolations(auditWines),
+            ...flightAnchorPairingViolations(auditWines),
+          ].map((v) => v.detail);
     const bankerCheck = { valid: bankerViolations.length === 0, violations: bankerViolations };
     const flightSizeCheck = pinned || relaxNiceToHave
       ? { valid: true, violations: [] }
