@@ -24,7 +24,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { neon } from "@neondatabase/serverless";
-import { validateQuestion } from "../src/lib/question-validator";
+import { validateQuestion, type AuditWine } from "../src/lib/question-validator";
 import { expandMarkTokens } from "../src/lib/question-rules.mjs";
 import "../src/lib/appellation-resolver";
 
@@ -214,11 +214,21 @@ c) Comment on the quality, maturity and commercial position of each wine, statin
   },
 };
 
+type BankRow = {
+  question_id: string;
+  paper: number;
+  family: string;
+  total_marks: number | null;
+  question_text: string;
+  wines: string | { slot: number; fullText?: string }[];
+  n: number;
+};
+
 const ids = Object.keys(FIXES);
 const rows = (await sql`
   SELECT question_id, paper, family, total_marks, question_text, wines,
          COALESCE(flight_size, jsonb_array_length(wines)) AS n
-  FROM generated_questions WHERE question_id = ANY(${ids})`) as any[];
+  FROM generated_questions WHERE question_id = ANY(${ids})`) as unknown as BankRow[];
 
 let pass = 0;
 const failures: string[] = [];
@@ -226,8 +236,9 @@ const failures: string[] = [];
 for (const r of rows) {
   const fix = FIXES[r.question_id];
   const n = Number(r.n);
-  const raw = typeof r.wines === "string" ? JSON.parse(r.wines) : r.wines;
-  const wines = (Array.isArray(raw) ? raw : []).map((w: any) => ({
+  const raw: { slot: number; fullText?: string }[] =
+    typeof r.wines === "string" ? JSON.parse(r.wines) : r.wines;
+  const wines: AuditWine[] = (Array.isArray(raw) ? raw : []).map((w) => ({
     slot: w.slot,
     varieties: [],
     region: "",
@@ -244,7 +255,7 @@ for (const r of rows) {
       questionText: text,
       totalMarks: total,
       wines,
-    } as any).violations.filter((v) => v.severity === "hard");
+    }).violations.filter((v) => v.severity === "hard");
 
   // Judged on what the repair INTRODUCES, not on the absolute count. These rows are run without an
   // answer key, so key-dependent rules report against an empty flight — country-diversity says "key
