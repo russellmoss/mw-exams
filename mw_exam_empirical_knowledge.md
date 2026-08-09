@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-09 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0185, EK-0186).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0183, EK-0184).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0182).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0181).**
@@ -1172,6 +1173,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #500 / analysis #140 (accept); corpus `data/exams.json` — 2017 P2 Q2 (Montepulciano d'Abruzzo, Chianti Classico Riserva, Barolo, Etna Rosso) and 2023 P2 Q1 (Barolo, Valpolicella, Taurasi Riserva, Etna Rosso)
 - **claim:** Satisfying EK-0029/EK-0162 with a single banker does not make a four-wine flight realistic: the attested same-country Italian P2 flights pair one canonical anchor (Barolo) with one or two broadly accessible regional wines and only ONE genuine curveball, matching the per-flight concentration in EK-0097. A flight of Gaja Sperss Barolo plus Montevetrano (Campanian international blend), Occhipinti SP68 (Frappato/Nero d'Avola) and Foradori Granato (Teroldego) inverts that shape — three hard-to-place wines against one anchor — and must be redrawn with a second accessible regional wine (e.g. Chianti Classico, Valpolicella, Montepulciano d'Abruzzo).
 
+### EK-0185 · Anchor count scales with flight size — a six-wine flight needs three-plus bankers
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #596 / analysis #235 (accept); EK-0097; EK-0029; EK-0179
+- **claim:** The banker requirement grows with the flight, it does not stay at one: a six-wine question consuming half a paper should carry roughly three to four wines the candidate knows cold and at most one to three genuine curveballs, consistent with the corpus's per-wine harder rate of ~21–27% and the fact that 54% of multi-wine flights are all-anchor (EK-0097). A six-country sweet flight of Baden Weissburgunder Spätlese, Bonnezeaux, Kracher Rosenmuskateller BA, Kiona Late Harvest Riesling and Moscadello di Montalcino leaves De Bortoli Noble One as the only anchor — five curveballs to one — and is out of distribution. Generation must count anchors against flight size, not merely check that one banker exists.
+
 ---
 
 ## §5 · Question generation rules
@@ -1406,6 +1412,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #581 / analysis #220 (accept); EK-0037 (explicit residual-sugar questions on P3 in 7/10 years); EK-0018; EK-0141; EK-0166
 - **claim:** Residual sugar is Paper 3's own analytic readout (EK-0166), asked as a bare 2–3 mark number (EK-0018) in most years (EK-0037). When a generated P3 flight deliberately spans sweetness levels — e.g. an Alsace Vendanges Tardives, a Mosel Auslese and a dry-to-off-dry Australian Riesling — the corpus-realistic shape includes a per-wine 'state the residual sugar in g/L' sub-part, and its absence is a generation gap. Keyed values must sit inside the style's documented band with tolerance widening at the extremes (EK-0141).
 
+### EK-0186 · The P3 state-the-RS/ABV ask has now been reported twice — enforce it, don't just prompt for it
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #596 / analysis #235 (accept); EK-0184; EK-0037; EK-0018; EK-0141
+- **claim:** A Paper 3 flight whose premise is residual sugar must carry the corpus's standard bare numerical sub-parts — 'state the residual sugar in g/L' and often 'state the alcohol %', 2–3 marks per wine (EK-0018, EK-0037, EK-0141). A generated six-wine 'each wine contains residual sugar' question paid 10/8/7 per wine for origin, mechanism and style with no numeric ask at all. This is the second independent report of the same omission, so it belongs in the validator/blueprint for P3 sweetness-premise questions rather than in prompt guidance alone (same escalation logic as EK-0178).
+
 ---
 
 ## §6 · Question-generation learnings from feedback (the living ledger)
@@ -1479,6 +1490,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 537 | 177 | P2/F1 | accept | auto | fractional 7.5-mark sub-part is never used by the IMW, and the flight totalled 65 marks for 2 wines instead of 50 (personal abuse in the same submission ignored) | EK-0181, EK-0041, EK-0001 |
 | 577 | 217 | P3/F1 | accept | auto | same-variety stem premise false for two appellation-only sweet wines (Sauternes = Sémillon/SB, Coteaux du Layon = Chenin); variety checks need appellation→grape resolution (personal abuse in the submission ignored) | EK-0182, EK-0040, EK-0043, EK-0180 |
 | 581 | 220 | P3/F1 | accept | auto | 30 marks for a shared same-variety call on a P3 trio is double the attested 12–18 band, and the flight omitted P3's standard state-the-RS ask (personal abuse in the submission ignored) | EK-0183, EK-0184, EK-0165, EK-0154, EK-0037, EK-0018, EK-0166 |
+| 596 | 235 | P3/F4 | accept | auto | six-wine sweet flight had five curveballs to one anchor, repeated one mechanism (4x botrytis) under an RS-mechanism ask, and omitted P3's standard state-the-RS/ABV numeric sub-parts (personal abuse in the submission ignored) | EK-0185, EK-0186, EK-0029, EK-0097, EK-0039, EK-0080, EK-0184, EK-0037, EK-0018 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
