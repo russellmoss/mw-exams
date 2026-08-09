@@ -951,14 +951,57 @@ export function applyQuestionRules(q, opts = {}) {
       });
   }
 
-  // R5 — "single grape variety" + a blend wine. SOFT: a dominant-grape blend / co-ferment is often
-  // legitimate, and "predominantly" explicitly permits it. Truly wrong wines are caught (hard) by R2.
-  if (!predominantly && /\bsingle grape variety\b/.test(stem) && wines.some((w) => w.is_blend))
-    v.push({
-      rule: "single-variety-blend",
-      severity: "soft",
-      detail: `stem says single grape variety; a wine is a blend (${wines.filter((w) => w.is_blend).map((w) => w.varieties.join("/")).join("; ")})`,
-    });
+  // R5 — "single grape variety" + a blend wine.
+  //
+  // Severity is graded on HOW MANY grapes, because the two cases are not the same question. Two
+  // varieties can be an 85%-rule varietal — most appellations let a wine labelled "Chardonnay" carry
+  // a splash of something else, and a co-ferment or a dominant-grape blend is often a legitimate
+  // answer to a "single grape variety" stem. That stays SOFT, as it always was. THREE or more is a
+  // blend in anyone's terms: asked to name "the single grape variety", the candidate has no answer to
+  // give, which is this file's definition of hard. Reviewer attempt #475 is the case — a stem
+  // promising "different single grape varieties" over Emilio Rojo Ribeiro Blanco, which the row's own
+  // wine_profiles recorded as Treixadura/Loureiro/Albariño with confidence "high".
+  //
+  // The count comes from `blend_varieties` (the enrichment's full list) rather than `varieties` (what
+  // the key resolved), because the key reduces a blend to its dominant grape — which is exactly why
+  // this rule could not see #475 before. See applyWineProfiles in question-validator.ts.
+  //
+  // The stemDeclaresBlend guard is new and load-bearing. Two real past papers say "single grape
+  // variety" AND announce a blend in the same breath:
+  //   2022 P2 Q1 — "Wines 1-3 … each made from a different, single grape variety. Wine 4 is a blend
+  //                 of all three of these varieties."
+  //   2019 P1 Q1 — "They may be blends or single varieties, but one variety is common to all."
+  // Firing on those would reject the actual exam. Nothing caught it before only because the key had
+  // never marked those wines as blends; giving the rule real evidence is what made the gap reachable.
+  //
+  // Deliberately NOT the general `subsetSplit` guard, which is far too wide here: isSubsetSplit()
+  // matches any stem containing "Wines 1 and 2", i.e. essentially every two-wine flight — including
+  // attempt #475's, the case this rule exists to catch. (That over-breadth is the pre-existing gap
+  // already noted where subsetSplit is defined.) The narrow test is whether the STEM ITSELF says a
+  // blend is present; only then is a blended wine what the question asked for.
+  // Both inflections. The regex was `single grape variety` singular, so it never matched the commonest
+  // multi-wine phrasing — "made from different single grape VARIETIES" — which is attempt #475's stem
+  // verbatim. R3 next door has always used variet(?:y|ies); this rule simply never did, so it was
+  // silently scoped to same-variety flights while its whole purpose is the different-variety ones.
+  const stemDeclaresBlend = /\b(?:is|are|may be|might be|could be)\s+(?:a\s+)?blends?\b|\bblend of\b|\bblended\b/.test(stem);
+  if (!predominantly && !stemDeclaresBlend && /\bsingle grape variet(?:y|ies)\b/.test(stem)) {
+    const blends = wines.filter((w) => w.is_blend);
+    if (blends.length > 0) {
+      const grapesOf = (w) => (w.blend_varieties?.length ? w.blend_varieties : w.varieties || []);
+      const genuine = blends.filter((w) => grapesOf(w).length >= 3);
+      const describe = (w) => `wine ${w.slot} (${grapesOf(w).join("/") || "blend"})`;
+      v.push({
+        rule: "single-variety-blend",
+        severity: genuine.length > 0 ? "hard" : "soft",
+        detail:
+          genuine.length > 0
+            ? `stem says single grape variety, but ${genuine
+                .map(describe)
+                .join("; ")} is a blend of ${grapesOf(genuine[0]).length} — there is no single variety to name`
+            : `stem says single grape variety; a wine is a blend (${blends.map(describe).join("; ")})`,
+      });
+    }
+  }
 
   // R9 — contrast-without-contrast (Mike's bin corpus, Class 3). Two triggers, both method-shaped:
   // a stem that PROMISES "different methods of production" must not key duplicate methods (same

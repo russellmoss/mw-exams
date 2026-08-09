@@ -16,7 +16,7 @@
 // Reads ground_truth from stem_answer_keys (already-resolved variety/region/country/is_blend per wine).
 import { readFileSync } from "fs";
 import { neon } from "@neondatabase/serverless";
-import { validateQuestion } from "../src/lib/question-validator.ts";
+import { validateQuestion, applyWineProfiles } from "../src/lib/question-validator.ts";
 import { GROUND_TRUTH_INDEPENDENT_RULES } from "../src/lib/question-rules.mjs";
 // The serve-time bank gate, imported so the sweep can enforce exactly what the serve path enforces
 // rather than an approximation of it. See the SERVE-GATE PARITY note below.
@@ -88,9 +88,16 @@ for (const r of rows) {
   // deliberation instead of a wine still resolves to a plausible-looking key (a paragraph mentioning
   // "Amontillado" and "Spain" keys as Palomino/Jerez/Spain), so the shape rule is the only one that
   // can see the defect — and it needs the string ground_truth discarded.
-  const wines = hasKey
-    ? gt.map((w) => (bySlot.has(w.slot) ? { ...w, fullText: bySlot.get(w.slot) } : w))
-    : rawWines.map((w) => ({ slot: w.slot, fullText: w.fullText }));
+  // wine_profiles was in this SELECT but never read, so the sweep judged every wine on the key alone
+  // while auditAndQuarantineQuestion had at least been zipping the colour on — the two audits were
+  // looking at different wines. applyWineProfiles is now the single place that merges the enrichment
+  // in (colour, and the full grape list the key reduces to a dominant grape), used by both.
+  const wines = applyWineProfiles(
+    hasKey
+      ? gt.map((w) => (bySlot.has(w.slot) ? { ...w, fullText: bySlot.get(w.slot) } : w))
+      : rawWines.map((w) => ({ slot: w.slot, varieties: [], region: "", fullText: w.fullText })),
+    r.wine_profiles
+  );
   const res = validateQuestion({
     questionId: r.question_id, paper: r.paper, family: r.family,
     questionText: r.question_text, totalMarks: r.total_marks, wines,
