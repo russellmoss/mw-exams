@@ -2,6 +2,7 @@ import {
   getRecentAttempts,
   getUnansweredQuestions,
   getQuestionsByFilter,
+  getUserExcludedFlightSignatures,
   recordQuestionView,
   incrementTimesServed,
   type GeneratedQuestion,
@@ -10,6 +11,7 @@ import {
   generateFreshQuestion,
   sanitizeQuestionMetadata,
   filterValidBanked,
+  filterExcludedFlightSignatures,
   pickFlightSizeAware,
   narrowToWeightedP3Category,
   getWineCount,
@@ -94,11 +96,27 @@ export async function produceQuestion(opts: ProduceOpts): Promise<GenerationOutc
 async function selectOrGenerate(opts: ProduceOpts): Promise<GenerationOutcome> {
   const { paper, family, forceFresh, focus, apiKey, meta, emit } = opts;
 
+  // Per-user FLIGHT-level exclusion set (feedback cluster: identical flights re-served, including ones
+  // the user already rejected). The (paper, family, wine-set) signatures this user was served in the
+  // last 90 days or has ever rejected/left accepted-negative feedback on. Used to (a) drop banked
+  // questions that key a duplicate flight, and (b) stop a fresh generation recreating one. Best-effort
+  // — a lookup outage degrades to no exclusion rather than failing the serve. No user → empty.
+  const excludedFlightSignatures =
+    meta.userId != null
+      ? await getUserExcludedFlightSignatures(meta.userId, paper).catch((err) => {
+          console.error("getUserExcludedFlightSignatures failed (non-fatal):", err);
+          return new Set<string>();
+        })
+      : new Set<string>();
+
   // Skip bank and generate fresh if requested
   if (forceFresh) {
     console.log(`Force fresh question requested for P${paper} ${family || "any"}`);
     emit?.({ type: "status", label: "Generating a fresh question…" });
-    return generateFreshQuestion(paper, family, apiKey, meta, undefined, emit);
+    return generateFreshQuestion(
+      paper, family, apiKey, meta, undefined, emit,
+      undefined, undefined, undefined, excludedFlightSignatures
+    );
   }
 
   // Per-user "recently served" set. The banked pools key on COMPLETED attempts, so a question
@@ -124,8 +142,10 @@ async function selectOrGenerate(opts: ProduceOpts): Promise<GenerationOutcome> {
   // PRIORITY 1: Unanswered (by THIS user) banked questions with model answers ready (instant UX).
   // Filter through current validators — catches legacy questions that predate new rules.
   emit?.({ type: "status", label: "Looking for an unseen question in the bank…" });
-  const unanswered = filterValidBanked(await getUnansweredQuestions(paper, family, meta.userId))
-    .filter((q) => !recentlyServedIds.has(q.question_id));
+  const unanswered = filterExcludedFlightSignatures(
+    filterValidBanked(await getUnansweredQuestions(paper, family, meta.userId)),
+    excludedFlightSignatures
+  ).filter((q) => !recentlyServedIds.has(q.question_id));
   if (unanswered.length > 0) {
     let picked = pickFlightSizeAware(steerP3(unanswered), family);
     picked = await ensureP3Appearances(picked, apiKey, meta, emit);
@@ -146,8 +166,10 @@ async function selectOrGenerate(opts: ProduceOpts): Promise<GenerationOutcome> {
     .filter((a) => a.paper === paper && (family === "any" || !family || a.family === family))
     .map((a) => a.question_id);
 
-  const validAvailable = filterValidBanked(available)
-    .filter((q) => !recentlyServedIds.has(q.question_id));
+  const validAvailable = filterExcludedFlightSignatures(
+    filterValidBanked(available),
+    excludedFlightSignatures
+  ).filter((q) => !recentlyServedIds.has(q.question_id));
   const staleWithAnswers = validAvailable.filter((q) => {
     if (!q.model_answer || q.model_answer.length < 100) return false;
     const lastSeenIdx = categoryAttempts.indexOf(q.question_id);
@@ -167,7 +189,13 @@ async function selectOrGenerate(opts: ProduceOpts): Promise<GenerationOutcome> {
     };
   }
 
-  // PRIORITY 3: Generate fresh on the fly (passes the per-user seen set so the fallback can't repeat)
+  // PRIORITY 3: Generate fresh on the fly (passes the per-user seen set so the fallback can't repeat,
+  // and the per-user flight-signature exclusion so a fresh draw can't recreate a rejected/just-seen
+  // flight). If the banked tiers were emptied by the exclusion, this is the "generate rather than
+  // replay the oldest" fall-through the feature requires.
   emit?.({ type: "status", label: "Nothing suitable banked — writing you a new question…" });
-  return generateFreshQuestion(paper, family, apiKey, meta, recentlyServedIds, emit);
+  return generateFreshQuestion(
+    paper, family, apiKey, meta, recentlyServedIds, emit,
+    undefined, undefined, undefined, excludedFlightSignatures
+  );
 }

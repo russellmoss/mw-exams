@@ -331,6 +331,14 @@ export async function saveGeneratedQuestion(q: {
   // producer tally as of insert time; a servable/approved study-path row carries no flag. The ON
   // CONFLICT re-save (background model answer) never recomputes it, so the flag from first insert holds.
   const producerFlags = q.status === "pending" ? await computeProducerFlags(q.paper, q.wines) : null;
+  // Per-user FLIGHT-level dedup (feedback cluster): stamp the stable flight signature on the row at
+  // insert time so the serve/generation exclusion is a stored read, not a re-derivation. Computed
+  // over the exact wines being written; the ON CONFLICT re-save (background model answer) never
+  // touches metadata, so the value from first insert holds. See computeFlightSignature.
+  const metadataToStore = {
+    ...(q.metadata || {}),
+    flightSignatureKeyed: computeFlightSignature(q.paper, q.family, q.wines),
+  };
   const rows = await sql`
     INSERT INTO generated_questions (
       question_id, paper, family, family_label, subcategory,
@@ -344,7 +352,7 @@ export async function saveGeneratedQuestion(q: {
       ${q.questionText}, ${JSON.stringify(q.wines)}, ${q.totalMarks}, ${p3Category},
       ${q.modelAnswer || null}, ${q.proposedAnnotation || null},
       ${q.reasoningTrace || null}, ${q.studyDiagramAssist || null},
-      ${JSON.stringify(q.metadata || {})}, ${q.createdByUserId ?? null},
+      ${JSON.stringify(metadataToStore)}, ${q.createdByUserId ?? null},
       ${q.status ?? "approved"}, ${q.batchId ?? null},
       ${q.status === "pending" ? "pending" : q.status === "rejected" ? "binned" : "kept"},
       ${questionType}, ${curveball}, ${priceBand}, ${flightSize},
@@ -1037,6 +1045,167 @@ export function flightSignature(wines: { fullText: string }[] | null | undefined
 function parseWinesLoose(raw: unknown): { fullText: string }[] {
   const wines = typeof raw === "string" ? (() => { try { return JSON.parse(raw); } catch { return null; } })() : raw;
   return Array.isArray(wines) ? (wines as { fullText: string }[]) : [];
+}
+
+// ── Per-user FLIGHT-level dedup (feedback cluster: identical flights re-served, incl. rejected) ────
+//
+// A cross-paper cluster of six validated signals — fb_462/453/443 (P1), fb_143/141 (P3), fb_95 (P2) —
+// all say the SAME thing in the user's own words: "the exact same question with the exact same wines",
+// "the second time today", "same as the question I just saw and rejected". Per-question point fixes
+// and wine-level reuse caps did not close it because the repeat is at the FLIGHT level and was never
+// scoped to the individual user: a DIFFERENTLY-worded question over the IDENTICAL keyed wine set is a
+// new question_id, so the per-question "seen" ledger (question_views) let it straight through.
+//
+// `computeFlightSignature` is the stable per-flight identity that closes that: a hash of
+// (paper, family, the SORTED SET of keyed wine identities). Two questions that key the identical set
+// of wines collide on it even when their stems differ, so serving one and then a second,
+// differently-worded question over the same bottles is caught. It is DISTINCT from flightSignature()
+// above (region/variety/style SHAPE, paper-recency dedup) — this one is the exact bottle set, per user.
+//
+// Persisted on each row at insert time as metadata.flightSignatureKeyed (see saveGeneratedQuestion).
+// The migrations directory is standalone SQL applied to Neon and is outside this feature's file
+// scope, so — exactly as the existing metadata.flightSignature does — the signature lives on the row's
+// metadata JSON rather than a dedicated column, read back preferring the stored value with a
+// compute-on-the-fly fallback for any row generated before this feature.
+
+// A small, dependency-free stable string hash (FNV-1a, 32-bit, hex). A cryptographic digest is not
+// wanted here — this is a set-membership collision key, not a security primitive — and avoiding
+// node:crypto keeps this module edge-safe like the rest of it.
+function stableHash(s: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(16).padStart(8, "0");
+}
+
+// The stable flight signature: hash of (paper, family, the SORTED SET of keyed wine identities).
+// wineCooldownId collapses vintage + ABV so the same bottle in a different year reads as one wine; the
+// SET (dedup + sort) makes wine ORDER and repeats irrelevant, so two flights keying the identical set
+// of bottles produce the identical signature regardless of stem wording or wine ordering.
+export function computeFlightSignature(
+  paper: number,
+  family: string | null | undefined,
+  wines: { fullText?: string }[] | null | undefined
+): string {
+  const ids = [
+    ...new Set(
+      (wines || [])
+        .map((w) => (w && typeof w.fullText === "string" ? wineCooldownId(w.fullText) : ""))
+        .filter(Boolean)
+    ),
+  ].sort();
+  const basis = `p${paper}|f${(family ?? "").toString().toLowerCase().trim()}|${ids.join("+")}`;
+  return stableHash(basis);
+}
+
+// The flight signature for a stored question row: prefer the value persisted at insert time, else
+// derive it from the wines (covers every row generated before this feature).
+export function flightSignatureOfQuestion(q: {
+  paper: number;
+  family: string;
+  wines: unknown;
+  metadata?: Record<string, unknown> | null;
+}): string {
+  const stored =
+    q.metadata && typeof q.metadata.flightSignatureKeyed === "string"
+      ? (q.metadata.flightSignatureKeyed as string)
+      : null;
+  if (stored) return stored;
+  return computeFlightSignature(q.paper, q.family, parseWinesLoose(q.wines));
+}
+
+// A served flight stays on this user's exclusion list for this many days. A REJECTED flight has NO
+// window — it is excluded forever (see buildExcludedFlightSignatures).
+export const FLIGHT_SIGNATURE_SERVED_WINDOW_DAYS = 90;
+
+// One signature's provenance for this user: its most-recent serve time (null if never served) and
+// whether the user ever rejected / left accepted-negative feedback on any question keying it.
+export type FlightSignatureSource = {
+  signature: string;
+  servedAt: Date | string | null;
+  rejected: boolean;
+};
+
+// Pure exclusion policy, split out so it is unit-testable without a database:
+//   • rejected  → excluded FOREVER (no window) — "a question the user rejected is never returned again".
+//   • served    → excluded only while within FLIGHT_SIGNATURE_SERVED_WINDOW_DAYS of now.
+export function buildExcludedFlightSignatures(
+  sources: FlightSignatureSource[],
+  now: Date = new Date()
+): Set<string> {
+  const cutoff = now.getTime() - FLIGHT_SIGNATURE_SERVED_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+  const out = new Set<string>();
+  for (const s of sources) {
+    if (s.rejected) {
+      out.add(s.signature);
+      continue;
+    }
+    if (s.servedAt != null) {
+      const t = typeof s.servedAt === "string" ? Date.parse(s.servedAt) : s.servedAt.getTime();
+      if (Number.isFinite(t) && t >= cutoff) out.add(s.signature);
+    }
+  }
+  return out;
+}
+
+// Every flight signature the serve + generation paths must exclude for this user on this paper:
+//   (i)  any question SERVED to them (question_views) inside the last 90 days, and
+//   (ii) any question they REJECTED or left accepted negative feedback on — EVER (no window):
+//        a Question Review down-vote (question_reviews.verdict='down'), or a study/reveal attempt
+//        whose feedback was accepted/partial. 'endorsed' is a POSITIVE verdict and is deliberately
+//        excluded from (ii).
+// User-scoped throughout, so one user's history can never suppress another user's flights. The
+// 90-day window is applied in TS (buildExcludedFlightSignatures) rather than in SQL so the policy is
+// pinned by a test. Best-effort at the call site — a lookup outage degrades to "no exclusion".
+export async function getUserExcludedFlightSignatures(
+  userId: number,
+  paper: number
+): Promise<Set<string>> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT q.paper, q.family, q.wines, q.metadata,
+      (SELECT MAX(v.first_seen_at) FROM question_views v
+         WHERE v.question_id = q.question_id AND v.user_id = ${userId}) AS served_at,
+      (EXISTS (
+         SELECT 1 FROM question_reviews r
+         WHERE r.question_id = q.question_id AND r.reviewer_id = ${userId} AND r.verdict = 'down'
+       ) OR EXISTS (
+         /* theory-mode-guard: all-modes -- a rejected flight must stay rejected no matter which
+            mode surfaced the negative feedback; this reads only accepted/partial feedback on the
+            user's own attempts of this generated question, never a mode-scoped aggregate. */
+         SELECT 1 FROM user_attempts a
+         WHERE a.question_id = q.question_id AND a.user_id = ${userId}
+           AND a.user_feedback IS NOT NULL AND length(trim(a.user_feedback)) > 0
+           AND a.feedback_status IN ('accepted', 'partial')
+       )) AS rejected
+    FROM generated_questions q
+    WHERE q.paper = ${paper}
+      AND (
+        EXISTS (SELECT 1 FROM question_views v
+                WHERE v.question_id = q.question_id AND v.user_id = ${userId})
+        OR EXISTS (SELECT 1 FROM question_reviews r
+                   WHERE r.question_id = q.question_id AND r.reviewer_id = ${userId} AND r.verdict = 'down')
+        OR EXISTS (SELECT 1 FROM user_attempts a
+                   WHERE a.question_id = q.question_id AND a.user_id = ${userId}
+                     AND a.user_feedback IS NOT NULL AND length(trim(a.user_feedback)) > 0
+                     AND a.feedback_status IN ('accepted', 'partial'))
+      )
+  `) as {
+    paper: number;
+    family: string;
+    wines: unknown;
+    metadata: Record<string, unknown> | null;
+    served_at: string | null;
+    rejected: boolean;
+  }[];
+  const sources: FlightSignatureSource[] = rows.map((r) => ({
+    signature: flightSignatureOfQuestion(r),
+    servedAt: r.served_at ?? null,
+    rejected: r.rejected === true,
+  }));
+  return buildExcludedFlightSignatures(sources);
 }
 
 // The set of wine identities used across the last `limit` questions for a paper — the exact-wine
