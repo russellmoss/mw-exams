@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0174).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0172, EK-0173).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0170, EK-0171).**
 - **2026-08-08 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0169).**
@@ -1141,6 +1142,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #450 / analysis #86 (accept); EK-0029; EK-0097; EK-0162
 - **claim:** The banker requirement (EK-0029) bites on Paper 1 exactly as it does on Paper 2 (EK-0162): a three-wine same-country white flight must leave the candidate one wine they know cold. In a Spanish white trio, Rías Baixas Albariño is the banker and Rueda Verdejo is workable, but Ycoden-Daute-Isora Listán Blanco (Canary Islands) is a high curveball — an outer-edge origin/variety a candidate cannot reasonably funnel to from the glass. Two curveballs against one anchor inverts the corpus shape, where the modal three-wine flight carries exactly one harder wine (EK-0097); such a flight must be redrawn or re-tariffed.
 
+### EK-0174 · A country-ID stem needs an unlocking anchor — all-cult USA white trios don't provide one
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #455 / analysis #94 (accept); corpus `data/exams.json` — 2014 P1 Q1 (four Australian whites anchored by Hunter Semillon)
+- **claim:** When the stem pays marks for identifying the **country**, at least one wine must reliably unlock that country for a prepared candidate; the country call is meant to be reachable from the aggregate flight evidence, and the anchor is what makes the aggregation tractable (2014 P1 Q1's Hunter Semillon does this job for an otherwise diverse Australian flight). A three-wine USA same-country trio of Au Bon Climat 'Hildegard' (a Pinot Gris/Pinot Blanc/Aligoté blend), Calera Mount Harlan Viognier (cult single-winery AVA) and a Willamette Reserve Pinot Gris is three curveballs with no banker — none of them is a wine the candidate knows cold, so the country ask is a guess rather than a deduction. Extends EK-0029/EK-0170 to the country-identification ask specifically: recognisable New World anchors (e.g. Napa/Sonoma Chardonnay, Marlborough Sauvignon Blanc) must carry the flight.
+
 ---
 
 ## §5 · Question generation rules
@@ -1407,6 +1413,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 440 | 76 | P1/F1 | accept | auto | cross-country same-variety white flights need an Old World (Burgundy/Loire/Alsace) anchor; all-NW Chardonnay trio unattested | EK-0169, EK-0029, EK-0034 |
 | 450 | 86 | P1/F2 | accept | auto | three-wine same-country P1 flight with two curveballs and no anchor; 15/25 marks on ID for a Canary Islands Listán Blanco is mis-tariffed — shift marks to method/quality/commercial | EK-0170, EK-0171, EK-0029, EK-0165, EK-0153 |
 | 458 | 97 | P1/F2 | accept | auto | "with reference to both wines" scope header must match a shared-attribute ask; but the 26/50 ID tariff itself is corpus-authentic for a reachable two-wine pair | EK-0172, EK-0173, EK-0165, EK-0171, EK-0147 |
+| 455 | 94 | P1/F2 | accept | auto | country-ID flights need an anchor that unlocks the country; three cult/specialist USA whites are all curveballs | EK-0174, EK-0029, EK-0170, EK-0162 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
