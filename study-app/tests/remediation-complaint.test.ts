@@ -115,4 +115,15 @@ describe("remediate-questions.mjs — the wiring", () => {
     expect(sliceAt).toBeGreaterThan(-1);
     expect(gateAt).toBeLessThan(sliceAt);
   });
+
+  it("--only scopes the target set before the PR gate, and unknown ids are reported not guessed", () => {
+    // The targeted-batch path ("regen the questions the reviewer rejected today"). Scoping must
+    // happen before the complaint/PR-gate partition so a targeted run gets the same protections
+    // as a full nightly one — an --only filter applied after the slice would silently bypass them.
+    const onlyAt = main.indexOf("ONLY.has(r.question_id)");
+    const gateAt = main.indexOf('apply_status === "dispatched"');
+    expect(onlyAt).toBeGreaterThan(-1);
+    expect(onlyAt).toBeLessThan(gateAt);
+    expect(main).toContain("not in the quarantined set");
+  });
 });

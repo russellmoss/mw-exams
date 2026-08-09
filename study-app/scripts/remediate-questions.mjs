@@ -79,6 +79,14 @@ const LIMIT = Number((process.argv.find((a) => a.startsWith("--limit=")) || "").
 // repair-only across everything first means the expensive pass afterwards only sees questions that
 // genuinely need a new flight — and the count it reports is the honest size of that set.
 const REPAIR_ONLY = process.argv.includes("--repair-only");
+// --only=id1,id2,… : restrict the run to specific question ids. The targeted-batch path — "regen the
+// questions the reviewer rejected today" — which --limit cannot express, because --limit just takes
+// the first N flagged rows in paper/family order regardless of why they were flagged. Ids not in the
+// quarantined set are reported and skipped, never guessed at.
+const ONLY = new Set(
+  ((process.argv.find((a) => a.startsWith("--only=")) || "").split("=")[1] || "")
+    .split(",").map((s) => s.trim()).filter(Boolean)
+);
 const MAX_ATTEMPTS = 6;
 
 const FAMILY_LABELS = {
@@ -603,7 +611,19 @@ async function main() {
   }
 
   const seen = new Set(flagged.map((r) => r.question_id));
-  const bad = [...flagged, ...malformed.filter((m) => !seen.has(m.question_id)).map(({ bad: _bad, ...r }) => r)];
+  let bad = [...flagged, ...malformed.filter((m) => !seen.has(m.question_id)).map(({ bad: _bad, ...r }) => r)];
+
+  if (ONLY.size) {
+    const scoped = bad.filter((r) => ONLY.has(r.question_id));
+    const found = new Set(scoped.map((r) => r.question_id));
+    const missing = [...ONLY].filter((id) => !found.has(id));
+    if (missing.length) {
+      console.warn(`--only: ${missing.length} id(s) not in the quarantined set (already remediated, archived, or never flagged):`);
+      for (const id of missing) console.warn(`  ${id}`);
+      console.warn("");
+    }
+    bad = scoped;
+  }
 
   // Reviewer-quarantined rows get their complaint resolved back to the analysis it came from, and
   // rows whose rule PR is still in flight are deferred to a later night: the whole point of that PR
