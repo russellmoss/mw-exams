@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-09 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0170, EK-0171).**
 - **2026-08-08 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0169).**
 - **2026-08-08 — three duplicate ids resolved; the Neon mirror was silently 3 entries short.** The
   2026-08-07 batch reused **EK-0155, EK-0156 and EK-0157** for two entries each. `sync-ek-table.mjs`
@@ -1134,6 +1135,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #440 / analysis #76 (accept); corpus `data/exams.json` — 2011 P1 Q2 (Chablis 1er Cru Les Vaillons), 2018 P1 Q1 (Chablis Grand Cru Les Preuses), 2025 P1 Q2 (Chablis 1er Cru Côte de Lechet), 2026 P1 Q1 (Meursault Les Narvaux + Chablis); EK-0029; EK-0034
 - **claim:** Every multi-country "same single grape variety" Chardonnay flight in 2011–2026 carries a Burgundian anchor (Chablis 1er/Grand Cru, Meursault), and the same holds for the other big P1 varieties (2014 Riesling → Alsace Grand Cru/Pfalz; 2015 and 2021 Chenin → Loire). All-New-World same-variety sets occur only when the stem itself makes origin the constraint (2016 P1 Q2 "same country", two Californian Chardonnays) or as a pair inside a larger question whose other pair supplies the Old World reference (2023 P1 Q1 Semillon). A three-wine, three-country Chardonnay flight with no Old World wine has no precedent and must not be generated: it also fails EK-0029, since no New World bottling in such a set functions as a banker the candidate knows cold.
 
+### EK-0170 · P1 same-country white flights need a banker too — Canary Islands Listán Blanco is a curveball, not an anchor
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #450 / analysis #86 (accept); EK-0029; EK-0097; EK-0162
+- **claim:** The banker requirement (EK-0029) bites on Paper 1 exactly as it does on Paper 2 (EK-0162): a three-wine same-country white flight must leave the candidate one wine they know cold. In a Spanish white trio, Rías Baixas Albariño is the banker and Rueda Verdejo is workable, but Ycoden-Daute-Isora Listán Blanco (Canary Islands) is a high curveball — an outer-edge origin/variety a candidate cannot reasonably funnel to from the glass. Two curveballs against one anchor inverts the corpus shape, where the modal three-wine flight carries exactly one harder wine (EK-0097); such a flight must be redrawn or re-tariffed.
+
 ---
 
 ## §5 · Question generation rules
@@ -1323,6 +1329,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #428 / analysis #68 (accept); EK-0153; EK-0016; EK-0104
 - **claim:** A generated flight must not price identification highly when identification is effectively unreachable. The rejected question put **20 of 50 marks (40%) on region + variety ID** for two Slovenian Brda wines from an origin with no corpus precedent — the opposite of the real exam's behaviour, which downweights or removes ID marks on curveball/unprecedented wines and redistributes them to style, winemaking, quality and commercial (EK-0016, EK-0104). This upgrades EK-0153 from prompt-only guidance to a generation constraint for the specific case of an all-curveball or zero-precedent flight: cap ID at ~5–6 marks per wine, or omit the variety/origin ask entirely.
 
+### EK-0171 · ID-reachability tariff rule extends to low-precedent (not just zero-precedent) origins
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #450 / analysis #86 (accept); EK-0165; EK-0153; EK-0016
+- **claim:** EK-0165's constraint — do not price identification highly when identification is unreachable — is not limited to origins with zero corpus precedent. A same-country flight pricing origin+variety at 15 of 25 marks per wine (60%) is out of calibration when one wine is a fringe-DO curveball such as a Canary Islands Listán Blanco: the real exam downweights ID on such wines and pays instead for method of production, style, quality and commercial positioning (EK-0016, EK-0153). Generation should cap ID at ~5–6 marks for the curveball wine, or ask origin only, and move the freed marks to the analytical parts.
+
 ---
 
 ## §6 · Question-generation learnings from feedback (the living ledger)
@@ -1383,6 +1394,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 419 | 66 | P2/F6 | accept | manual | 4-wine P2 flight had two curveballs and no banker classic; famous-but-idiosyncratic wines (Musar, Trévallon) don't count as anchors | EK-0162, EK-0029 |
 | 428 | 68 | P1/F2 | accept | manual | zero-precedent origins (Slovenia/Brda) debut only as single ID-suppressed wines, never as a same-origin pair with 40% of marks on identification | EK-0164, EK-0165, EK-0029, EK-0153 |
 | 440 | 76 | P1/F1 | accept | auto | cross-country same-variety white flights need an Old World (Burgundy/Loire/Alsace) anchor; all-NW Chardonnay trio unattested | EK-0169, EK-0029, EK-0034 |
+| 450 | 86 | P1/F2 | accept | auto | three-wine same-country P1 flight with two curveballs and no anchor; 15/25 marks on ID for a Canary Islands Listán Blanco is mis-tariffed — shift marks to method/quality/commercial | EK-0170, EK-0171, EK-0029, EK-0165, EK-0153 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
