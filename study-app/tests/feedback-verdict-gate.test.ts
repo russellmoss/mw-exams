@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, it, expect } from "vitest";
 import {
   ANALYSIS_MAX_TOKENS,
@@ -29,6 +31,22 @@ describe("feedback analysis — the verdict gate", () => {
     // If this ever flips true, a truncated run resumes being filed as a finished one.
     expect(isTerminalRecommendation("pending")).toBe(false);
     expect(isTerminalRecommendation(extractRecommendation("Analysis cut off mid-sen"))).toBe(false);
+  });
+});
+
+describe("feedback analysis — the retry pins its tier", () => {
+  it("bypasses the A/B split rather than just changing the default", () => {
+    // selectModel gives a CONFIGURED split priority over defaultTier, and feedback_analysis carries
+    // a 50/50 opus/sonnet split today. A retry that merely passed a preferred tier would coin-flip
+    // straight back onto the arm whose truncation created the work.
+    const src = fs.readFileSync(
+      path.join(__dirname, "..", "src/lib/feedback-analysis.ts"),
+      "utf8"
+    );
+    const start = src.indexOf("export async function retryUnadjudicatedFeedback");
+    const body = src.slice(start, src.indexOf("\nexport ", start + 1));
+    expect(body).toMatch(/forceTier:\s*"sonnet"/);
+    expect(src).toMatch(/opts\.forceTier\s*\n?\s*\?\s*\{\s*model: await resolveTierModel/);
   });
 });
 

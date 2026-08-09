@@ -72,6 +72,16 @@ async function resolveTier(tier: ModelTier, apiKey: string): Promise<string> {
   return SONNET_ID;
 }
 
+/**
+ * Resolve a tier to a model id with NO A/B involvement — for the rare call that must run on a
+ * specific tier for a reason the experiment cannot override (a repair re-run, say, where the arm
+ * being compared is the thing that failed). Enrolling those in the split would both defeat the
+ * reason for pinning and contaminate the arm's numbers with retries.
+ */
+export async function resolveTierModel(tier: ModelTier, apiKey: string): Promise<string> {
+  return resolveTier(tier, apiKey);
+}
+
 function weightedPick(weights: Partial<Record<ModelTier, number>>): ModelTier | null {
   const entries = (Object.entries(weights) as [ModelTier, number][]).filter(
     ([, w]) => Number(w) > 0

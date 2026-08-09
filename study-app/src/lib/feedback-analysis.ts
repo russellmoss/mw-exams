@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { neon } from "@neondatabase/serverless";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
 import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback, saveNarration, getEmpiricalKnowledgeForAnalysis, createFeatureRequestFromFeedback, endorseQuestionForAttempt, getUserVoiceId } from "@/lib/db";
-import { selectModel, type ModelTier } from "@/lib/model-selector";
+import { selectModel, resolveTierModel, type ModelTier } from "@/lib/model-selector";
 import { isAutoApplyEnabled } from "@/lib/settings";
 import { applyFeedbackChange } from "@/lib/apply-change";
 import { logClaudeUsage, logTavilyUsage } from "@/lib/usage-log";
@@ -362,11 +362,13 @@ export async function runFeedbackAnalysis(opts: {
   /** Skip the auto-apply step (used when we only want the analysis row). */
   skipAutoApply?: boolean;
   /**
-   * Override the default tier for this one call. Still goes through selectModel, so a configured
-   * A/B split continues to win — this only moves the fallback. Used by the retry path, which has a
-   * specific reason to prefer Sonnet (see retryUnadjudicatedFeedback).
+   * Pin this call to a tier, bypassing the A/B split entirely.
+   *
+   * Not merely a different default: `feedback_analysis` currently carries a configured 50/50
+   * opus/sonnet split, and a configured split beats the default tier in selectModel — so a
+   * "preferred" tier would still coin-flip back onto the arm the retry exists to get off.
    */
-  tier?: ModelTier;
+  forceTier?: ModelTier;
 }): Promise<RunFeedbackAnalysisResult> {
   const { attemptId } = opts;
   const apiKey = opts.apiKey ?? process.env.ANTHROPIC_API_KEY;
@@ -462,11 +464,11 @@ export async function runFeedbackAnalysis(opts: {
     });
 
     const client = new Anthropic({ apiKey });
-    const { model, abGroup } = await selectModel(
-      "feedback_analysis",
-      apiKey,
-      opts.tier ?? "opus"
-    );
+    // abGroup stays null on a pinned call: it is not a sample of an arm, and counting it as one
+    // would make the arm that truncates look better every time a retry rescues it.
+    const { model, abGroup } = opts.forceTier
+      ? { model: await resolveTierModel(opts.forceTier, apiKey), abGroup: null }
+      : await selectModel("feedback_analysis", apiKey, "opus");
     const t0 = Date.now();
     const message = await client.messages.create({
       model,
@@ -704,9 +706,10 @@ export async function reapStaleAnalyses(
  * TWO BOUNDS KEEP IT FROM BECOMING A LOOP THAT SPENDS MONEY:
  *   1. At most one retry per attempt, ever — `< 2` total analyses. A second failure stays failed and
  *      waits for a human, because a repeat is evidence of something the retry cannot fix.
- *   2. Sonnet, not the default tier. It is the arm that has never truncated (0 of 31 runs against
- *      Opus 5's 17 of 25) and it costs $0.23 against $1.55. Retrying a ceiling failure on the model
- *      that hit the ceiling would be the same run again at seven times the price.
+ *   2. Sonnet, PINNED past the A/B split. It is the arm that has never truncated (0 of 31 runs
+ *      against Opus 5's 17 of 25) and it costs $0.23 against $1.55. `feedback_analysis` carries a
+ *      configured 50/50 split, so a mere default would coin-flip the retry back onto the arm that
+ *      failed — the same run again at seven times the price.
  */
 export async function retryUnadjudicatedFeedback(
   limit = 3
@@ -734,7 +737,7 @@ export async function retryUnadjudicatedFeedback(
   const results: { attemptId: number; status: string; recommendation?: string }[] = [];
   for (const row of rows) {
     const attemptId = row.id as number;
-    const r = await runFeedbackAnalysis({ attemptId, source: "server", tier: "sonnet" });
+    const r = await runFeedbackAnalysis({ attemptId, source: "server", forceTier: "sonnet" });
     // A question-review card deep-links to the analysis it spawned. The retry makes a NEW row, so
     // without this the reviewer's card keeps pointing at the failed one and shows a verdict-less
     // analysis next to a resolved vote.
