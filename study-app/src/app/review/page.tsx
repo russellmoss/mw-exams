@@ -163,13 +163,19 @@ export default function ReviewPage() {
         const res = await fetch("/api/question-review/vote", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ questionId, verdict, tags, note }),
+          // The buffer rides along so the server can say which of these have stopped being servable
+          // since they were fetched. The corpus is being fixed WHILE the reviewer works — by these
+          // very votes — so a card retired ten seconds ago would otherwise still be dealt to them.
+          body: JSON.stringify({ questionId, verdict, tags, note, buffered: queue.map((c) => c.id) }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
 
-        // Advance optimistically — the server has the vote, so the reviewer should not wait.
-        setQueue((prev) => prev.filter((c) => c.id !== questionId));
+        // Advance optimistically — the server has the vote, so the reviewer should not wait — and
+        // drop anything the corpus retired underneath us in the same pass.
+        const drop = new Set<string>([questionId, ...((data.drop as string[]) ?? [])]);
+        setQueue((prev) => prev.filter((c) => !drop.has(c.id)));
+        const retired = ((data.drop as string[]) ?? []).length;
         setRejecting(false);
         if (data.progress) setProgress(data.progress);
         if (typeof data.spendToday === "number") setSpendToday(data.spendToday);
@@ -184,12 +190,18 @@ export default function ReviewPage() {
           );
           if (finished) setBlockDone(finished);
         }
+        // Naming the retirements matters: without it, cards silently vanishing from the buffer reads
+        // as a bug. It is the opposite — it is the queue getting better underneath them.
+        const retiredNote =
+          retired > 0
+            ? ` ${retired} more question${retired === 1 ? "" : "s"} left the queue — retired by a fix since you started.`
+            : "";
         setFlash(
-          verdict === "down"
+          (verdict === "down"
             ? "Rejected — analysing now. The verdict will arrive in your notifications, where you can argue with it."
             : verdict === "up"
               ? "Approved — recorded as a generation exemplar."
-              : "Skipped."
+              : "Skipped.") + retiredNote
         );
         setError(null);
       } catch (err) {
@@ -199,7 +211,9 @@ export default function ReviewPage() {
         setBusy(false);
       }
     },
-    [current, busy, filter.order]
+    // `queue` is read to send the buffer for reconciliation, so it belongs here — without it the
+    // request would carry whatever the buffer was when this callback was last built.
+    [current, busy, filter.order, queue]
   );
 
   /**

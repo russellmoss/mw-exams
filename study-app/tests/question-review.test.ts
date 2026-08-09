@@ -202,6 +202,24 @@ describe("queue SQL", () => {
     expect(gate).toMatch(/catch \(err\)/);
   });
 
+  it("reconciles the reviewer's local buffer on every vote", () => {
+    // The client holds a page of 12 and tops up at 4, merging by id and only ever ADDING. So a
+    // question quarantined mid-session — by a rule that just merged, by the sweep, by the serve gate
+    // — stayed in their hand and got dealt anyway. During a live session the corpus is being fixed
+    // BECAUSE of these votes, so that is the normal case, not an edge one.
+    expect(lib).toMatch(/export async function staleBufferedIds/);
+    const fn = lib.slice(lib.indexOf("export async function staleBufferedIds"));
+    // It must return what to DROP, judged against the same servable predicate the queue uses.
+    expect(fn.slice(0, 1200)).toContain("SERVABLE_WHERE");
+    expect(fn.slice(0, 1200)).toMatch(/filter\(\(id\) => !stillGood\.has\(id\)\)/);
+  });
+
+  it("caps how many buffered ids one vote can ask about", () => {
+    // The client decides this list; an unbounded ANY($2) is a free scan for anyone who can vote.
+    const fn = lib.slice(lib.indexOf("export async function staleBufferedIds"));
+    expect(fn.slice(0, 800)).toMatch(/slice\(0,\s*100\)/);
+  });
+
   it("binds the filter values rather than interpolating them", () => {
     expect(lib).toMatch(/paper = ANY\(\$\{papersParam\}\)/);
     expect(lib).toMatch(/family = ANY\(\$\{familiesParam\}\)/);
@@ -358,5 +376,35 @@ describe("composeReviewFeedback", () => {
     expect(text).toContain("Russell Moss");
     expect(text).toContain("Too easy.");
     expect(text).not.toContain("Fault(s) identified");
+  });
+});
+
+describe("vote → buffer reconciliation, end to end", () => {
+  const route = readFileSync(
+    join(ROOT, "src", "app", "api", "question-review", "vote", "route.ts"),
+    "utf-8"
+  );
+  const page = readFileSync(join(ROOT, "src", "app", "review", "page.tsx"), "utf-8");
+
+  it("the route accepts the buffer and answers with what to drop", () => {
+    expect(route).toMatch(/buffered: rawBuffered/);
+    expect(route).toMatch(/staleBufferedIds\(gate\.id, buffered\)/);
+    expect(route).toMatch(/drop,/);
+  });
+
+  it("the route does not trust the buffer's shape", () => {
+    // It comes from the client. Non-strings must not reach the query.
+    expect(route).toMatch(/filter\(\(x\): x is string => typeof x === "string"\)/);
+  });
+
+  it("the client sends its buffer and removes what came back", () => {
+    expect(page).toMatch(/buffered: queue\.map\(\(c\) => c\.id\)/);
+    expect(page).toMatch(/const drop = new Set<string>\(\[questionId, \.\.\.\(\(data\.drop as string\[\]\) \?\? \[\]\)\]\)/);
+    expect(page).toMatch(/prev\.filter\(\(c\) => !drop\.has\(c\.id\)\)/);
+  });
+
+  it("tells the reviewer why cards vanished", () => {
+    // Cards silently disappearing from the buffer reads as a bug. It is the opposite.
+    expect(page).toMatch(/retired by a fix since you started/);
   });
 });

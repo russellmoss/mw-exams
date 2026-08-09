@@ -466,6 +466,43 @@ async function applyServeGate(
   return kept;
 }
 
+/**
+ * Of the question ids a reviewer is holding in their local buffer, which are no longer servable.
+ *
+ * THE BUFFER GOES STALE THE MOMENT THE CORPUS IMPROVES, and that is the whole problem this solves.
+ * The client fetches a page of twelve and tops it up when it runs down to four; the top-up merges by
+ * id and only ever ADDS. So a question quarantined mid-session — by a rule that just merged, by the
+ * corpus sweep, by the serve gate on someone else's fetch — stays in the reviewer's hand and gets
+ * shown to them anyway. During a live session the corpus is being fixed underneath them precisely
+ * because of the votes they are casting, which is the moment a stale buffer is most likely and most
+ * annoying: they get handed the very defect they just reported, one card later.
+ *
+ * Called on every vote, so the buffer reconciles continuously rather than at a page refresh. One
+ * indexed lookup over at most a page of ids.
+ *
+ * Returns ids to DROP. Anything unrecognised is dropped too — a question archived out of the table
+ * cannot be reviewed either.
+ */
+export async function staleBufferedIds(reviewerId: number, ids: string[]): Promise<string[]> {
+  const wanted = [...new Set(ids)].filter((id) => typeof id === "string" && id).slice(0, 100);
+  if (wanted.length === 0) return [];
+  const sql = db();
+  const rows = (await sql.query(
+    `
+    SELECT question_id FROM generated_questions
+    WHERE question_id = ANY($2)
+      AND ${SERVABLE_WHERE}
+      AND NOT EXISTS (
+        SELECT 1 FROM question_reviews r
+        WHERE r.question_id = generated_questions.question_id AND r.reviewer_id = $1
+      )
+    `,
+    [reviewerId, wanted]
+  )) as unknown as { question_id: string }[];
+  const stillGood = new Set(rows.map((r) => r.question_id));
+  return wanted.filter((id) => !stillGood.has(id));
+}
+
 // ── Recording a vote ─────────────────────────────────────────────────────────────────────────────
 
 export interface RecordedVote {
