@@ -98,6 +98,30 @@ describe("R12 — the real corpus shapes it must never touch", () => {
     expect(fired(q, 2)).toEqual([]);
   });
 
+  it("only constrains the IDENTIFY clause, not a coordinated second task", () => {
+    // Caught by the repair script's dry run against the live bank, not by the corpus: on a
+    // same-country flight, "Identify the country of origin AND COMMENT ON the … factors that
+    // influence the style of each wine. (18 marks)" is a correct pooled part — the shared country is
+    // identified once and "of each wine" attaches to the commentary. Firing here would have let the
+    // repair split a genuinely shared answer in two.
+    const q =
+      "Wines 5 and 6 are from the same country, made from different single grape varieties.\n\n" +
+      "With reference to both wines:\n" +
+      "a) Identify the country of origin and comment on the key climatic and geographical factors that influence the style of each wine. (18 marks)\n\n" +
+      "For each wine:\nb) Identify the grape variety and origin as closely as possible. (2 x 9 marks)\n" +
+      "c) Comment on the style, quality, and commercial position. (2 x 7 marks)";
+    expect(fired(q, 2)).toEqual([]);
+  });
+
+  it("still fires when the per-wine object IS the identification", () => {
+    // The guard above must not swallow the real defect: no coordinated second task here.
+    const q =
+      "Wines 1 and 2 are from different countries.\n\nWith reference to both wines:\n" +
+      "a) Identify the region of origin of each wine as closely as possible. (16 marks)\n\n" +
+      "For each wine:\nb) Comment. (2 x 17 marks)";
+    expect(fired(q, 2)).toContain("pooled-block-per-wine-task");
+  });
+
   it("does not fire on a per-wine identification under a DISTRIBUTIVE header", () => {
     const q =
       "Wines 1 and 2 are from different countries and are made from different single grape varieties.\n\n" +

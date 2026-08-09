@@ -246,7 +246,7 @@ const SCOPE_HEADER_RE =
  * @param {number} wineCount
  * @returns {{ kind: "each" | "pooled", count: number } | null}
  */
-function markScopeForHeader(header, wineCount) {
+export function markScopeForHeader(header, wineCount) {
   const h = norm(header).replace(/[^a-z0-9 -]+/g, " ").replace(/\s+/g, " ").trim();
   if (!/\bwines?\b|\bpairs?\b/.test(h)) return null;
 
@@ -804,7 +804,7 @@ export const GROUND_TRUTH_INDEPENDENT_RULES = [
 // --- R12 shapes (see the rule body for the argument) ---------------------------------------------
 // Non-global twin of SCOPE_HEADER_RE, so R12 can test one line at a time without the shared global's
 // lastIndex leaking between calls. Built from the same source so the header vocabulary cannot drift.
-const HEADER_LINE_RE = new RegExp(SCOPE_HEADER_RE.source, "i");
+export const HEADER_LINE_RE = new RegExp(SCOPE_HEADER_RE.source, "i");
 // "the grape variety OF EACH WINE" — the ANSWER is per-wine. This is the defect under a pooled header.
 const PER_WINE_OBJECT_RE = /\b(?:of|for)\s+each\s+wine\b/i;
 // "identify the grape variety, WITH REFERENCE TO EACH WINE" — the answer is shared and the EVIDENCE is
@@ -817,6 +817,14 @@ const PER_WINE_EVIDENCE_RE =
 // one pooled 20-mark answer that happens to mention both. Restricting to identify/name/state is what
 // keeps those three real questions out of the net.
 const DETERMINATE_ID_PART_RE = /^\s*\(?[a-h]\)\s*(?:identify|name|state)\b/i;
+// Where the identification clause ENDS and a second, coordinated task begins. Only the identify
+// clause is constrained: "Identify the country of origin AND COMMENT ON the key climatic factors
+// that influence the style of each wine. (18 marks)" is a legitimate pooled part on a same-country
+// flight — the shared country is identified once, and "of each wine" attaches to the commentary, not
+// to the identification. Without this cut R12 read that as a per-wine ID and the repair script would
+// have split a genuinely shared answer into two.
+const SECOND_TASK_RE =
+  /\b(?:and|,)\s+(?:comment|discuss|assess|explain|compare|contrast|describe|evaluate|justify|suggest|consider|account|remark)\b/i;
 
 /**
  * Run the shared contradiction rules against a (normalized) question.
@@ -1082,17 +1090,19 @@ export function applyQuestionRules(q, opts = {}) {
       // (b) A determinate identification whose OBJECT is per-wine, under a pooled header. Excludes
       // the evidential form ("identify the grape variety, with reference to each wine"), which is a
       // shared answer justified from every glass and is real corpus usage.
+      const cut = part[2].search(SECOND_TASK_RE);
+      const idClause = cut === -1 ? part[2] : part[2].slice(0, cut);
       if (
         !taskedPerWine &&
         DETERMINATE_ID_PART_RE.test(raw) &&
-        PER_WINE_OBJECT_RE.test(part[2]) &&
-        !PER_WINE_EVIDENCE_RE.test(part[2])
+        PER_WINE_OBJECT_RE.test(idClause) &&
+        !PER_WINE_EVIDENCE_RE.test(idClause)
       ) {
         taskedPerWine = true;
         v.push({
           rule: "pooled-block-per-wine-task",
           severity: "hard",
-          detail: `sub-part ${part[1].toLowerCase()}) asks to identify something "${(part[2].match(PER_WINE_OBJECT_RE) || [""])[0]}" under a flight-wide header — a pooled part must ask for ONE thing the stem establishes the wines share (e.g. "Identify the grape variety. (16 marks)" for a same-variety flight). Move the per-wine identification under "For each wine:" with an "N x M marks" allocation, or drop the pooled header.`,
+          detail: `sub-part ${part[1].toLowerCase()}) asks to identify something "${(idClause.match(PER_WINE_OBJECT_RE) || [""])[0]}" under a flight-wide header — a pooled part must ask for ONE thing the stem establishes the wines share (e.g. "Identify the grape variety. (16 marks)" for a same-variety flight). Move the per-wine identification under "For each wine:" with an "N x M marks" allocation, or drop the pooled header.`,
         });
       }
       if (markedPerWine && taskedPerWine) break;
