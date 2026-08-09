@@ -86,6 +86,29 @@ describe("R-OW-ANCHOR", () => {
     expect(validateOldWorldAnchor(q(ALL_NEW_WORLD_CHARD.slice(0, 1)))).toHaveLength(0);
   });
 
+  it("does not treat CABERNET Sauvignon as Sauvignon Blanc", () => {
+    // The Sauvignon Blanc entry carried a bare \bsauvignon\b, which matched "cabernet sauvignon" and
+    // pulled a red into a whites-only rule: the first corpus sweep after this rule shipped quarantined
+    // gen_p2_F1_1786073842960 (Napa + Western Cape Cabernet) for lacking a white-Bordeaux anchor.
+    // Reds are excluded from OLD_WORLD_ANCHOR_HOMES deliberately — the exam sets all-New-World red
+    // same-variety flights (2018 P2 Q2) — so a red arriving by substring defeats the rule's scope.
+    const cabPair: AuditWine[] = [
+      { slot: 1, varieties: ["Cabernet Sauvignon"], region: "Napa Valley", country: "USA", fullText: "Pine Ridge, Napa Valley Cabernet Sauvignon. Napa Valley, USA." },
+      { slot: 2, varieties: ["Cabernet Sauvignon"], region: "Western Cape", country: "South Africa", fullText: "Cederberg Private Cellar, Five Generations Cabernet Sauvignon. Western Cape, South Africa." },
+    ];
+    const text = "Wines 1 and 2 are made from the same single grape variety, from different origins. a) Identify the grape variety.";
+    expect(validateOldWorldAnchor(q(cabPair, text))).toHaveLength(0);
+  });
+
+  it("still fires on actual Sauvignon Blanc", () => {
+    const sbPair: AuditWine[] = [
+      { slot: 1, varieties: ["Sauvignon Blanc"], region: "Marlborough", country: "New Zealand", fullText: "Greywacke, Sauvignon Blanc. Marlborough, New Zealand." },
+      { slot: 2, varieties: ["Sauvignon Blanc"], region: "Casablanca Valley", country: "Chile", fullText: "Casa Marin, Sauvignon Blanc. Casablanca Valley, Chile." },
+    ];
+    const text = "Wines 1 and 2 are made from the same single grape variety, from different origins. a) Identify the grape variety.";
+    expect(validateOldWorldAnchor(q(sbPair, text)).some((x) => x.rule === "old-world-anchor")).toBe(true);
+  });
+
   it("does not fire on a same-country flight", () => {
     const sameCountry = ALL_NEW_WORLD_CHARD.map((w) => ({ ...w, country: "Australia", region: "Coonawarra" }));
     const text =
