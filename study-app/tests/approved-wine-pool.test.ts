@@ -20,8 +20,8 @@ import { buildApprovedPoolBlock, type WinePool } from "@/lib/approved-wine-pool"
 const pool = (over: Partial<WinePool> = {}): WinePool => ({
   paper: 1,
   wines: [
-    { label: "Dr Loosen, Wehlener Sonnenuhr Riesling Kabinett. Mosel, Germany.", endorsements: 4 },
-    { label: "Knappstein, Hand Picked Riesling. Clare Valley, Australia.", endorsements: 3 },
+    { label: "Dr Loosen, Wehlener Sonnenuhr Riesling Kabinett. Mosel, Germany.", endorsements: 4, usage: 1 },
+    { label: "Knappstein, Hand Picked Riesling. Clare Valley, Australia.", endorsements: 3, usage: 0 },
   ],
   rejected: [],
   ...over,
@@ -62,7 +62,7 @@ describe("buildApprovedPoolBlock", () => {
   });
 
   it("truncates to the best-attested wines and says how many it dropped", () => {
-    const many = Array.from({ length: 40 }, (_, i) => ({ label: `Wine ${i}. Region, France.`, endorsements: 40 - i }));
+    const many = Array.from({ length: 40 }, (_, i) => ({ label: `Wine ${i}. Region, France.`, endorsements: 40 - i, usage: 0 }));
     const text = buildApprovedPoolBlock(pool({ wines: many }), 10);
     expect(text).toContain("Wine 0.");
     expect(text).not.toContain("Wine 39.");
@@ -131,5 +131,45 @@ describe("remediation gets the pool too", () => {
     expect(script.indexOf("buildProducerExclusionBlock(excluded")).toBeLessThan(
       script.indexOf("buildApprovedPoolBlock(pool)")
     );
+  });
+});
+
+describe("the pool must not become a repetition engine", () => {
+  // The first version sliced the top N by endorsement count, handing the model the SAME most-endorsed
+  // wines on every call — a repetition engine wearing a quality label, and exactly the "we keep seeing
+  // the same question" the reviewer has raised eight times. The pool's value is the examiner's
+  // approval; its risk is convergence onto whatever is already in it.
+  const wines = [
+    { label: "Penfolds, Grange. Barossa, Australia.", endorsements: 9, usage: 12 },
+    { label: "Torbreck, The Laird. Barossa, Australia.", endorsements: 2, usage: 0 },
+    { label: "Henschke, Hill of Grace. Eden Valley, Australia.", endorsements: 3, usage: 1 },
+    { label: "Clarendon Hills, Astralis. McLaren Vale, Australia.", endorsements: 1, usage: 0 },
+  ];
+
+  it("offers the LEAST-used approved wines first, not the most-endorsed", () => {
+    const text = buildApprovedPoolBlock(pool({ wines }), 2);
+    // Torbreck and Clarendon Hills are unused; Penfolds is the most endorsed AND the most poured.
+    expect(text).toContain("Torbreck, The Laird");
+    expect(text).toContain("Clarendon Hills, Astralis");
+  });
+
+  it("moves an over-poured wine out of the offer list and asks for a peer", () => {
+    const text = buildApprovedPoolBlock(pool({ wines }));
+    const offerAt = text.indexOf("Penfolds, Grange");
+    expect(text).toMatch(/use a PEER, not these/i);
+    // It appears only in the peer section, with its usage named — never as something to reach for.
+    expect(text).toMatch(/Penfolds, Grange[^\n]*already in 12 questions/);
+    expect(text.slice(0, offerAt)).toMatch(/use a PEER, not these/i);
+  });
+
+  it("defines a peer as same class, different producer — not merely 'something else'", () => {
+    // "Vary the wines" without a standard is how the obscure-producer problem returns.
+    const text = buildApprovedPoolBlock(pool({ wines }));
+    expect(text).toMatch(/same region and style, comparable quality and price tier, different producer/i);
+  });
+
+  it("tells the model the list rotates, so it does not read it as the whole pool", () => {
+    const many = Array.from({ length: 30 }, (_, i) => ({ label: `Wine ${i}. Region, France.`, endorsements: 1, usage: 0 }));
+    expect(buildApprovedPoolBlock(pool({ wines: many }), 5)).toMatch(/the list rotates/i);
   });
 });

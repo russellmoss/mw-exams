@@ -31,6 +31,8 @@ export interface ApprovedWine {
   label: string;
   /** How many distinct up-voted questions this wine has appeared in. Higher = more corroborated. */
   endorsements: number;
+  /** How many servable bank questions currently pour it. High = the reviewer is about to see it again. */
+  usage: number;
 }
 
 export interface WinePool {
@@ -62,18 +64,37 @@ export async function getApprovedWinePool(paper: number): Promise<WinePool> {
   if (hit && Date.now() - hit.at < TTL_MS) return hit.pool;
 
   const sql = neon(process.env.DATABASE_URL!);
+  // `usage` is the live bank's current appetite for each wine, counted by PRODUCER rather than by
+  // exact label: "Penfolds, Grange 2016" and "Penfolds, St Henri" are different bottles but the same
+  // house, and a reviewer meeting Penfolds four cards running does not care which cuvée it was.
   const rows = (await sql`
-    SELECT btrim(w->>'fullText') AS label, COUNT(DISTINCT qr.question_id)::int AS endorsements
-    FROM question_reviews qr
-    JOIN generated_questions g ON g.question_id = qr.question_id,
-    LATERAL jsonb_array_elements(
-      CASE WHEN jsonb_typeof(g.wines::jsonb) = 'array' THEN g.wines::jsonb ELSE '[]'::jsonb END
-    ) w
-    WHERE qr.verdict = 'up' AND g.paper = ${paper}
-      AND length(btrim(w->>'fullText')) > 12
-    GROUP BY 1
-    ORDER BY endorsements DESC, label
-  `) as { label: string; endorsements: number }[];
+    WITH approved AS (
+      SELECT btrim(w->>'fullText') AS label,
+             lower(btrim(split_part(w->>'fullText', ',', 1))) AS producer,
+             COUNT(DISTINCT qr.question_id)::int AS endorsements
+      FROM question_reviews qr
+      JOIN generated_questions g ON g.question_id = qr.question_id,
+      LATERAL jsonb_array_elements(
+        CASE WHEN jsonb_typeof(g.wines::jsonb) = 'array' THEN g.wines::jsonb ELSE '[]'::jsonb END
+      ) w
+      WHERE qr.verdict = 'up' AND g.paper = ${paper}
+        AND length(btrim(w->>'fullText')) > 12
+      GROUP BY 1, 2
+    ),
+    bank_usage AS (
+      SELECT lower(btrim(split_part(w->>'fullText', ',', 1))) AS producer, COUNT(*)::int AS uses
+      FROM generated_questions g,
+      LATERAL jsonb_array_elements(
+        CASE WHEN jsonb_typeof(g.wines::jsonb) = 'array' THEN g.wines::jsonb ELSE '[]'::jsonb END
+      ) w
+      WHERE g.paper = ${paper} AND g.status = 'approved' AND g.invalid_reasons IS NULL
+        AND g.review_state = 'kept' AND g.is_retired IS NOT TRUE AND g.scope = 'pool'
+      GROUP BY 1
+    )
+    SELECT a.label, a.endorsements, COALESCE(b.uses, 0)::int AS usage
+    FROM approved a LEFT JOIN bank_usage b ON b.producer = a.producer
+    ORDER BY a.endorsements DESC, a.label
+  `) as { label: string; endorsements: number; usage: number }[];
 
   // The named-rejection list. `position(producer in note) > 0` is the same test the coverage check
   // used: the reviewer wrote the producer's name, so the objection is to THIS wine rather than to the
@@ -117,8 +138,44 @@ export async function getApprovedWinePool(paper: number): Promise<WinePool> {
  */
 export function buildApprovedPoolBlock(pool: WinePool, limit = 160): string {
   if (pool.wines.length === 0) return "";
-  const listed = pool.wines.slice(0, limit);
+
+  // A wine the bank already pours this often does not need offering again. The threshold floats with
+  // the paper so a thin pool is not gutted: the worst-poured producer in the bank today sits at 12
+  // slots, so a fixed number would mean something different for P1 (432 approved wines) than for P3
+  // (146). Minimum of 4 keeps it from firing on noise in a small pool.
+  const usages = pool.wines.map((w) => w.usage).sort((a, b) => a - b);
+  const p90 = usages[Math.floor(usages.length * 0.9)] ?? 0;
+  const OVERUSED_AT = Math.max(4, p90);
+  const overused = pool.wines.filter((w) => w.usage >= OVERUSED_AT);
+  const offerable = pool.wines.filter((w) => w.usage < OVERUSED_AT);
+
+  // ROTATE, DO NOT RANK. The first version sliced the top `limit` by endorsement count, which handed
+  // the model the SAME most-endorsed wines on every single call — a repetition engine wearing a
+  // quality label, and precisely the "we keep seeing the same question" the reviewer has complained
+  // about eight times. Ordering by least-used surfaces the approved wines the bank has neglected, so
+  // consecutive generations see different lists and the pool's whole breadth gets used.
+  const listed = [...offerable].sort((a, b) => a.usage - b.usage || b.endorsements - a.endorsements).slice(0, limit);
   const lines = listed.map((w) => `- ${w.label}`).join("\n");
+
+  // The peer instruction. An approved wine's value is not the bottle, it is the CLASS the reviewer
+  // signed off — an iconic Barossa Shiraz at that price and quality tier. Naming the over-poured ones
+  // and asking for a peer keeps the class and drops the repetition.
+  const peerBlock = overused.length
+    ? `
+
+### Already over-poured in this bank — use a PEER, not these
+The bank already leans on the wines below. Do not reach for them again. Instead pick a wine of the
+SAME CLASS: same region and style, comparable quality and price tier, different producer. The point
+is to keep what the examiner approved — the calibre and the role — while varying the bottle. If the
+bank is heavy on Penfolds Grange, an iconic Barossa Shiraz, then Henschke Hill of Grace, Torbreck The
+Laird or Clarendon Hills Astralis serve the same purpose and the candidate meets something new.
+
+${overused
+  .slice(0, 40)
+  .sort((a, b) => b.usage - a.usage)
+  .map((w) => `- ${w.label}  (already in ${w.usage} question${w.usage === 1 ? "" : "s"})`)
+  .join("\n")}`
+    : "";
   const rejectedBlock = pool.rejected.length
     ? `\n\nNEVER use these — the reviewer rejected them BY NAME:\n${pool.rejected.map((r) => `- ${r}`).join("\n")}`
     : "";
@@ -139,6 +196,6 @@ same calibre: a real, currently-produced bottling from a producer a well-prepare
 recognise, in a region genuinely classic for that style. Do not pad a flight with an outside wine
 merely for variety.
 
-${lines}${listed.length < pool.wines.length ? `\n(and ${pool.wines.length - listed.length} more approved wines not listed)` : ""}${rejectedBlock}
+${lines}${listed.length < offerable.length ? `\n(and ${offerable.length - listed.length} more approved wines not listed — the list rotates, so do not treat it as the whole pool)` : ""}${peerBlock}${rejectedBlock}
 `;
 }
