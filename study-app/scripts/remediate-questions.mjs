@@ -45,6 +45,7 @@ if (!process.env.DATABASE_URL || !APIKEY) {
 }
 
 const { buildQuestionGenerationPrompt, buildProducerExclusionBlock } = await import("../src/lib/prompts/question-generation-prompt.ts");
+const { getApprovedWinePool, buildApprovedPoolBlock } = await import("../src/lib/approved-wine-pool.ts");
 const { buildModelAnswerPrompt, parseModelAnswerSections, modelAnswerMaxTokens, modelAnswerEffort } = await import("../src/lib/prompts/model-answer-prompt.ts");
 const { enrichWineProfiles } = await import("../src/lib/wine-enrichment.ts");
 const { saveGeneratedQuestion, getQuestionsByFilter, getRecentGeneratedQuestions, getProducerTally, getRecentProducerKeys } = await import("../src/lib/db.ts");
@@ -315,6 +316,26 @@ async function remediateOne(old, existingWines, latest, complaint) {
     // Degrade to no exclusion rather than to a failed remediation — the validator still rejects a
     // banned producer, so the worst case is the retry loop we had before.
     console.warn(`    producer-exclusion fetch failed (non-fatal): ${e.message}`);
+  }
+
+  // THE APPROVED WINE POOL, which this path needs more than any other.
+  //
+  // question-engine appends it inside generateFreshQuestion; remediation assembles its own prompt and
+  // would silently have missed it — the same class of drift that left this script generating on Opus
+  // while the bank was built on Sonnet, and generating without the producer ban directly above.
+  //
+  // It matters most HERE. Remediated questions are the worst cohort in the bank: measured over the
+  // reviewer's 497 votes, questions this script regenerated were rejected 42.0% of the time against
+  // 35.9% for the originals they replaced. Regeneration has been making the bank slightly worse, and
+  // the pool is the first change that targets why — the wine choices, not the question shape.
+  try {
+    const pool = await getApprovedWinePool(paper);
+    if (pool.wines.length > 0) {
+      prompt.system += buildApprovedPoolBlock(pool);
+      console.log(`    offering ${pool.wines.length} examiner-approved wines`);
+    }
+  } catch (e) {
+    console.warn(`    wine-pool fetch failed (non-fatal): ${e.message}`);
   }
 
   // The bin-lessons block, exactly as the live engine appends it (question-engine.ts,
