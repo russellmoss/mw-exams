@@ -7,8 +7,10 @@
 // intent, the model answer, and the hard/soft validator findings. Anything that makes the reviewer
 // open a second surface costs ~30 seconds, and there are 511 of these.
 //
-// Examiner intent and the model answer are collapsed by default. Most questions are ruled on from
-// the stem and the wine list alone; the detail is one keystroke away for the ones that aren't.
+// Examiner intent is collapsed by default; the MODEL ANSWER is not. Most questions are ruled on from
+// the stem and the wine list alone — but that is a claim about the question, not about the answer,
+// and while the answer sat behind a keystroke it drew three mentions in 226 rejection notes and zero
+// uses of the `answer_key_wrong` tag. See the note on showAnswer below.
 
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import ReactMarkdown from "react-markdown";
@@ -160,18 +162,29 @@ export function QuestionReviewCard({
   roleOverrides, onToggleRole,
 }: Props) {
   const [showIntent, setShowIntent] = useState(false);
-  const [showAnswer, setShowAnswer] = useState(false);
+  // THE MODEL ANSWER OPENS BY DEFAULT (2026-08-10). It used to be collapsed alongside examiner
+  // intent, on the reasoning that most questions are ruled on from the stem and the wine list. That
+  // is true of the QUESTION and false of the ANSWER, and the review data shows the cost: across 226
+  // rejections the reviewer's notes mention the answer three times, and the `answer_key_wrong` tag —
+  // which exists precisely for this — has been used ZERO times. We cannot tell from that whether the
+  // answers are sound or simply unread, and a signal nobody can interpret is not a signal.
+  //
+  // So the answer is now in front of the reviewer by default and has to be actively dismissed. It
+  // renders BELOW the stem and the wines table, so opening it lengthens the card without pushing
+  // anything a reviewer needs first below the fold.
+  const [showAnswer, setShowAnswer] = useState(true);
   const noteRef = useRef<HTMLTextAreaElement>(null);
 
-  // Collapse the detail panes on every new card — an expanded model answer left open from the last
-  // question buries the next stem below the fold. Reset DURING render off a previous-value marker
-  // rather than in an effect (the NavBar flyout does the same): an effect would paint the new card
-  // with the old panes still open for one frame, and React flags synchronous setState in an effect.
+  // Reset the detail panes on every new card, so a pane the reviewer opened or dismissed on the last
+  // question does not silently carry its state into this one. Reset DURING render off a
+  // previous-value marker rather than in an effect (the NavBar flyout does the same): an effect would
+  // paint the new card with the old panes' state for one frame, and React flags synchronous setState
+  // in an effect.
   const [lastCardId, setLastCardId] = useState(card.id);
   if (card.id !== lastCardId) {
     setLastCardId(card.id);
     setShowIntent(false);
-    setShowAnswer(false);
+    setShowAnswer(true);
   }
 
   useEffect(() => {
