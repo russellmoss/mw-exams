@@ -45,13 +45,39 @@ describe("remediate-nightly", () => {
     expect(yml()).toMatch(/cancel-in-progress:\s*false/);
   });
 
-  it("runs after the audit that sets the flags it reads", () => {
+  it("has no ACTIVE schedule — unattended spending is suspended", () => {
+    // Suspended 2026-08-10. Regenerations measured worse than the questions they replace (42.0% vs
+    // 35.9% reject in #174; 44 of 45 rejected in the 2026-08-09/10 batch). Until a run beats its own
+    // predecessors on the reviewer's votes, this is hand-run only. The cron line is kept commented so
+    // restoring it is one edit — but a commented line is not a schedule, so strip comments first.
+    const active = yml()
+      .split("\n")
+      .filter((l) => !l.trim().startsWith("#"))
+      .join("\n");
+    expect(active).not.toMatch(/cron:/);
+    expect(active).toMatch(/workflow_dispatch:/);
+  });
+
+  it("still runs after the audit whenever the schedule is restored", () => {
+    // Guards the ordering constraint for the day someone uncomments the cron: remediation reads flags
+    // that question-audit-daily sets, so it must run later in the day than the audit does.
     const remediate = yml().match(/cron:\s*"(\d+)\s+(\d+)/);
     const audit = readFileSync(join(__dirname, "..", "..", ".github", "workflows", "question-audit-daily.yml"), "utf-8")
       .match(/cron:\s*"(\d+)\s+(\d+)/);
     expect(remediate && audit).toBeTruthy();
     const mins = (m: RegExpMatchArray) => Number(m[2]) * 60 + Number(m[1]);
     expect(mins(remediate!)).toBeGreaterThan(mins(audit!));
+  });
+
+  it("regenerates into the review queue, never straight to a candidate", () => {
+    // The row used to take the table default (status='approved' → review_state='kept'), so a
+    // replacement was servable before anyone read it. That is how 77 unreviewed questions from a
+    // 98%-rejected cohort ended up live. getEligibleBankedQuestions requires review_state='kept', so
+    // 'pending' is what keeps them out while still listing them for review.
+    const script = readFileSync(join(__dirname, "..", "scripts", "remediate-questions.mjs"), "utf-8");
+    const save = script.match(/await saveGeneratedQuestion\(\{[\s\S]*?\}\);/);
+    expect(save, "saveGeneratedQuestion call not found").toBeTruthy();
+    expect(save![0]).toMatch(/status:\s*"pending"/);
   });
 
   it("invokes the script through ts-loader", () => {

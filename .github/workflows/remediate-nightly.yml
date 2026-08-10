@@ -8,10 +8,12 @@
 # through the hardened pipeline, gate on the validator AND the key builder, retry until valid, build
 # the model answer, archive the old row — and nothing has ever run it. This runs it.
 #
-# The regenerated question is a NEW row taking the table defaults (status='approved',
-# review_state='kept', scope='pool'), so it re-enters the candidate pool AND the review queue with no
-# votes against it. That is the loop closing: the defect a reviewer found becomes a rule, the rule
-# retires the questions carrying it, and this replaces them with ones that pass the rule they failed.
+# The regenerated question is a NEW row entering as status='pending' (scope='pool'), so it reaches the
+# admin review queue but NOT the candidate pool — getEligibleBankedQuestions requires
+# review_state='kept'. That is the loop closing at the right speed: the defect a reviewer found becomes
+# a rule, the rule retires the questions carrying it, this replaces them with ones that pass the rule
+# they failed, and a human decides whether the replacement is actually better before anyone is taught
+# from it. It used to enter as 'approved' and skip that last step; see the suspension note below.
 #
 # IT SPENDS REAL MONEY — a generation, wine enrichment (Tavily), a key build and a model answer per
 # question, retried until valid. Hence the cap, which is the whole design of this workflow. LIMIT is an
@@ -24,9 +26,20 @@
 
 name: remediate-nightly
 
+# SCHEDULE SUSPENDED 2026-08-10 — unattended spending stopped pending a quality answer.
+#
+# The premise below is that a regeneration is an improvement on the question it replaces. Measured,
+# it is not. #174 recorded regenerations rejected 42.0% of the time against 35.9% for the originals.
+# Then the hand-run batch of 2026-08-09/10 produced 195 regenerations, of which the expert reviewer
+# reached 45 and rejected 44 — 98%, against 30-43% for every cohort generated before it.
+#
+# So this workflow was paying nightly to make the bank worse, and (until the status='pending' change
+# in remediate-questions.mjs) doing it straight into the servable pool. workflow_dispatch is kept so
+# the drain can still be run deliberately, by a human who has priced it. Restore the cron only when a
+# measured run beats the questions it replaces on the reviewer's own votes.
 on:
-  schedule:
-    - cron: "20 7 * * *" # daily, 07:20 UTC — after question-audit-daily (06:40) has set the flags
+  # schedule:
+  #   - cron: "20 7 * * *" # daily, 07:20 UTC — after question-audit-daily (06:40) has set the flags
   workflow_dispatch:
     inputs:
       limit:

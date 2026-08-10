@@ -379,10 +379,26 @@ async function remediateOne(old, existingWines, latest, complaint) {
     if (!cand) { console.warn(`    attempt ${attempt}: parse failed`); continue; }
 
     const newId = `gen_p${paper}_${family}_${Date.now()}`;
+    // PENDING, NOT APPROVED — a regeneration goes to the review queue, never straight to a candidate.
+    //
+    // This path used to take the table default (status='approved' → review_state='kept'), so every
+    // replacement entered the servable pool with nobody having read it. That is not a theoretical
+    // risk: the overnight run of 2026-08-09/10 put 195 regenerated questions into the pool, and of
+    // the 45 the expert reviewer reached, he rejected 44 — a 98% reject rate against 30-43% for the
+    // cohorts generated before it. 77 of the survivors were still servable and unread.
+    //
+    // The measurement was already on the wall before that run: #174 recorded regenerations being
+    // rejected 42.0% of the time against 35.9% for the originals they replaced. Regeneration output
+    // is the LEAST trustworthy content in the bank, and it was the only content that skipped review.
+    //
+    // 'pending' keeps the loop closing — the row still replaces its predecessor and still appears in
+    // the admin review queue — while getEligibleBankedQuestions (which requires review_state='kept')
+    // will not serve it until a human keeps it. Repairs are unaffected: tryRepair edits the existing
+    // row in place, preserving a flight a reviewer may already have approved.
     await saveGeneratedQuestion({
       questionId: newId, paper, family: cand.family, familyLabel: cand.familyLabel,
       subcategory: cand.subcategory, questionText: cand.questionText, wines: cand.wines,
-      totalMarks: cand.totalMarks,
+      totalMarks: cand.totalMarks, status: "pending",
       metadata: { generatedOnTheFly: true, remediation: true, replaces: old.question_id },
     });
     try { await enrichWineProfiles(newId, cand.wines, APIKEY); }
