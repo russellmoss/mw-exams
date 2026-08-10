@@ -369,6 +369,27 @@ Do NOT build this flight around any of them. The complaint is the CATEGORY recur
 Apply this silently: the wine list and stem must never mention that a style was excluded or replaced.`;
 }
 
+// STYLE FREQUENCY CAP block (fb_597–fb_601) — the sparkling red Syrah/Shiraz rate limit. The reviewer
+// rejected five consecutive sparkling flights for over-using it against its ~once-in-fifteen-years
+// exam precedent, so the ceiling is stated as a HARD per-flight rule: at most `maxPerFlight` such wine,
+// and NONE when a recent sparkling question already used one (that half is enforced by the recent-window
+// hard exclusion appended alongside this). Precedent-backed substitutes are named so the model has a
+// concrete place to reach instead. Kept pure (caps in, text out) so it is testable without a database.
+export function buildStyleFrequencyCapBlock(
+  caps: { label: string; maxPerFlight: number; substitutes: string[] }[]
+): string {
+  if (caps.length === 0) return "";
+  const lines = caps.map(
+    (c) =>
+      `- ${c.label}: at most ${c.maxPerFlight} such wine in a single flight, and it must stay RARE across the bank — it appears in the real MW practical roughly once in fifteen years, never as a default in every sparkling flight. If a recent sparkling question already used one, use NONE here. Reach instead for a precedent-backed sparkling style: ${c.substitutes.join("; ")}.`
+  );
+  return `
+
+## SPARKLING STYLE FREQUENCY CAP (HARD RULE — over-represented sparkling styles)
+${lines.join("\n")}
+Apply this silently: the wine list and stem must never mention that a style was capped or replaced.`;
+}
+
 // Exam Mix (migration 034): per-flight category + curveball guidance. Human-readable "how to build
 // this category" cues so the model can actually deliver the required, coherent flight the validators
 // then check. Returns "" (no injection) when Exam Mix is inactive.

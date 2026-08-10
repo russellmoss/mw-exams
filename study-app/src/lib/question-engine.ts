@@ -48,6 +48,7 @@ import {
   buildQuestionGenerationPrompt,
   buildProducerExclusionBlock,
   buildStyleExclusionBlock,
+  buildStyleFrequencyCapBlock,
 } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
 import { varietyLabel, substyleSpreadFor } from "@/lib/bank-health/variety-targets";
@@ -1169,7 +1170,10 @@ export async function generateFreshQuestion(
       getPaperWineTextsByQuestion(paper),
     ]);
     excludedProducers = buildGenerationProducerExclusion(tally.rows, recentProducers);
-    excludedStyles = selectExcludedNicheStyles(winesByQuestion);
+    // Niche-style share/last-10 exclusion PLUS the style-frequency-cap recent-window refusal (fb_597–
+    // fb_601): once a rate-limited style appears in the last `recentWindow` in-category questions it is
+    // hard-excluded from the next flight's prompt, exactly like an over-used niche style.
+    excludedStyles = [...selectExcludedNicheStyles(winesByQuestion), ...selectCappedStyleExclusions(winesByQuestion)];
   } catch (err) {
     console.error("[producer-exclusion] fetch failed (non-fatal):", err);
   }
@@ -1186,6 +1190,16 @@ export async function generateFreshQuestion(
         excludedStyles.map((s) => `${s.label} [${s.reasons.join(",")}]`).join("; ")
     );
     prompt.system += buildStyleExclusionBlock(excludedStyles.map((s) => s.label));
+  }
+  // STYLE FREQUENCY CAP (fb_597–fb_601): state the per-flight ceiling for rate-limited sparkling styles
+  // on every Paper 3 generation. The recent-window refusal (use NONE) is already carried by the hard
+  // style exclusion above once the style is in the window; this states the standing "at most one, and
+  // keep it rare" rule and names the precedent-backed substitutes so the model has somewhere to go. The
+  // block self-scopes to sparkling flights, so it is inert on a still/fortified/sweet P3 flight.
+  if (paper === 3 && STYLE_FREQUENCY_CAPS.length > 0) {
+    prompt.system += buildStyleFrequencyCapBlock(
+      STYLE_FREQUENCY_CAPS.map((c) => ({ label: c.label, maxPerFlight: c.maxPerFlight, substitutes: c.substitutes }))
+    );
   }
   // THE APPROVED POOL — the reviewer's own verdicts, fed back in as the wine shortlist.
   //
@@ -2604,6 +2618,206 @@ export function selectExcludedNicheStyles(
     for (const [id, c] of counts) if (c / totalWines > cap) add(id, "share-cap");
   }
   return [...byId.values()];
+}
+
+// ── STYLE FREQUENCY CAPS — rate-limit an over-represented sparkling style ─────────────────────────
+//
+// Feedback cluster (fb_597–fb_601, Paper 3): the reviewer rejected five consecutive banked sparkling
+// flights for the SAME fault — sparkling red Syrah/Shiraz turning up in nearly every sparkling flight.
+// In the real MW practical a sparkling Syrah is a ~once-in-fifteen-years curiosity; if it appears at
+// all it appears ONCE, not as a default in every sparkling question ("we have a hugely disproportionate
+// number of sparkling Syrah questions based on what is actually shown up in the MW exam over the last
+// fifteen years"). The soft nudge did not hold — the reviewer had "just had this fucking conversation"
+// and saw it again — so the cap is enforced in code.
+//
+// This is a DATA-DRIVEN cap, distinct from the niche-STYLE share/last-10 exclusion above: each entry
+// declares its own per-flight ceiling and its own recent-question window. Adding a future
+// over-represented style is a new row in STYLE_FREQUENCY_CAPS, not new code — and emptying the map
+// restores the pre-cap behaviour (proven by the tests), which is what makes the cap, and only the cap,
+// the thing that enforces the limit.
+
+// A wine descriptor reduced for matching: lower-cased, accent-stripped, punctuation collapsed.
+function normCapText(s: string): string {
+  return (s || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9 ]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Sparkling indicators (method or category) that mark a wine as a sparkling wine.
+const SPARKLING_INDICATOR =
+  /\bsparkling\b|\bchampagne\b|\bcava\b|\bprosecco\b|\bcremant\b|\bfranciacorta\b|\btrentodoc\b|\bsekt\b|\bcap classique\b|\bespumante\b|\bspumante\b|\bpet nat\b|\bpetnat\b|\bpetillant\b|\bmetodo classico\b|\bmethode (traditionnelle|champenoise)\b/;
+const SYRAH_SHIRAZ = /\b(syrah|shiraz)\b/;
+
+// True when a wine descriptor reads as a sparkling RED made from Syrah/Shiraz — the fault the reviewer
+// keeps rejecting. Requires BOTH a sparkling signal and Syrah/Shiraz, so a still Syrah and a sparkling
+// Chardonnay/Pinot are both left untouched. Sparkling Syrah/Shiraz is a red style by construction.
+export function isSparklingRedSyrah(wineText: string): boolean {
+  const t = normCapText(wineText);
+  return SYRAH_SHIRAZ.test(t) && SPARKLING_INDICATOR.test(t);
+}
+
+// A wine descriptor reads as a sparkling wine of ANY style — used to scope a cap's recent-question
+// window to sparkling questions (a sparkling-Syrah cap counts only sparkling flights, per the spec).
+export function isSparklingWineText(wineText: string): boolean {
+  return SPARKLING_INDICATOR.test(normCapText(wineText));
+}
+
+export interface StyleFrequencyCap {
+  /** Stable style tag an admin can reference. */
+  id: string;
+  /** Human label used in the prompt block and logs. */
+  label: string;
+  /** True when a single wine descriptor is an instance of this rate-limited style. */
+  test: (wineText: string) => boolean;
+  /** At most this many matching wines are allowed in any single flight. */
+  maxPerFlight: number;
+  /**
+   * Refuse the style ENTIRELY (allowance drops to 0 for the next flight) once it appears anywhere in
+   * the last `recentWindow` generated flights that are in-category (see `categoryTest`).
+   */
+  recentWindow: number;
+  /**
+   * Scopes the recent-question window: only flights for which SOME wine matches count toward the
+   * window. For the sparkling-Syrah cap this is "the last N generated sparkling questions".
+   */
+  categoryTest: (wineText: string) => boolean;
+  /** Precedent-backed substitute styles offered when the cap blocks a selection. */
+  substitutes: string[];
+}
+
+// Precedent-backed sparkling styles the exam actually pours — the replacements offered whenever the
+// sparkling-Syrah cap blocks a wine (traditional-method Chardonnay/Pinot blends, tank-method
+// Glera/Moscato, Cava, pét-nat, English sparkling).
+export const PRECEDENT_SPARKLING_SUBSTITUTES: string[] = [
+  "traditional-method Chardonnay/Pinot Noir blend (Champagne, Franciacorta, English sparkling, Cap Classique)",
+  "tank-method Glera (Prosecco) or Moscato (Asti)",
+  "Cava",
+  "pét-nat",
+  "English sparkling",
+];
+
+// The single source of truth for the caps. Keyed by style tag so a future over-represented style is a
+// new row here, never new code. Emptying this array restores the pre-cap behaviour.
+export const STYLE_FREQUENCY_CAPS: StyleFrequencyCap[] = [
+  {
+    id: "sparkling-red-syrah",
+    label: "Sparkling red Syrah / Shiraz",
+    test: isSparklingRedSyrah,
+    maxPerFlight: 1,
+    recentWindow: 20, // same window (RECENT_WINE_WINDOW) as the wine-reuse cap in db.ts
+    categoryTest: isSparklingWineText,
+    substitutes: PRECEDENT_SPARKLING_SUBSTITUTES,
+  },
+];
+
+// The capped style ids a single wine descriptor matches (usually 0 or 1).
+export function detectCappedStyles(
+  wineText: string,
+  caps: StyleFrequencyCap[] = STYLE_FREQUENCY_CAPS
+): string[] {
+  return caps.filter((c) => c.test(wineText)).map((c) => c.id);
+}
+
+// Per-flight allowance for each cap, given the recent in-category flight history (newest first): the
+// cap's maxPerFlight normally, but 0 once the style already appears in the last `recentWindow`
+// in-category flights. Pure and DB-free so the policy is unit-tested.
+export function styleFrequencyAllowances(
+  recentFlights: string[][],
+  caps: StyleFrequencyCap[] = STYLE_FREQUENCY_CAPS
+): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const c of caps) {
+    const window = recentFlights.filter((fl) => fl.some((txt) => c.categoryTest(txt))).slice(0, c.recentWindow);
+    const seen = window.some((fl) => fl.some((txt) => c.test(txt)));
+    out.set(c.id, seen ? 0 : c.maxPerFlight);
+  }
+  return out;
+}
+
+export interface CapWine {
+  slot?: number;
+  fullText: string;
+  appearance?: string;
+}
+
+// Apply the style-frequency caps to a candidate flight, substituting precedent-backed sparkling styles
+// for any wine over its cap. Pure so the SELECTION cap is pinned by a test with no model call or DB:
+//   • at most `maxPerFlight` matching wines survive in one flight;
+//   • the allowance drops to 0 when the style is already in the last `recentWindow` in-category flights
+//     (the recent-question history the wine-reuse cap in db.ts uses), so it is refused outright;
+//   • blocked slots are filled from `substitutes` (which must not themselves match any cap), in order;
+//     if the substitute pool runs dry the blocked wine is dropped rather than admitted over the cap.
+// With `caps` empty the flight is returned unchanged — the pre-cap behaviour — so the tests can prove
+// the cap, and only the cap, is what enforces the limit.
+export function applyStyleFrequencyCaps(
+  flight: CapWine[],
+  substitutes: CapWine[],
+  recentFlights: string[][],
+  caps: StyleFrequencyCap[] = STYLE_FREQUENCY_CAPS
+): CapWine[] {
+  if (caps.length === 0) return [...flight];
+
+  const allowance = styleFrequencyAllowances(recentFlights, caps);
+  const inFlight = new Set(flight.map((w) => normCapText(w.fullText)));
+  // Substitutes may not themselves be a capped style, and may not duplicate a wine already in the flight.
+  const subPool = substitutes.filter(
+    (s) => !caps.some((c) => c.test(s.fullText)) && !inFlight.has(normCapText(s.fullText))
+  );
+  let subIdx = 0;
+  const usedSub = new Set<string>();
+  const nextSub = (): CapWine | null => {
+    while (subIdx < subPool.length) {
+      const s = subPool[subIdx++];
+      const key = normCapText(s.fullText);
+      if (!usedSub.has(key)) {
+        usedSub.add(key);
+        return s;
+      }
+    }
+    return null;
+  };
+
+  const kept = new Map<string, number>();
+  const out: CapWine[] = [];
+  for (const w of flight) {
+    const cap = caps.find((c) => c.test(w.fullText));
+    if (!cap) {
+      out.push(w);
+      continue;
+    }
+    const allowed = allowance.get(cap.id) ?? 0;
+    const already = kept.get(cap.id) ?? 0;
+    if (already < allowed) {
+      kept.set(cap.id, already + 1);
+      out.push(w);
+      continue;
+    }
+    const sub = nextSub();
+    if (sub) out.push({ ...sub, slot: w.slot });
+    // else: no substitute available → drop the blocked wine rather than admit it over the cap.
+  }
+  return out;
+}
+
+// The capped styles to HARD-exclude from a paper's next flight: a style is refused (prompt-level, via
+// buildStyleExclusionBlock) once it appears in the last `recentWindow` in-category questions. Reuses
+// the same per-question wine texts (newest first) the niche-style exclusion reads. Pure/DB-free.
+export function selectCappedStyleExclusions(
+  winesByQuestion: string[][],
+  caps: StyleFrequencyCap[] = STYLE_FREQUENCY_CAPS
+): ExcludedStyle[] {
+  const allowance = styleFrequencyAllowances(winesByQuestion, caps);
+  const out: ExcludedStyle[] = [];
+  for (const c of caps) {
+    if ((allowance.get(c.id) ?? c.maxPerFlight) === 0) {
+      out.push({ id: c.id, label: c.label, reasons: ["recent-window"] });
+    }
+  }
+  return out;
 }
 
 /**
