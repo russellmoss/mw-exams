@@ -108,7 +108,10 @@ function loadBank(): WineBankEntry[] {
   }
 }
 
-async function loadBankWithDb(): Promise<WineBankEntry[]> {
+// Exported for scripts/rematch-wine-profiles.mjs, which calls lookupWine directly (not through
+// lookupWines) and so must warm the DB bank itself — the file bank alone would report the wrong
+// verdict for every DB-banked wine.
+export async function loadBankWithDb(): Promise<WineBankEntry[]> {
   const fileBank = loadBank();
   if (dbBankLoaded) return fileBank;
 
@@ -177,8 +180,75 @@ const NOISE_WORDS = new Set([
   "les", "and", "von", "van", "rouge", "blanc", "rosso", "bianco", "tinto",
 ]);
 
+// COLOUR WORDS carried on the label itself. These are NOISE_WORDS for token matching (every third
+// Burgundy says "Blanc"), but they are the one piece of the label that can flatly contradict a bank
+// entry, so they are read off the normalized string BEFORE tokenizing. See the colour gate below.
+const LABEL_COLOUR: Array<[RegExp, "white" | "red" | "rose"]> = [
+  [/\b(blanc|bianco|blanco|weiss|weisser|branco)\b/, "white"],
+  [/\b(rouge|rosso|tinto|rot)\b/, "red"],
+  [/\b(rose|rosato|rosado)\b/, "rose"],
+];
+
+function labelColour(normalizedQuery: string): "white" | "red" | "rose" | null {
+  const hits = LABEL_COLOUR.filter(([re]) => re.test(normalizedQuery));
+  // "Rosso" and "Bianco" on one label (a producer name plus a wine name) is ambiguous, not a
+  // contradiction — decline to judge rather than guess.
+  return hits.length === 1 ? hits[0][1] : null;
+}
+
 // Exported for tests only — production callers go through lookupWine/lookupWines.
 export function matchScore(queryText: string, entry: WineBankEntry): number {
+  return scoreEntry(queryText, entry).score;
+}
+
+/**
+ * The label's CUVÉE HEAD — everything up to the vintage. Labels read
+ * "Producer, Wine Name, Vintage. Region, Country. (ABV)", so the text before the vintage is what
+ * names the bottle and everything after it is geography.
+ *
+ * Split on the vintage rather than on the first "." because producer initials carry periods
+ * ("F.X. Pichler"), which would otherwise truncate the head to one letter. A label with no vintage
+ * falls back to the whole string, which just makes the tiebreak below a no-op.
+ */
+function cuveeHead(rawText: string): string {
+  const m = rawText.match(/\b((?:19|20)\d{2}|NV)\b/);
+  return m ? rawText.slice(0, m.index) : rawText;
+}
+
+/**
+ * Score plus SPECIFICITY — how many of the entry's wine-name tokens are named in the label's cuvée
+ * head, as opposed to being satisfied by the appellation.
+ *
+ * lookupWine needs the second number because a producer's entry-level bottling and its flagship can
+ * both score a perfect 1.0 on the same label. The appellation is written on EVERY label, so an entry
+ * named after the appellation is fully satisfied by words describing where the flagship comes from:
+ *
+ *   "Yalumba, The Virgilius Viognier, 2022. EDEN VALLEY, South Australia"
+ *        entry "Eden Valley Viognier"    → 1.0, but only "viognier" is in the cuvée head  → 1
+ *        entry "The Virgilius Viognier"  → 1.0, and both tokens are in the head           → 2  ✓
+ *
+ *   "Domaine Sigalas Kavalieros Assyrtiko 2023. SANTORINI, Greece"
+ *        entry "Assyrtiko"               → 1.0, one token in the head                     → 1
+ *        entry "Assyrtiko Kavalieros"    → 1.0, both in the head                          → 2  ✓
+ *
+ * Counting the entry's own tokens instead would pick exactly the wrong one — "Eden Valley Viognier"
+ * is the LONGER name and the less specific wine. On a genuine tie (Baumard's "Quarts de Chaume" and
+ * "Quarts de Chaume Grand Cru" are token-identical once `grand`/`cru` are dropped as noise) the two
+ * entries describe the same bottle, so first-wins is harmless.
+ */
+function scoreEntry(queryText: string, entry: WineBankEntry): { score: number; specificity: number } {
+  const score = computeScore(queryText, entry);
+  if (score === 0) return { score: 0, specificity: 0 };
+  const headTokens = new Set(
+    normalize(cuveeHead(queryText)).split(" ").filter((t) => t.length > 2 && !NOISE_WORDS.has(t))
+  );
+  const specificity = normalize(entry.wine_name)
+    .split(" ")
+    .filter((t) => t.length > 2 && !NOISE_WORDS.has(t) && headTokens.has(t)).length;
+  return { score, specificity };
+}
+
+function computeScore(queryText: string, entry: WineBankEntry): number {
   const query = normalize(queryText);
   const producerNorm = normalize(entry.producer);
   const wineNorm = normalize(entry.wine_name);
@@ -187,30 +257,50 @@ export function matchScore(queryText: string, entry: WineBankEntry): number {
   const meaningful = (text: string) =>
     text.split(" ").filter((t) => t.length > 2 && !NOISE_WORDS.has(t));
 
-  const queryTokens = meaningful(query);
+  const queryTokens = new Set(meaningful(query));
   const producerTokens = meaningful(producerNorm);
   const wineTokens = meaningful(wineNorm);
 
   if (producerTokens.length === 0) return 0;
 
-  // Producer match: how many producer tokens appear in the query?
+  // EXACT TOKEN EQUALITY, NOT SUBSTRING CONTAINMENT.
+  //
+  // This compared tokens with `qt === pt || qt.includes(pt) || pt.includes(qt)`, which matched any
+  // token that merely CONTAINED another. Tokens only have to be 3 characters and words like `clos`,
+  // `vina`, `casa` and `bodegas` are noise, so a producer routinely reduces to one short token — and
+  // one substring hit then scored a perfect 1.0 on the producer half. Measured over the live bank on
+  // 2026-08-10: 77 of 1,675 bank-matched wines (4.6%) resolved to an entry whose producer does not
+  // appear on the label at all, and every one of the 77 was stamped confidence:"high".
+  //
+  //   Cantina Terlano, ALTO Adige      → Bodegas AALTO, Ribera del Duero   "aalto".includes("alto")
+  //   Bimbadgen, Hunter VALLEY         → Clos du VAL, Carneros             "valley".includes("val")
+  //   Bellavista, ALMA Grande Cuvée    → ALMAviva, Chile                   "almaviva".includes("alma")
+  //   Casa Silva, CARMENère            → Viña CARMEN, Chile                "carmenere".includes("carmen")
+  //   Beaucastel, Châteauneuf-du-PAPE  → Clos des PAPES (a red)            "papes".includes("pape")
+  //
+  // The last one is the defect an examiner caught by eye: a white 100% Roussanne carrying a red
+  // Grenache/Syrah/Mourvèdre profile, garnet tasting note and all. Everything downstream reasons on
+  // wine_profiles, so a wrong match does not merely mislead the candidate — it silently disables the
+  // validator rules that check the stem against the wines (a blend in a "single variety" flight
+  // cannot be caught when the stored grape list belongs to a different bottle).
+  //
+  // normalize() already folds accents, case, punctuation and vintages, so a genuine match needs no
+  // fuzziness. Morphological near-misses are exactly the cases above, and they are DIFFERENT WINES.
   let producerHits = 0;
   for (const pt of producerTokens) {
-    if (queryTokens.some((qt) => qt === pt || qt.includes(pt) || pt.includes(qt))) {
-      producerHits++;
-    }
+    if (queryTokens.has(pt)) producerHits++;
   }
   const producerScore = producerHits / producerTokens.length;
 
   // Require at least 60% of producer tokens to match
   if (producerScore < 0.6) return 0;
 
-  // Wine name match: how many wine name tokens appear in the query?
+  // Wine name match: how many wine name tokens appear in the query? Exact, for the reason above —
+  // the cuvée gate below is only as strong as the comparison feeding it, and substring matching let
+  // a wrong cuvée borrow credit from a longer word that happened to contain its name.
   let wineHits = 0;
   for (const wt of wineTokens) {
-    if (queryTokens.some((qt) => qt === wt || qt.includes(wt) || wt.includes(qt))) {
-      wineHits++;
-    }
+    if (queryTokens.has(wt)) wineHits++;
   }
   const wineScore = wineTokens.length > 0 ? wineHits / wineTokens.length : 0;
 
@@ -224,21 +314,52 @@ export function matchScore(queryText: string, entry: WineBankEntry): number {
   // 0.8 tolerates one orphan token only on long (5+ token) cuvée names.
   if (wineTokens.length > 0 && wineScore < 0.8) return 0;
 
+  // COLOUR GATE — defence in depth, and the only check here that reads the wine rather than the words.
+  //
+  // Exact tokens fix every mismatch measured on 2026-08-10, but they cannot fix the class: a producer
+  // who makes both colours ("Beaucastel Blanc" against a Beaucastel red in the bank) still clears the
+  // producer gate legitimately, and the cuvée gate only sees whether the NAMES overlap. Serving a red
+  // profile for a white is the single most visible defect an examiner can spot, and 24 wines in the
+  // live bank carried one. When the label states a colour and the entry states a different one, that
+  // is not a near-match to be scored down — it is the wrong bottle.
+  // "orange" folds to white — a skin-contact white grape wine is routinely labelled Blanc/Bianco, so
+  // treating it as a contradiction would reject true matches. Anything else unrecognised is ignored
+  // rather than guessed at: this gate only fires on a colour it is certain about, in both directions.
+  const stated = labelColour(query);
+  const entryColour = entry.colour === "orange" ? "white" : entry.colour;
+  const known = entryColour === "white" || entryColour === "red" || entryColour === "rose";
+  if (stated && known && entryColour !== stated) return 0;
+
   // Combined: producer match is weighted 60%, wine name 40%
   return producerScore * 0.6 + wineScore * 0.4;
 }
 
 export function lookupWine(fullText: string): { entry: WineBankEntry; score: number } | null {
-  const bank = loadBank();
+  return pickBestEntry(fullText, loadBank());
+}
+
+/**
+ * The matcher proper, over an explicit entry list. Split out from lookupWine so the tie-break can be
+ * tested without a bank on disk — lookupWine's own behaviour is entirely this function plus loadBank.
+ */
+export function pickBestEntry(
+  fullText: string,
+  bank: WineBankEntry[]
+): { entry: WineBankEntry; score: number } | null {
   if (bank.length === 0) return null;
 
   let bestMatch: WineBankEntry | null = null;
   let bestScore = 0;
+  let bestSpecificity = -1;
 
   for (const entry of bank) {
-    const score = matchScore(fullText, entry);
-    if (score > bestScore) {
+    const { score, specificity } = scoreEntry(fullText, entry);
+    // Strictly better score wins; an equal score is settled by the more specific cuvée (see
+    // scoreEntry). Without the tiebreak this kept whichever entry the bank listed first, which on a
+    // producer holding both an estate wine and a flagship is a coin flip served as high confidence.
+    if (score > bestScore || (score === bestScore && score > 0 && specificity > bestSpecificity)) {
       bestScore = score;
+      bestSpecificity = specificity;
       bestMatch = entry;
     }
   }
