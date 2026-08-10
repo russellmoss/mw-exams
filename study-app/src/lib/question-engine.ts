@@ -38,6 +38,7 @@ import {
   REVIEWER_EXCLUDED_PRODUCERS,
   type ProducerStatus,
 } from "@/lib/bank-health/producer";
+import { getApprovedWinePool, buildApprovedPoolBlock } from "@/lib/approved-wine-pool";
 import { buildBinReasonDigest } from "@/lib/prompts/bin-reason-digest";
 import { getBinLessonsBlock } from "@/lib/bin-lessons";
 import Anthropic from "@anthropic-ai/sdk";
@@ -1186,6 +1187,27 @@ export async function generateFreshQuestion(
     );
     prompt.system += buildStyleExclusionBlock(excludedStyles.map((s) => s.label));
   }
+  // THE APPROVED POOL — the reviewer's own verdicts, fed back in as the wine shortlist.
+  //
+  // Appended AFTER the exclusions on purpose: the exclusions are prohibitions and this is a
+  // preference, so the model reads "never these" before "prefer those" and cannot resolve the
+  // conflict the wrong way. A pool wine whose producer is currently excluded is still excluded.
+  //
+  // Non-fatal, like every other data-driven block here: no pool means generation behaves exactly as
+  // it did before, which matters because the pool is thin in places (P3 rosé is five wines).
+  try {
+    const pool = await getApprovedWinePool(paper);
+    if (pool.wines.length > 0) {
+      prompt.system += buildApprovedPoolBlock(pool);
+      console.log(
+        `[wine-pool] paper ${paper}: ${pool.wines.length} examiner-approved wines offered` +
+          `${pool.rejected.length ? `, ${pool.rejected.length} named-rejected excluded` : ""}`
+      );
+    }
+  } catch (poolErr) {
+    console.error("[wine-pool] fetch failed (non-fatal):", poolErr);
+  }
+
   const excludedProducerKeys = new Set(excludedProducers.map((p) => p.key));
 
   // Bank Health targeting: append the aim as SOFT preferences. Deliberately after the hard scope /
