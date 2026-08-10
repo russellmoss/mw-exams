@@ -1899,7 +1899,12 @@ ${repairContext.draft}`,
     const markMixCheck = pinned || anchored || relaxMarkMix
       ? { valid: true, violations: [] }
       : validateMarkTypeMix(candidate.questionText, candidate.wines.length);
-    const compositionCheck = pinned || (relaxImportant && !bankPath)
+    // Anchored (historical import) stands down: real stems FORCE single-world flights — 2019 P2 Q3
+    // is "Wines come from Europe, but not France, Italy or Spain" and 2026 P1 Q3 is "regions
+    // influenced by the Mediterranean Sea", both all-Old-World by premise. Worse than merely blocking,
+    // the rule actively corrupted a draft: pushed toward an inter-world contrast on the Europe stem,
+    // the model banked Felton Road Central Otago into a flight whose stem says "Europe" (2026-08-09).
+    const compositionCheck = pinned || anchored || (relaxImportant && !bankPath)
       ? { valid: true, violations: [] }
       : validateCompositionBalance(candidate.family, paper, candidate.wines);
     const priceCheck = pinned || relaxImportant
