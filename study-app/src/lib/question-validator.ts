@@ -2326,6 +2326,131 @@ export function contrastIntegrityViolations(q: QuestionForAudit): Violation[] {
 }
 
 // ---------------------------------------------------------------------------------------------------
+// TIER CONTRAST — same-appellation wines must not repeat one quality/sweetness tier under a
+// compare-and-contrast ask (reviewer fault cluster, cross-paper, 8 validated signals: fb_579, fb_571,
+// fb_570, fb_569, fb_568, fb_559, fb_531, fb_518).
+//
+// The recurring verdict: a flight puts two-or-more wines from the SAME appellation (or region) at the
+// SAME quality/sweetness tier and then pays marks for "comment on the style, quality and method of
+// production" — but there is nothing for those marks to bite on, because two wines at one tier read the
+// same. In the reviewer's own words: two same-vintage Premier Crus "don't really provide a lot of
+// compare and contrast opportunities"; two Rioja Reservas have "the method of production … the level of
+// quality and maturity … very, very similar"; two Langhe-level wines where "one or two Barolos" belonged;
+// three Châteauneuf-du-Pape "all going to be fairly similar in terms of style and winemaking"; and a
+// four-Riesling flight with "two Grosses Gewächs and two Spätlese" where a cascading Trocken → Kabinett
+// → Spätlese → Auslese ladder was expected.
+//
+// The rule GROUPS the keyed wines by appellation (region when the appellation is absent). For any group
+// of 2+ wines, IF a sub-question asks the candidate to compare/contrast/comment on style, quality,
+// method of production or maturity, the wines in that group must carry DISTINCT tiers drawn from the
+// wine record's classification/sweetness metadata (Crianza/Reserva/Gran Reserva; village/Premier Cru/
+// Grand Cru; regional-vs-sub-zone e.g. Langhe vs Barolo; Kabinett/Spätlese/Auslese/BA/TBA, plus the dry
+// GG/Trocken tiers). A repeated tier inside a group is a hard reject, code NO_TIER_CONTRAST.
+//
+// It FAILS SAFE: the check is SKIPPED for any group where a wine's tier cannot be resolved, so unknown
+// metadata never hard-fails generation — a missing tier is treated as "cannot judge", not "no contrast".
+// ---------------------------------------------------------------------------------------------------
+
+// The quality/sweetness tier a wine's classification or sweetness metadata places it at. Ordered
+// MOST-SPECIFIC first so a compound label resolves to its real rung: "Trockenbeerenauslese" must not
+// read as "Trocken", "Gran Reserva" not as "Reserva", a "Grosses Gewächs" not as bare "Trocken".
+// Tested against norm()'d text (lower-case, accents stripped), so "Spätlese" is matched as "spatlese".
+const WINE_TIER_TOKENS: { value: string; re: RegExp }[] = [
+  // ── German / Austrian Prädikat + VDP dry classifications ──
+  { value: "TBA", re: /trockenbeerenauslese|\btba\b/ },
+  { value: "BA", re: /beerenauslese\b/ },
+  { value: "Auslese", re: /auslese\b/ },
+  { value: "Spätlese", re: /spatlese\b/ },
+  { value: "Kabinett", re: /kabinett\b/ },
+  { value: "Grosses Gewächs", re: /grosses gewachs|grosse lage|\bgg\b/ },
+  { value: "Trocken", re: /\btrocken\b/ },
+  // ── Burgundy / Chablis vineyard tiers ──
+  { value: "Grand Cru", re: /grand cru\b/ },
+  { value: "Premier Cru", re: /premier cru\b|\b1er cru\b|\b1e cru\b/ },
+  { value: "Village", re: /\bvillage\b/ },
+  // ── Rioja / Spanish ageing tiers ──
+  { value: "Gran Reserva", re: /gran reserva\b/ },
+  { value: "Reserva", re: /reserva\b/ },
+  { value: "Crianza", re: /crianza\b/ },
+  // ── Italian regional vs sub-zone (Piedmont: Langhe is regional, Barolo/Barbaresco the sub-zone) ──
+  { value: "sub-zone", re: /\bbarolo\b|barbaresco\b|\bgattinara\b|\bghemme\b/ },
+  { value: "regional", re: /\blanghe\b|nebbiolo d'?alba|piemonte\b/ },
+];
+
+// A wine's resolved tier, or null when its classification/sweetness metadata names none. Reads the
+// label, style and style_category as well as the region, so a tier stated only on the bottle text (a
+// "Reserva", a "Spätlese", a "Premier Cru") is still found.
+function wineTier(w: AuditWine): string | null {
+  const hay = norm(
+    [w.fullText, w.style, w.style_category, w.region].filter(Boolean).join(" "),
+  );
+  if (!hay) return null;
+  const hit = WINE_TIER_TOKENS.find((t) => t.re.test(hay));
+  return hit ? hit.value : null;
+}
+
+// The appellation (or region) a wine is grouped under. AuditWine's `region` IS the resolved appellation
+// on our keys ("Rioja", "Langhe", "Barolo", "Chablis"), so it is the group key; "" when unplaced.
+function tierGroupKey(w: AuditWine): string {
+  return norm(w.region || "");
+}
+
+// Fires when a sub-question asks the candidate to compare / contrast / comment on / discuss the style,
+// quality, method of production or maturity — the marks the reviewer says have "nothing to bite on"
+// when the flight repeats a tier. Verb first, the dimension within a short span (as the corpus writes
+// it: "Comment on the style, quality and method of production …"). Run on norm()'d text.
+const TIER_CONTRAST_ASK_RE =
+  /(?:compare|contrast|comment on|comment upon|discuss|assess|evaluate|account for)[^.?!]{0,80}(?:style|quality|method of production|production method|winemaking|vinification|maturity|maturation|age?ing)/;
+
+/**
+ * Tier-contrast rule. Group the keyed wines by appellation/region; for any group of 2+ wines under a
+ * compare-and-contrast ask, require the wines to carry distinct quality/sweetness tiers. A repeated tier
+ * is a hard NO_TIER_CONTRAST. The check is skipped for a group whose tiers are not all resolvable.
+ */
+export function tierContrastViolations(q: QuestionForAudit): Violation[] {
+  const wines = q.wines || [];
+  if (wines.length < 2) return [];
+  if (!TIER_CONTRAST_ASK_RE.test(norm(q.questionText || ""))) return [];
+
+  const groups = new Map<string, AuditWine[]>();
+  for (const w of wines) {
+    const key = tierGroupKey(w);
+    if (!key) continue; // unplaced wine cannot be grouped by appellation
+    (groups.get(key) || groups.set(key, []).get(key)!).push(w);
+  }
+
+  const v: Violation[] = [];
+  for (const [key, group] of groups) {
+    if (group.length < 2) continue;
+    const tiers = group.map((w) => wineTier(w));
+    // Fail safe: if any wine in the group has no resolvable tier, do not judge this group at all.
+    if (tiers.some((t) => t === null)) continue;
+    const known = tiers as string[];
+    const distinct = new Set(known);
+    if (distinct.size === known.length) continue; // every tier distinct — genuine cascade, keep it
+
+    // Name a repeated tier and the wines that carry it, so the admin can see the call.
+    const counts = new Map<string, AuditWine[]>();
+    group.forEach((w, i) =>
+      (counts.get(known[i]) || counts.set(known[i], []).get(known[i])!).push(w),
+    );
+    const [dupTier, dupWines] =
+      [...counts.entries()].find(([, ws]) => ws.length >= 2) ?? [];
+    const label = group[0].region || key;
+    v.push({
+      rule: "NO_TIER_CONTRAST",
+      severity: "hard",
+      detail:
+        `wines ${(dupWines || group).map((w) => w.slot).join(", ")} from ${label} share the same tier` +
+        `${dupTier ? ` (${dupTier})` : ""} — a compare-and-contrast on style/quality/method/maturity has no ` +
+        `contrast to earn its marks. Use a cascade of distinct tiers (e.g. Crianza vs Gran Reserva, or a ` +
+        `Barolo alongside the Langhe-level wine).`,
+    });
+  }
+  return v;
+}
+
+// ---------------------------------------------------------------------------------------------------
 // PAPER STYLE MIX — the wine-style mix of a flight must fit the paper it is set for (feedback cluster
 // fb_145 / fb_71 / fb_47, cross-paper).
 //
@@ -4185,6 +4310,10 @@ export function validateQuestion(
   }
   violations.push(...crossCheckStemFacts(q));
   violations.push(...contrastIntegrityViolations(q));
+  // NO_TIER_CONTRAST — a same-appellation group repeating one quality/sweetness tier under a
+  // compare-and-contrast ask. WINE-side (the fix is "pick a wine at a different tier"), so it runs
+  // even on a fixed past-paper stem, like the other contrast/anchor wine rules above.
+  violations.push(...tierContrastViolations(q));
   if (!stemFixed) violations.push(...partTaskRepertoireViolations(q));
   // Paper style-mix demotes to SOFT on a verbatim past-paper stem, the same pool-admission logic as
   // flight-composition above: the real 2018 P3 Q3 poured three still dry reds (Birichino Cinsault,
