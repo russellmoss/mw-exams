@@ -50,26 +50,26 @@ const ruling = (over: Partial<RoleRuling> = {}): RoleRuling => ({
  * refactor of isBanker cannot quietly stop the sweep having anything to find.
  */
 describe("what the sweep is looking for", () => {
-  it("a flight loses its only banker when that wine is reclassified", () => {
-    const withBanker = [
+  it("a flight loses its bankers when those wines are reclassified", () => {
+    const withBankers = [
       wine(1, ["chardonnay"], "Chablis", "France"),
-      wine(2, ["assyrtiko"], "Santorini", "Greece"),
+      wine(2, ["riesling"], "Mosel", "Germany"),
       wine(3, ["savagnin"], "Jura", "France"),
     ];
-    expect(flightCompositionViolations(withBanker)).toEqual([]);
+    expect(flightCompositionViolations(withBankers)).toEqual([]);
 
-    // Swap the anchor for another reviewer-calibrated curveball: now nothing anchors the flight.
+    // Swap the anchors for reviewer-calibrated curveballs: now nothing anchors the flight.
     const bankerless = [
       wine(1, ["xinomavro"], "Naoussa", "Greece"),
       wine(2, ["assyrtiko"], "Santorini", "Greece"),
       wine(3, ["savagnin"], "Jura", "France"),
     ];
-    // An all-curveball trio trips BOTH arms — no banker, and 3 curveballs against a budget of 2.
+    // An all-curveball trio trips BOTH arms — no banker, and 3 curveballs against a budget of 1.
     const v = flightCompositionViolations(bankerless);
     expect(v.map((x) => x.severity)).toEqual(["hard", "hard"]);
     expect(v.every((x) => x.rule === "flight-composition")).toBe(true);
     expect(v[0].detail).toContain("no banker");
-    expect(v[1].detail).toContain("at most 2");
+    expect(v[1].detail).toContain("at most 1");
     // The messages name the wines, which is what makes the repair queue actionable rather than a
     // list of question ids to take on trust.
     expect(v[0].detail).toContain("wine 1");

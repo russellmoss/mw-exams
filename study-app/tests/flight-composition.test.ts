@@ -6,7 +6,7 @@
 // a classic benchmark expression of a mainstream variety in its home region — is the wine that gives
 // the candidate a route to the country. The validator now derives a banker/curveball classification
 // (unknown wines fail safe to curveball) and rejects a flight with no banker or with more curveballs
-// than min(2, ceil(n/2)).
+// than max(1, floor(n/2)) — bankers must hold at least half the flight.
 import { describe, it, expect } from "vitest";
 import {
   validateQuestion,
@@ -98,6 +98,19 @@ describe("flight-composition rule (raw — the generation verdict)", () => {
     expect(flightCompositionViolations(six)).toEqual([]);
     const sixHeavy = [BANKERS[0], BANKERS[1], CURVEBALLS[0], CURVEBALLS[1], CURVEBALLS[2], CURVEBALLS[3]];
     expect(flightCompositionViolations(sixHeavy).some((x) => /4 curveballs/.test(x.detail))).toBe(true);
+  });
+
+  it("requires bankers to hold at least half the flight (2026-08 expert review)", () => {
+    // 74 of Mike's 177 review down-votes were ratio complaints, dominated by small flights where
+    // curveballs outnumbered bankers — 2-of-3 curveball flights passed the old max(2, ceil(n/2)) cap.
+    const threeHeavy = [BANKERS[0], CURVEBALLS[0], CURVEBALLS[1]];
+    expect(flightCompositionViolations(threeHeavy).some((x) => /2 curveballs/.test(x.detail))).toBe(true);
+    const threeOk = [BANKERS[0], BANKERS[1], CURVEBALLS[0]];
+    expect(flightCompositionViolations(threeOk)).toEqual([]);
+    const fiveHeavy = [BANKERS[0], BANKERS[1], CURVEBALLS[0], CURVEBALLS[1], CURVEBALLS[2]];
+    expect(flightCompositionViolations(fiveHeavy).some((x) => /3 curveballs/.test(x.detail))).toBe(true);
+    const fiveOk = [BANKERS[0], BANKERS[1], BANKERS[2], CURVEBALLS[0], CURVEBALLS[1]];
+    expect(flightCompositionViolations(fiveOk)).toEqual([]);
   });
 
   it("leaves single-wine questions untouched", () => {
