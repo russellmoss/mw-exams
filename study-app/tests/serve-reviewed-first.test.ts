@@ -76,15 +76,30 @@ describe("serve paths prefer human-reviewed questions", () => {
   it("the reviewed-first key comes FIRST, not buried behind recency", () => {
     // Ordering by created_at first and review_status second would be a no-op in practice: the
     // newest questions are exactly the unreviewed ones, so recency would win every comparison.
+    //
+    // Since 2026-08-09 the banked serve queries carry a STRONGER leading key: `approved_clean`
+    // (an expert 'up' vote in question_reviews with no live 'down' — see getEligibleBankedQuestions
+    // in db.ts). That tier outranks review_status='kept', so it is allowed — required, where
+    // present — to lead; review_status must then be the very next key. Recency may never precede
+    // either review key.
     for (const file of SERVE_FILES) {
       for (const block of sqlBlocks(read(file))) {
         const orderBy = block.match(/ORDER BY([\s\S]*?)(?:LIMIT|`)/i)?.[1];
         if (!orderBy || !/review_status/.test(orderBy)) continue;
-        const firstKey = orderBy.split(",")[0];
+        const keys = orderBy.split(",");
+        const firstKey = keys[0];
+        if (/approved_clean/.test(firstKey)) {
+          expect(
+            /review_status/.test(keys[1] ?? ""),
+            `${file}: when approved_clean leads the ORDER BY, review_status must be the second ` +
+              `key — otherwise recency decides among the un-endorsed majority. Got: ${orderBy.trim()}`
+          ).toBe(true);
+          continue;
+        }
         expect(
           /review_status/.test(firstKey),
-          `${file}: review_status must be the FIRST ORDER BY key, otherwise recency dominates and ` +
-            `the preference does nothing. Got: ${orderBy.trim()}`
+          `${file}: review_status (or the stronger approved_clean tier) must be the FIRST ORDER BY ` +
+            `key, otherwise recency dominates and the preference does nothing. Got: ${orderBy.trim()}`
         ).toBe(true);
       }
     }

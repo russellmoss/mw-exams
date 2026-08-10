@@ -50,26 +50,46 @@ describe("the server coerces an unknown value toward banked, never toward fresh"
   });
 });
 
-describe("the acquire card leads with Banked and consumes nothing on arrival", () => {
-  it("renders the Banked button before the New button", () => {
-    const banked = wizard.indexOf("onClick={handleBankedQuestion}");
+describe("the acquire card is bank-first, with generation as the exhausted-pool fallback", () => {
+  // 2026-08-09: the acquire card no longer offers "New Question" alongside the bank. While unseen
+  // banked questions remain, "Start" (a banked serve) is the ONLY way in — generation quality is
+  // unproven while the expert-reviewed bank is deep, so generation appears only once the pool for
+  // the selection is exhausted, next to a Replay option over questions the candidate already did.
+
+  it("serves the bank as Start, before any generation control", () => {
+    const banked = wizard.indexOf("onClick={() => handleBankedQuestion(false)}");
     const fresh = wizard.indexOf("onClick={handleNewQuestion}");
-    expect(banked, "the Banked button is gone").toBeGreaterThan(-1);
-    expect(fresh, "the New button is gone").toBeGreaterThan(-1);
-    expect(banked, "New Question now reads first on the acquire card").toBeLessThan(fresh);
+    expect(banked, "the banked Start button is gone").toBeGreaterThan(-1);
+    expect(fresh, "the generation fallback button is gone").toBeGreaterThan(-1);
+    expect(banked, "generation now reads before the banked Start button").toBeLessThan(fresh);
+  });
+
+  it("gates generation behind an exhausted bank", () => {
+    // The Start branch of the ternary comes first; handleNewQuestion may only be wired up inside
+    // the empty-bank else-branch that follows it.
+    const gate = wizard.indexOf("bankCount > 0 && !bankTaken ?");
+    const fresh = wizard.indexOf("onClick={handleNewQuestion}");
+    expect(gate, "the bank-first gate is gone from the acquire card").toBeGreaterThan(-1);
+    expect(
+      fresh,
+      "generation is reachable outside the exhausted-bank branch"
+    ).toBeGreaterThan(gate);
+  });
+
+  it("offers Replay over already-done questions when the bank runs dry", () => {
+    expect(wizard).toContain("onClick={() => handleBankedQuestion(true)}");
+    expect(wizard).toContain("Replay Past Questions");
   });
 
   it("never invokes the banked fetch outside a click", () => {
-    // The button passes the handler by reference. Any auto-serve would have to CALL it — and a
-    // serve records the view, so it burns a pool row even for a candidate who came to click New.
-    expect(wizard, "something is auto-serving a banked question again").not.toContain(
-      "handleBankedQuestion()"
-    );
+    // The buttons call the handler from onClick arrows. Any auto-serve would have to call it from
+    // an effect — and a serve records the view, so it burns a pool row the candidate never asked
+    // for. Every call site must sit inside an onClick.
+    const calls = wizard.match(/handleBankedQuestion\((?:true|false|)\)/g) ?? [];
+    expect(calls.length).toBeGreaterThan(0);
+    for (const call of calls) {
+      expect(wizard).toContain(`onClick={() => ${call}}`);
+    }
     expect(wizard).not.toContain("autoBankedRef");
-  });
-
-  it("still offers both paths from the same card", () => {
-    expect(wizard).toContain("Banked Question");
-    expect(wizard).toContain("New Question");
   });
 });

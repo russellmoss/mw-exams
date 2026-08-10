@@ -73,18 +73,16 @@ export default function Home() {
   const [pendingQuestion, setPendingQuestion] = useState<Question | null>(null);
   const [pendingMode, setPendingMode] = useState<StudyMode>("full");
   const [stemDetail, setStemDetail] = useState<StemDetailLevel>("exam_real");
-  // "New or Banked" setup card. bankCount is how many banked questions this user has never seen for
-  // the current paper+family+mode (null = still loading). bankLoading covers the sub-second banked
+  // Setup card state. bankCount is how many banked questions this user has never seen for the
+  // current paper+family+mode; replayCount is how many they HAVE done and could replay (both
+  // null = still loading). The bank is the only acquisition path while bankCount > 0 — generation
+  // is unproven while the expert-reviewed bank is deep (2026-08-09), so "Generate" appears only
+  // once the unseen pool is exhausted, alongside Replay. bankLoading covers the sub-second banked
   // fetch; bankTaken is the race flag when the last eligible question was consumed under us (409).
   const [bankCount, setBankCount] = useState<number | null>(null);
+  const [replayCount, setReplayCount] = useState<number | null>(null);
   const [bankLoading, setBankLoading] = useState(false);
   const [bankTaken, setBankTaken] = useState(false);
-  // Which acquire path this candidate leads with (migration 047, defaulted to 'banked' by 063).
-  // It decides which button gets the amber primary treatment and reads first — it does NOT fetch
-  // anything. The acquire card used to auto-consume a banked question on arrival for these users,
-  // which burned a pool row (the serve records the view) even when they had come to click New, and
-  // it left "they can pick the other one" true only via the Back button.
-  const prefersBanked = user?.questionSourceDefault !== "fresh";
   // Live progress for the question fetch. Serving from the bank is instant; writing a fresh one
   // runs the engine's validate-and-retry loop for 30-60s, which used to be a static spinner.
   const questionTrace = useProgressStream();
@@ -239,13 +237,14 @@ export default function Home() {
         return;
       }
 
-      // The three question modes now pick HOW to acquire the question (New vs Banked) on the setup
-      // card rather than always generating. Record the mode and show that card; the bank count for
-      // this paper+family+mode loads there.
+      // The three question modes land on the setup card, which serves from the bank while unseen
+      // questions remain and offers Generate/Replay only once the pool is dry. Record the mode and
+      // show that card; the counts for this paper+family+mode load there.
       setPendingMode(mode);
       setError(null);
       setBankTaken(false);
-      setBankCount(null); // show "Checking…" until the effect below loads the live count
+      setBankCount(null); // show "Checking…" until the effect below loads the live counts
+      setReplayCount(null);
       setStep("acquire");
     },
     [selectedPaper, selectedFamily, router, saveLastDrill]
@@ -258,7 +257,7 @@ export default function Home() {
   //
   // WHY THE WIZARD AND NOT /study. The obvious deep link would go straight to the drill, but /study
   // requires a question to already be in sessionStorage — acquiring one is the wizard's job, and it
-  // owns the New-vs-Banked choice plus the streamed 30-60s generation UI. Pointing the link here
+  // owns the bank-first/generate-fallback choice plus the streamed 30-60s generation UI. Pointing the link here
   // reuses all of that instead of duplicating it, and keeps the candidate's hand on the decision
   // that spends their own API credits.
   const repeatHandledRef = useRef(false);
@@ -288,6 +287,7 @@ export default function Home() {
       setError(null);
       setBankTaken(false);
       setBankCount(null);
+      setReplayCount(null);
       setStep("acquire");
       return;
     }
@@ -311,10 +311,12 @@ export default function Home() {
     setError(null);
     setBankTaken(false);
     setBankCount(null);
+    setReplayCount(null);
     setStep("acquire");
   }, [authLoading, user, router]);
 
-  // "New Question" — generate a fresh one, the full existing behaviour. Streamed so the 30-60s wait
+  // "Generate New Question" — write a fresh one; offered only once the bank is exhausted for this
+  // selection. Streamed so the 30-60s wait
   // is legible; auto-retries once. The 180s cap is a wedged-connection backstop, not a deadline.
   const handleNewQuestion = useCallback(async () => {
     setStep("generating");
@@ -350,41 +352,51 @@ export default function Home() {
     }
   }, [selectedPaper, selectedFamily, focus, questionTrace, toQuestion, beginStemDetail]);
 
-  // "Banked Question" — serve one this user has never seen. Instant (a pool read, no model call). A
-  // 409 means the last eligible one was just taken from under us: flag it inline and disable the
-  // button, leaving New Question as the way forward.
-  const handleBankedQuestion = useCallback(async () => {
-    setBankLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/get-question/banked", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paper: selectedPaper,
-          family: selectedFamily,
-          mode: pendingMode,
-        }),
-      });
+  // "Start" — serve a banked question. Instant (a pool read, no model call). With replay=true it
+  // re-serves one this user has already done (offered once the unseen pool is empty). A 409 on the
+  // unseen path means the last eligible one was just taken from under us: flag it inline, which
+  // flips the card to its empty-bank options (Generate / Replay).
+  const handleBankedQuestion = useCallback(
+    async (replay = false) => {
+      setBankLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/get-question/banked", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            paper: selectedPaper,
+            family: selectedFamily,
+            mode: pendingMode,
+            replay,
+          }),
+        });
 
-      if (res.status === 409) {
-        setBankTaken(true);
-        setBankCount(0);
-        return;
+        if (res.status === 409) {
+          if (replay) {
+            setReplayCount(0);
+            setError("No completed banked questions to replay for this selection.");
+          } else {
+            setBankTaken(true);
+            setBankCount(0);
+          }
+          return;
+        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data: QuestionPayload = await res.json();
+        if (!data?.question) throw new Error("The banked question came back empty. Try again.");
+        beginStemDetail(toQuestion(data));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load a banked question");
+      } finally {
+        setBankLoading(false);
       }
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    },
+    [selectedPaper, selectedFamily, pendingMode, toQuestion, beginStemDetail]
+  );
 
-      const data: QuestionPayload = await res.json();
-      if (!data?.question) throw new Error("Banked question was empty. Try New Question.");
-      beginStemDetail(toQuestion(data));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load a banked question");
-    } finally {
-      setBankLoading(false);
-    }
-  }, [selectedPaper, selectedFamily, pendingMode, toQuestion, beginStemDetail]);
-
-  // Keep the banked count live: refetch whenever the acquire card is showing and the
+  // Keep the bank + replay counts live: refetch whenever the acquire card is showing and the
   // paper / family / mode selection changes. Clears the race flag on every fresh selection.
   useEffect(() => {
     if (step !== "acquire" || !selectedPaper || !user) return;
@@ -400,11 +412,15 @@ export default function Home() {
         if (cancelled) return;
         const n = typeof d.bankCount === "number" ? d.bankCount : 0;
         setBankCount(n);
+        setReplayCount(typeof d.replayCount === "number" ? d.replayCount : 0);
         // A fresh count supersedes an earlier race flag: if questions are available again, re-enable.
         if (n > 0) setBankTaken(false);
       })
       .catch(() => {
-        if (!cancelled) setBankCount(0);
+        if (!cancelled) {
+          setBankCount(0);
+          setReplayCount(0);
+        }
       });
     return () => {
       cancelled = true;
@@ -647,8 +663,11 @@ export default function Home() {
             </div>
           )}
 
-          {/* Acquire step — the study setup card. Choose HOW to start this paper·family·mode:
-              generate a fresh question, or serve a banked one this user has never seen. */}
+          {/* Acquire step — the study setup card. The bank is the only way in while unseen banked
+              questions remain (2026-08-09: the expert-reviewed bank is deep and generation quality
+              is unproven, so generation is a fallback, not a peer). Once the pool for this
+              paper·family is exhausted, two options appear: generate fresh, or replay questions
+              already done. Nothing is pre-fetched: arriving here consumes nothing. */}
           {step === "acquire" && (
             <div className="max-w-lg mx-auto">
               <button
@@ -668,61 +687,60 @@ export default function Home() {
                 {MODE_LABELS[pendingMode]}
               </p>
 
-              {/* 2-up on ≥480px, stacked below it. Banked leads (migration 063) — it is instant and
-                  costs nothing on the candidate's key — so it takes both the first slot in reading
-                  order and the amber primary treatment, unless this user has explicitly chosen
-                  'fresh' in Settings. The other option is the stone outline, always one click away.
-                  Neither is pre-fetched: arriving here consumes nothing. */}
-              <div className="grid grid-cols-1 min-[480px]:grid-cols-2 gap-3">
+              {bankCount === null ? (
                 <button
-                  onClick={handleBankedQuestion}
-                  disabled={bankLoading || bankCount === 0 || bankTaken}
-                  className={
-                    bankCount === 0 || bankTaken
-                      ? "border border-border/60 text-muted/50 rounded-lg px-4 py-4 text-center cursor-not-allowed"
-                      : prefersBanked
-                        ? "bg-accent hover:bg-accent-hover text-background font-medium rounded-lg px-4 py-4 transition-colors cursor-pointer text-center"
-                        : "border border-border text-foreground hover:text-foreground hover:border-muted rounded-lg px-4 py-4 text-center cursor-pointer transition-colors"
-                  }
+                  disabled
+                  className="w-full border border-border/60 text-muted/50 rounded-lg px-4 py-4 text-center cursor-not-allowed"
                 >
-                  Banked Question
-                  <span className={`block text-xs font-normal mt-0.5 ${prefersBanked && !(bankCount === 0 || bankTaken) ? "text-background/70" : "text-muted"}`}>
+                  Start
+                  <span className="block text-xs font-normal mt-0.5">Checking the bank…</span>
+                </button>
+              ) : bankCount > 0 && !bankTaken ? (
+                <button
+                  onClick={() => handleBankedQuestion(false)}
+                  disabled={bankLoading}
+                  className="w-full bg-accent hover:bg-accent-hover text-background font-medium rounded-lg px-4 py-4 transition-colors cursor-pointer text-center"
+                >
+                  Start
+                  <span className="block text-xs font-normal mt-0.5 text-background/70">
                     {bankLoading
                       ? "Loading…"
-                      : bankTaken
-                        ? "No banked questions yet"
-                        : bankCount === null
-                          ? "Checking…"
-                          : bankCount === 0
-                            ? "No banked questions yet"
-                            : `${bankCount} available`}
+                      : `${bankCount} question${bankCount === 1 ? "" : "s"} left in the bank`}
                   </span>
                 </button>
-
-                {/* New takes the primary treatment when the bank cannot answer — either this user
-                    prefers fresh, or the pool for this paper·family is empty/just taken. Without
-                    that second case an exhausted pool would leave the card with no amber button at
-                    all and the only way forward greyed out beside a stone outline. */}
-                <button
-                  onClick={handleNewQuestion}
-                  className={
-                    prefersBanked && !(bankCount === 0 || bankTaken)
-                      ? "border border-border text-foreground hover:text-foreground hover:border-muted rounded-lg px-4 py-4 text-center cursor-pointer transition-colors"
-                      : "bg-accent hover:bg-accent-hover text-background font-medium rounded-lg px-4 py-4 transition-colors cursor-pointer text-center"
-                  }
-                >
-                  New Question
-                  <span className={`block text-xs font-normal mt-0.5 ${prefersBanked && !(bankCount === 0 || bankTaken) ? "text-muted" : "text-background/70"}`}>
-                    Written fresh for you
-                  </span>
-                </button>
-              </div>
-
-              {/* Race: the last eligible banked question was consumed under us (409). */}
-              {bankTaken && (
-                <p className="text-xs text-muted mt-3">
-                  That one just got taken — try New Question.
-                </p>
+              ) : (
+                <>
+                  <p className="text-sm text-muted mb-4">
+                    {bankTaken
+                      ? "That last banked question just got taken. You can generate a new one, or replay questions you've already done."
+                      : "You've worked through every banked question for this selection. Generate a new one, or replay questions you've already done."}
+                  </p>
+                  <div className="grid grid-cols-1 min-[480px]:grid-cols-2 gap-3">
+                    <button
+                      onClick={handleNewQuestion}
+                      className="bg-accent hover:bg-accent-hover text-background font-medium rounded-lg px-4 py-4 transition-colors cursor-pointer text-center"
+                    >
+                      Generate New Question
+                      <span className="block text-xs font-normal mt-0.5 text-background/70">
+                        Written fresh for you · 30–60s
+                      </span>
+                    </button>
+                    {replayCount !== null && replayCount > 0 && (
+                      <button
+                        onClick={() => handleBankedQuestion(true)}
+                        disabled={bankLoading}
+                        className="border border-border text-foreground hover:border-muted rounded-lg px-4 py-4 text-center cursor-pointer transition-colors"
+                      >
+                        Replay Past Questions
+                        <span className="block text-xs font-normal mt-0.5 text-muted">
+                          {bankLoading
+                            ? "Loading…"
+                            : `${replayCount} you've done before`}
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           )}
