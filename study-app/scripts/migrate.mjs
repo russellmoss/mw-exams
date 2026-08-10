@@ -134,11 +134,13 @@ export function splitStatements(sql) {
  *
  * Preview deployments share the PRODUCTION database (there is no separate preview branch), and
  * prebuild runs this script. So every preview build of every unmerged branch was migrating
- * production. That is not theoretical: 018_generation_telemetry, 019_generation_attempt_timeouts
- * and 026_bank_batch_family all reached the production schema from branches that never merged to
- * master — one of them created a table whose writer did not exist in production for a day.
+ * production. That is not theoretical: 018_generation_telemetry, 019_generation_attempt_timeouts,
+ * 026_bank_batch_family and 027_model_usage_batch all reached the production schema from branches
+ * that never merged to master — one of them created a table whose writer did not exist in
+ * production for a day. (The catalogue said three for months; the orphan check below found the
+ * fourth on its first run, which is the argument for having it.)
  *
- * All three happened to be additive. A branch carrying a DROP COLUMN, a NOT NULL backfill or a data
+ * All four happened to be additive. A branch carrying a DROP COLUMN, a NOT NULL backfill or a data
  * rewrite would have silently mutated production from an experiment nobody had approved. The
  * migration runner exists to stop code and schema arriving separately; a preview writing to prod is
  * the same failure wearing different clothes.
@@ -160,6 +162,68 @@ export function shouldRunMigrations(env = process.env) {
   if (!env.VERCEL_ENV) return { run: true, reason: "not a Vercel build" };
   if (env.VERCEL_ENV === "production") return { run: true, reason: "production deploy" };
   return { run: false, reason: `VERCEL_ENV=${env.VERCEL_ENV}` };
+}
+
+/**
+ * Ledger rows whose migration file is not on this branch, and which we already know about.
+ *
+ * Each one is schema that reached production from code nobody merged. The first three arrived via
+ * preview builds, before shouldRunMigrations() closed that path. 054_coach.sql arrived a different
+ * way and is why orphan detection exists at all: it was applied on 2026-08-07 by an off-Vercel run
+ * (`npm run migrate` or a local build against the production DATABASE_URL) from a git worktree where
+ * the file was still UNTRACKED — not merely unmerged. shouldRunMigrations() permits that on purpose,
+ * because a human is driving; the hole is that nothing then noticed the database had grown four
+ * tables no branch could account for.
+ *
+ * Entries here are inert once resolved: a version stops being reported the moment its file exists,
+ * so 054_coach.sql can stay listed and will simply go quiet when the coach branch merges. Do NOT add
+ * to this list to silence a fresh warning — a new orphan means production and master have diverged,
+ * and the fix is to land the migration file, not to record that you saw it.
+ *
+ * The value is the reason, for the next person reading a ledger row with no file. A Map is used
+ * rather than a Set so that reason travels with the entry; orphanedVersions() only calls .has(), so
+ * either works.
+ */
+export const KNOWN_ORPHANS = new Map([
+  // 018_generation_telemetry.sql was here until 2026-08-10, when its file was recovered from a dead
+  // branch and restored to migrations/ (#186) — its ledger checksum matched byte for byte, so the
+  // runner skips it. Removed rather than annotated because the test below requires it: an entry
+  // whose file has landed is stale state, and the record of what happened belongs in CLAUDE.md.
+  [
+    // NOT reconcilable, and deliberately so. The file exists (preserved verbatim in
+    // docs/design/question-spec-reference.md) but cannot be restored to migrations/: master's
+    // 019_attempt_app_version.sql already holds the number, and renaming this one to a free number
+    // would make the runner treat it as unapplied and re-run its DDL against production.
+    "019_generation_attempt_timeouts.sql",
+    "preview build, 2026-08-03; file kept in docs/design/ — number 019 already taken, renaming would re-apply",
+  ],
+  ["026_bank_batch_family.sql", "preview build, 2026-08-04; branch never merged"],
+  [
+    // Found by this check on its first run against the real ledger — it was never in the catalogue
+    // in CLAUDE.md, which listed only the three above. Applied 2026-08-04 from
+    // claude/question-bank-feasibility-a092c7. Harmless: master's 029_usage_batch_attribution.sql
+    // applies the identical four statements, so master fully describes what prod has. Superseded,
+    // not unreconciled.
+    "027_model_usage_batch.sql",
+    "preview build, 2026-08-04; superseded by master's 029_usage_batch_attribution.sql",
+  ],
+  // 054_coach.sql was here too — applied 2026-08-07 off-Vercel from a worktree where the file was
+  // UNTRACKED, which is the incident this whole check exists for. The coach branch has since merged,
+  // so its file is on master and the entry went stale. Caught by the test below on the first run
+  // after this landed, which is the check working exactly as intended.
+]);
+
+/**
+ * Ledger rows with no corresponding file — the drift shouldRunMigrations() cannot prevent.
+ *
+ * This is deliberately a warning and not a build failure. It is detected AFTER the fact (the schema
+ * change already happened), and the drift is usually additive, so failing every subsequent deploy
+ * would punish the wrong build for a change that is already live. Same reasoning as the checksum
+ * mismatch above.
+ */
+export function orphanedVersions(appliedVersions, files, known = KNOWN_ORPHANS) {
+  const present = new Set(files);
+  return [...appliedVersions].filter((v) => !present.has(v) && !known.has(v)).sort();
 }
 
 async function main() {
@@ -248,6 +312,17 @@ async function main() {
       ? `[migrate] up to date (${files.length} migrations already applied)`
       : `[migrate] applied ${ran} migration(s)`
   );
+
+  const orphans = orphanedVersions(applied.keys(), files);
+  if (orphans.length) {
+    console.warn(
+      `[migrate] DRIFT: ${orphans.length} ledger row(s) have no migration file here — ` +
+        `${orphans.join(", ")}. This database carries schema that no migration on this branch ` +
+        `describes, so a fresh database rebuilt from migrations/ would NOT match it. Usually this ` +
+        `means a migration was applied from an unmerged branch or an untracked working copy: land ` +
+        `the file. If it is genuinely expected, add it to KNOWN_ORPHANS with the reason.`
+    );
+  }
 }
 
 // Only run when invoked directly, so tests can import splitStatements without hitting a database.

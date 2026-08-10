@@ -217,55 +217,15 @@ All other study artifacts (decision matrices, mock answers, mock exams) build on
 - `/study-batch` — run a randomized study session pulling questions from history
 - `/optimize-costs [30d|7d|24h] [apply]` — analyze `model_usage`/`tavily_usage` vs feedback+validity signals; recommend a per-task model mix, project savings, flag cost↔accuracy tradeoffs. Writes `outputs/cost_reports/{date}.md`. See `cost-tracking-system` memory.
 
-## There is exactly ONE way to generate a question, and it is candidate-initiated
-
-**"New question" in Study — `/api/get-question` (and its SSE twin `/stream`) — is the only path that
-calls the model to write a question.** One question, on request, in front of the person who asked for
-it. Anything that would write questions in bulk, on a schedule, or as a side effect of another action
-is out of bounds; do not add one back without the user explicitly asking.
-
-Bulk generation ("Fill the Bank") was **removed on 2026-08-08**, along with every other bulk path.
-The reasons, in order:
-
-- **It was the bill.** Over the seven days to 2026-08-08, `question_generation` cost **$1,053** and
-  bulk batches accounted for roughly **$1,100 of the ~$1,760 total** — $611 on 2026-08-05 alone.
-- **It was buying an unproven thing.** Whether generated questions are good enough is still an open
-  question (see the quarantine loop and the audit workflow). Until that is answered, more volume just
-  multiplies the unknown.
-- **The bank is already deep.** At removal: **370 servable approved questions** (P1 107, P2 116,
-  P3 147) against **33** seen by the design partner and 77 by the author. The binding constraint is
-  review capacity, not supply.
-
-What went, so nobody rebuilds half of it by accident:
-
-| Removed | Was |
-|---|---|
-| `src/lib/bank-worker.ts` | the durable bulk worker |
-| `/api/admin/fill-bank{,/status,/cancel}`, `/api/admin/bank/{generate,resume,status,cancel,keep-all,set-replace,review}` | generation + batch control routes |
-| `/api/cron/bank-worker` + its Vercel cron | hourly/daily resume of stalled batches |
-| `.github/workflows/{bank-fill,bank-worker-hourly}.yml` | manual bulk runs + the hourly poke |
-| `scripts/fill-bank.mjs` | the CLI filler the workflow drove |
-| "Generate more" / "Fill the gap" in Bank Health + Grape Balance | targeted top-ups |
-| "Replace anything I bin" | a bin silently commissioning a replacement |
-
-What stayed, deliberately: the **review** half, now `BankReviewSection` on `/admin`
-(`/api/admin/bank/review-queue`). It is the only surface that can act on a question a candidate
-flags as broken, and the only way to clear the ~66 questions still sitting at `status='pending'`.
-Nothing in it spends money. Bank Health, Grape/Country Balance and Producer Spread also stayed as
-read-only diagnostics — a thin slice is now information, not a button.
-
-`scripts/import-historical-stems.mjs` still generates, but it is hand-run and unreachable from the
-app. Treat running it as a deliberate spending decision.
-
 ## Deploying the study app
 
 **Deploys are GIT AUTO-DEPLOY, single-path (changed 2026-05-30).** Vercel git auto-deploy is
-**enabled** via `study-app/vercel.json` `git.deploymentEnabled`, which now lists every bot branch
-pattern as `true`: **`claude/*`, `auto-feedback/*`, `bin-fix/*` and `feature-request/*` all get
-preview deployments again** (re-enabled 2026-08-09 on the move to Pro; they were `false` from
-2026-08-06, when bot-branch previews exhausted the Hobby plan's 100/day quota and production
-deploys of merged fixes were rate-limited for hours). `.github/workflows/manual-deploy.yml` is
-still the break-glass path if git auto-deploy is ever down. A push to `master`
+**enabled** via `study-app/vercel.json` (`"git": {"deploymentEnabled": {"claude/*": false}}` —
+unlisted branches default to enabled, so master deploys; **`claude/*` worktree branches create NO
+deployment at all**, preview or otherwise. That exclusion exists because on 2026-08-06 bot-branch
+preview deploys exhausted the Hobby plan's 100-deployments/day quota and production deploys of
+merged fixes were rate-limited for hours — see `.github/workflows/manual-deploy.yml` for the
+break-glass path. To preview a claude branch, rename it or merge to master). A push to `master`
 that touches `study-app/` is built and deployed by Vercel automatically — for **both** human pushes
 and the auto-feedback bot's merges. There is **one** deploy path (git); nothing runs an explicit
 `vercel --prod` in CI anymore.
@@ -281,77 +241,77 @@ A versioned **`ignoreCommand`** in `study-app/vercel.json` decides what builds:
 - Otherwise build **only if** something under `study-app/` changed (`./` = the Vercel Root Directory,
   which is `study-app`). So root-only commits (docs, `data/`, `outputs/`) never trigger a build.
 
-**The deploy-quota guard keeps headroom for human deploys (added 2026-08-06, re-sized 2026-08-09).**
-*Everything* counts against the daily deployment cap: production builds, preview builds, CLI/API
-deploys (`manual-deploy.yml` included), **and deployments the `ignoreCommand` cancels** — the
-deployment record is created before the ignore check runs, so `[skip ci]` and root-only pushes to
-master still burn a slot each (verified empirically 2026-08-06: 16 CANCELED master deployments in
-48h). On 2026-08-05/06 the bot merge cadence drained all 100 Hobby slots and an urgent human fix
-(PR #37) could not deploy at all; on 2026-08-09 the same thing recurred mid-session and PR #137 sat
-merged-but-unserved until the Pro upgrade.
+**The deploy-quota guard keeps headroom for human deploys (added 2026-08-06).** The Hobby plan
+allows **100 deployment creations per rolling 24h per account**, and *everything* counts against
+it: production builds, preview builds, CLI/API deploys (`manual-deploy.yml` included), **and
+deployments the `ignoreCommand` cancels** — the deployment record is created before the ignore
+check runs, so `[skip ci]` and root-only pushes to master still burn a slot each (verified
+empirically 2026-08-06: 16 CANCELED master deployments in 48h). On 2026-08-05/06 the bot merge
+cadence drained all 100 slots and an urgent human fix (PR #37) could not deploy at all. Two
+defenses now exist:
 
-`.github/scripts/deploy-quota-guard.sh` runs in `auto-feedback.yml` and `feature-build.yml` before
-landing. At/over the cutoff the verified change is **PR-gated instead of auto-merged**, with the
-reason in the PR body and in the admin UI (`apply_error`). It fails OPEN on API errors.
+- **Bot work branches never create deployments.** `study-app/vercel.json` `git.deploymentEnabled`
+  excludes `claude/*`, `auto-feedback/*`, `bin-fix/*` and `feature-request/*`. If a new bot
+  pipeline is added, exclude its branch pattern too (`study-app/tests/vercel-crons.test.ts`
+  asserts the current list) — an `ignoreCommand` tweak is NOT a substitute, per the above.
+- **Bots defer merging near the quota.** `auto-feedback.yml` and `feature-build.yml` run
+  `.github/scripts/deploy-quota-guard.sh` before landing: it counts the rolling-24h deployments
+  via the Vercel API (`VERCEL_TOKEN` Actions secret) and, at/over the cutoff (100 − reserve,
+  reserve defaults to 20 and can be tuned via the `DEPLOY_QUOTA_RESERVE` repo Actions variable),
+  the verified change is **PR-gated instead of auto-merged** with the reason in the PR body and in
+  the admin UI (`apply_error`). The guard fails OPEN on API errors. If bot churn regularly hits
+  the cutoff and that churn is wanted, the real fix is Vercel Pro (6,000 deploys/day) — the guard
+  just makes the free plan safe.
 
-- **It reads the plan; it does not hardcode the cap.** `GET /v2/teams/{id}` → `billing.plan`, mapped
-  hobby→100, pro→6,000, anything unrecognised→Pro-or-better. A hardcoded 100 would have throttled
-  every bot merge past the 81st deployment of the day the moment the account went Pro; hardcoding
-  6,000 instead would fail in the *dangerous* direction on a downgrade. `DEPLOY_QUOTA_LIMIT` (repo
-  Actions variable) always wins if the mapping ever needs overriding.
-- **The reserve scales**: 20% of the cap, floor 20 — so Hobby keeps its original 80-of-100 cutoff and
-  Pro fires at 4,800 rather than at a meaningless flat 20. `DEPLOY_QUOTA_RESERVE` overrides.
-- **Paging is bounded by the cutoff, not by a flat 5 pages.** The old cap counted at most 500
-  deployments, which was ample against Hobby's 80 and would have made the guard decorative against
-  Pro's 4,800 — it could never count high enough to fire. It now short-circuits as soon as the
-  cutoff is reached, so a normal day still costs exactly one API call.
-
-Bot branch previews are **on** (see above). If a new bot pipeline is added, list its branch pattern
-in `deploymentEnabled` explicitly — `study-app/tests/vercel-crons.test.ts` requires an explicit
-boolean for each known pattern, so the decision is recorded rather than inherited from the default.
-
-**`crons` in `study-app/vercel.json` are held to 2 jobs, each at most once per day.** Pro no longer
-requires this — the gate is kept deliberately, because the failure mode is silent. A sub-daily
-schedule (anything with `*`, `,`, `-` or `/` in the
+**The Vercel account is on the Hobby plan, which caps `crons` in `study-app/vercel.json` at 2 jobs,
+each firing at most once per day.** A sub-daily schedule (anything with `*`, `,`, `-` or `/` in the
 minute or hour field) makes Vercel reject the deployment *at creation time* with
 `cron_jobs_limits_reached` — so there is no failed build to look at, nothing appears in the
 deployments list, and **git auto-deploy silently stops for every subsequent commit**. That is what
-took production down for four hours on 2026-08-03 (`0 * * * *` on `/api/cron/bank-worker`, since
-removed). `study-app/tests/vercel-crons.test.ts` now fails the build gate on any such schedule.
-**Never raise a Vercel cron above daily.** Anything that needs to run more often belongs in a GitHub
-Actions `schedule:` workflow that curls the route — `.github/workflows/bin-fix-miner-daily.yml` is
-the pattern to copy (a `schedule:` plus a `curl` carrying `Authorization: Bearer $CRON_SECRET`),
-keeping a daily Vercel cron as a backstop where one is wanted, because GitHub schedules are
-best-effort.
+took production down for four hours on 2026-08-03 (`0 * * * *` on `/api/cron/bank-worker`).
+`study-app/tests/vercel-crons.test.ts` now fails the build gate on any such schedule. **Never raise a
+Vercel cron above daily.** Anything that needs to run more often belongs in a GitHub Actions
+`schedule:` workflow that curls the route — `.github/workflows/bank-worker-hourly.yml` is the
+pattern to copy (hourly `/api/cron/bank-worker`, with the daily Vercel cron kept as a backstop
+because GitHub schedules are best-effort).
 
 **Only PRODUCTION deploys migrate the database.** Preview deployments share the production
 `DATABASE_URL` (there is no preview branch DB) and `prebuild` runs `scripts/migrate.mjs` — so every
-preview build of every unmerged branch was applying its schema to production. Four migrations
+preview build of every unmerged branch was applying its schema to production. **Four** migrations
 reached prod that way (`018_generation_telemetry`, `019_generation_attempt_timeouts`,
 `026_bank_batch_family`, `027_model_usage_batch`); they are ledger rows in `schema_migrations` with
 no file on master, which is why a production build reports fewer applied migrations than the table
-has rows (75 rows vs 71 files as of 2026-08-08). All four were
-additive, but a branch carrying a `DROP COLUMN` or a backfill would have mutated production from an
-experiment nobody merged. `shouldRunMigrations()` now gates on `VERCEL_ENV`: production migrates,
-previews skip loudly, off-Vercel runs (`npm run migrate`, local builds) still migrate because a
-human is driving. A preview needing a new column will fail against the production schema — that is
-the correct outcome. If previews are ever given their own database, set
-`MIGRATE_ALLOW_NON_PRODUCTION=1` so they resume migrating it.
+has rows. **Two of the four are now reconciled** (2026-08-10): `018_generation_telemetry`'s file was
+recovered from its dead branch and restored to `migrations/` — its ledger checksum matched byte for
+byte, so the runner skips it — and `019_generation_attempt_timeouts` is preserved verbatim in
+`docs/design/question-spec-reference.md` but **cannot** go back into `migrations/`, because
+`019_attempt_app_version.sql` already holds that number and renaming an applied migration makes the
+runner re-run its DDL against production. All four were additive, but a branch carrying a
+`DROP COLUMN` or a backfill would have
+mutated production from an experiment nobody merged. `shouldRunMigrations()` now gates on
+`VERCEL_ENV`: production migrates, previews skip loudly, off-Vercel runs (`npm run migrate`, local
+builds) still migrate because a human is driving. A preview needing a new column will fail against
+the production schema — that is the correct outcome. If previews are ever given their own database,
+set `MIGRATE_ALLOW_NON_PRODUCTION=1` so they resume migrating it.
 
-**A new migration takes `max(existing) + 1`, and nothing else.** Migrations apply in **filename**
-order and the ledger keys on the **full filename**, so two files sharing a number both apply and
-both track — but which of them runs first is decided by the rest of the filename sorting
-alphabetically, not by what depends on what. Six numbers on master are already claimed twice
-(041, 042, 043, 047, 050, 054), each one two parallel feature branches taking "the next number" and
-both landing. All six are safe by luck — no pair touches the same table — but a pair where one adds
-a column the other backfills would apply in whichever order `b` sorts against `l`, silently and
-with a green build. `study-app/tests/migration-numbering.test.ts` is the gate: it fails on any
-**new** collision, and grandfathers exactly those six in a list that can only shrink.
+**The off-Vercel path is still open, by design — so the migrator now reports drift instead of
+preventing it.** On 2026-08-07 `054_coach.sql` was applied to production by a local
+`npm run migrate`/build from a git worktree where the file was **untracked** — not merely unmerged.
+`shouldRunMigrations()` permits that ("a human is driving") and should keep permitting it; the gap
+was that nothing then noticed the database had grown four tables no branch could account for. After
+applying, `migrate.mjs` now diffs the ledger against `migrations/` and warns loudly about any
+version with no file, with the known ones listed in `KNOWN_ORPHANS` (each carrying its reason).
+Adding to that list to silence a fresh warning is the wrong move — a new orphan means prod and
+master have diverged, and the fix is to land the migration file. Two notes on the current entries:
+`027_model_usage_batch` is **superseded**, since master's `029_usage_batch_attribution.sql` applies
+the identical statements; `054_coach` goes quiet by itself once the coach branch merges, because an
+entry stops being reported the moment its file exists.
 
-**Never renumber a colliding migration to tidy this up.** The ledger keys on the filename, so a
-rename reads as a brand-new migration and the runner re-applies it to production — the same class of
-failure as the drift the runner exists to prevent. The collisions are permanent; only the gate is
-forward-looking.
+**Duplicate migration numbers are normal and are not a bug to fix.** The ledger keys on the full
+filename and files apply in filename order, so master already carries duplicate pairs at 041, 042,
+043, 047, 050 and 054. Renaming a migration that has *already been applied* is actively harmful: the
+runner sees the new name as unapplied, re-runs it, and leaves the old name behind as a permanent
+orphan row. Pick the next free number when writing a new migration; never renumber an applied one.
 
 **Cron routes authenticate on `CRON_SECRET`** (`/api/cron/*` and `/api/admin/bank/resume`): they
 compare `Authorization: Bearer $CRON_SECRET` and otherwise fall back to an admin session. It must be
@@ -395,108 +355,6 @@ python scripts/build_study_diagrams_site.py
 ```
 
 This outputs to both `outputs/study_diagrams_site/` (standalone, light theme) and `study-app/public/diagrams/` (Vercel, dark theme).
-
-## Fixing a bug someone filed? Add a `Fixes-Bug:` trailer
-
-App bug reports come in through the Coach (`file_bug`) and land as `user_attempts` rows. **Nothing
-analyses them** — and that exclusion is deliberate, not an oversight: `sweepStrandedFeedback` skips
-app-level rows because `runFeedbackAnalysis` prompts on the stem, the wines and the model answer, so
-handing it a footer rendering bug would make it rule on the *question*, find it sound, therefore
-"reject", and possibly dispatch a generation-rule PR for a bug in a React component.
-
-So an app bug is closed by the **code fix**, and the link is a git trailer on the fixing commit:
-
-```
-fix(live-tasting): hold the shopping brief to its paper's scope
-
-Fixes-Bug: 413
-```
-
-Ids are the `user_attempts.id` shown in the admin feedback queue; `Fixes-Bug: 407, 413` closes several.
-On every push to master, `.github/workflows/close-fixed-bug-reports.yml` runs
-`study-app/scripts/close-fixed-bug-reports.mjs`, which sets `feedback_status = 'accepted'` on each
-referenced open row with a note naming the commit. It creates no deployment, so it burns none of the
-deployment quota.
-
-**Only the trailer closes a row.** Prose mentions are parsed but merely reported as a candidate in the
-Actions log, because prose cannot express intent reliably — measured on real history, prose matching
-closed attempt 407 against `0deddf9` ("fix(coach): attach the question a bug was filed from"), which
-only *cites* 407 while fixing something adjacent, and the commit that actually fixed 407 (`98075a1`)
-never names it at all. A citation and a fix claim are the same string to a machine. If the trailer is
-missing, the run says so and the row stays open — which is the safe direction, but it means **writing
-the trailer is the whole mechanism**.
-
-A wrong close is reversible: set `feedback_status` back to NULL and the report reopens. Rows a human
-already decided are never touched. See EK-0160.
-
-## The first-run tour has a voice-over, and its audio is committed
-
-Every slide of the intro presentation and the two walkthroughs has a narration clip. The spoken text
-lives in `study-app/src/lib/tour-narration.ts`; the MP3s are **pre-generated and committed** to
-`study-app/public/narration/`, not synthesized per user — the intro plays on a candidate's first
-session, before they could possibly have set up an ElevenLabs key, so a BYOK runtime path would be
-silent for exactly the audience it exists for.
-
-**Editing the narration text is a two-step change.** After changing a string, re-record it:
-
-```bash
-npm run narration:build --prefix study-app
-```
-
-It only re-synthesizes clips whose text hash moved, and it needs `ELEVENLABS_API_KEY` (read from
-`study-app/.env.local` if not in the environment). It is deliberately **not** wired into `prebuild`:
-it spends money against a real vendor key, and `prebuild` runs on every deploy. The gate is instead
-`study-app/tests/tour-narration.test.ts`, which re-hashes every string and fails the build if the
-audio and the copy have drifted — so forgetting the rebuild is a red build, never a clip that quietly
-says the old thing. Voice (George) and model (`eleven_multilingual_v2`) are pinned in the script and
-must not be read from the environment; `ELEVENLABS_VOICE_ID` in the deployed env points at a
-superseded voice.
-
-### The tour also exports to MP4 (YouTube, sharing outside the app)
-
-`study-app/scripts/record-tour-videos.mjs` renders each of the five surfaces — `intro`, `diagrams`,
-`coach`, `practical`, `theory` — as a 1080p MP4 with its committed narration as the soundtrack, into
-`outputs/tour_videos/` (gitignored):
-
-```bash
-PLAYWRIGHT_DIR=<dir with playwright installed> node scripts/record-tour-videos.mjs
-```
-
-It films the **real components**, not a re-creation: it spawns its own `next dev` with
-`NEXT_PUBLIC_TOUR_EXPORT=1`, which is the only thing that un-404s the recording stage at
-`/tour-export/<surface>` (`src/app/tour-export/[surface]/page.tsx`). Production and preview builds
-have no such route. So the videos cannot drift from the app — re-record after any slide edit, exactly
-as you re-run `narration:build` after a copy edit.
-
-Three things that will bite whoever touches it:
-
-- **Playwright is deliberately not a dependency.** It is a browser download that every Vercel build
-  would install for a script CI never runs. Install it anywhere and pass `PLAYWRIGHT_DIR`.
-- **Drive the dev server on `localhost`, never `127.0.0.1`.** Next treats the IP form as a
-  cross-origin dev host and blocks `/_next/*`, so the page renders from SSR HTML and then never
-  hydrates — no effects, no auth fetch, no slide advance. It looks like a working page that ignores
-  every click.
-- **The 1920x1080 viewport is load-bearing.** The walkthrough body is a scroll container, so a
-  shorter viewport does not reflow the dense Coach and Practical steps, it hides 100–220px of them
-  below the fold, and video cannot be scrolled. Re-measure all 36 slides before changing it.
-
-The intro is the one surface that needs a session (it lives inside `ShellOnboarding`, which opens it
-only for a signed-in user who has not seen it), so the recorder mocks `/api/auth/me` and stubs
-`/api/user/**` rather than the app exporting its auth context for a recording harness.
-
-**Captions come from the script, not from transcribing the audio.**
-`npm run captions:build --prefix study-app` writes `<surface>.srt` beside each MP4, with cue text taken
-verbatim from `TOUR_NARRATION` — so a caption cannot say something the voice does not. Run it after
-the videos exist; it skips surfaces that have none.
-
-It gets its slide boundaries by **sampling the progress-dot row at 10fps and finding the frames where
-the active pill jumps**, because adding up clip durations plus the recorder's nominal pad drifts by
-~0.4s per advance on the animated Coach steps — 2.5s adrift by the end, which is precisely what
-captions are judged on. Nothing else in that strip of the footer moves within a slide, so the signal
-is unambiguous. If it ever finds the wrong number of transitions it says so and falls back to nominal
-timing with the latency spread evenly. Within a slide, cue times are apportioned by character count
-with an allowance for the pauses ElevenLabs renders at paragraph breaks — an estimate, but each slide
-re-anchors on a measured boundary, so error stays inside one slide instead of accumulating.
 
 ## Token economy
 
