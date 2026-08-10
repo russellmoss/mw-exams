@@ -565,7 +565,14 @@ Paper ${paper}: ${paperScope}
 This is non-negotiable. If you include a wine that violates this scope, the entire question is invalid. Check every wine against this constraint before outputting.
 ${
   paper === 3
-    ? ""
+    ? `
+## SWEET / FORTIFIED FLIGHTS MUST ASK FOR RESIDUAL SUGAR (AND ALCOHOL) (HARD RULE — validator MISSING_RS_ALCOHOL_ASK rejects a violation)
+Whenever this flight contains one or more SWEET or FORTIFIED wines — any wine with meaningful residual sugar (roughly 30 g/L or more), or any Port, Sherry, Madeira, Marsala, VDN (Banyuls/Maury/Rivesaltes/Rasteau), Rutherglen or other fortified style, or a botrytis / late-harvest / icewine / passito / Sauternes / Tokaji / BA/TBA sweet wine — the real Paper 3 papers ALWAYS award marks for a quick numeric readout, and so must you:
+- Add a sub-part asking the candidate to STATE THE APPROXIMATE RESIDUAL SUGAR IN g/L, worth 2–3 marks per wine covered — e.g. "State the approximate residual sugar in g/L. (${targetFlightSize} x 2 marks)".
+- When ANY wine in the flight is FORTIFIED, add a SECOND numeric sub-part asking the candidate to STATE THE ALCOHOL LEVEL (% abv), also 2–3 marks per wine — e.g. "State the alcohol level (% abv). (${targetFlightSize} x 2 marks)".
+- TAKE THESE MARKS OUT OF THE IDENTIFICATION BUDGET so the per-wine total stays EXACTLY 25: lower the variety/origin identification tariff by the 2–3 marks the residual-sugar (and alcohol) readout now carries. Do NOT inflate the total.
+These are the exam's only 2-mark asks — a single short line, one number for the answer — so they are exempt from the 5-mark sub-question floor. An all-dry flight (no sweet or fortified wine) must NOT gain this sub-part.
+`
     : `
 ## RESIDUAL SUGAR IS A PAPER 3 DEVICE (HARD RULE — violation = automatic rejection)
 A Paper ${paper} wine MAY carry residual sugar (a Riesling Kabinett or Auslese, a Vouvray demi-sec, a Coteaux du Layon, an Alsace Vendanges Tardives — eleven such wines appear in Paper 1 flights across 2011-2026). The STEM must not say so. Across those fifteen years, all twelve stems that mention residual sugar or sweetness are Paper 3; Paper 1 and Paper 2 never do. So for Paper ${paper}:

@@ -744,6 +744,95 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
 }
 
 // ---------------------------------------------------------------------------------------------------
+// SWEET / FORTIFIED FLIGHTS MUST ASK FOR RESIDUAL SUGAR (AND ALCOHOL) — code MISSING_RS_ALCOHOL_ASK.
+//
+// A recurring, cross-paper reviewer cluster (7 validated Paper 3 signals — fb_581/582/585/592/594/596/
+// 602): whenever a flight contains sweet or fortified wines, the real D3 papers award 2–3 marks for a
+// quick numeric READOUT — "state the approximate residual sugar in g/L" — and, when a wine is fortified,
+// a further 2–3 for the alcohol %abv. In the reviewer's own words: "generally speaking when you have a
+// Fortified or a sweet wine, you're gonna get asked to name the residual sugar and/or the alcohol levels
+// and you'll get probably two to three marks for each one of those." The generator never asks it, so the
+// questions read as un-MW. This rule classifies each keyed wine and, if any is sweet/fortified, requires
+// the ask to be present as a sub-part; the freed marks come out of the identification budget (a
+// generation-prompt instruction) so the per-wine total is unchanged.
+// ---------------------------------------------------------------------------------------------------
+
+// A keyed wine's sweetness/fortification, read from its record. `sweet` fires on a resolved RS at or
+// above 30 g/L (a defining-sweetness threshold, well clear of off-dry) or a style the shared P3
+// classifier tags "sweet"; `fortified` fires on the classifier's "fortified" tag (Port/Sherry/Madeira/
+// VDN/Rutherglen, or a stated ABV at/above the fortified floor). classifyWineStyle is the SAME
+// classifier the P3 sampler and Exam Mix use, fed the wine's label + both style fields so a
+// style_category like "Botrytis sweet" / "Late-harvest sweet" / "Port" resolves exactly as elsewhere.
+function keyedSweetness(w: AuditWine): { sweet: boolean; fortified: boolean } {
+  const hay = [w.fullText, w.style, w.style_category].filter(Boolean).join(" ");
+  const { style } = classifyWineStyle(hay);
+  const rsSweet = typeof w.rs === "number" && w.rs >= 30;
+  return { sweet: rsSweet || style === "sweet", fortified: style === "fortified" };
+}
+
+// The sub-parts of the question (everything from the first lettered "a)" label on), so the stem's own
+// factual premise ("Each wine contains residual sugar") can never be mistaken for an ASK. Mirrors the
+// marker logic in extractStem, taking the complement.
+function subPartsText(questionText: string): string {
+  const text = questionText || "";
+  const marker = text.match(/(?:^|\s)[a-z]\)/i);
+  return marker && marker.index != null ? text.slice(marker.index) : "";
+}
+
+// A sub-part that asks for a numeric READOUT of residual sugar. Verb-anchored (state/give/estimate/…)
+// so "comment on the mechanism by which residual sugar has been achieved" — a method ask, not a value
+// ask — does not satisfy it; the "level of residual sugar" and "residual sugar in g/L" noun phrasings
+// the real papers use are also accepted. Distance-bounded to a single clause (no newline/period).
+const RS_VALUE_ASK_RE =
+  /\b(?:state|give|indicate|estimate|specify|identify|provide|report)\b[a-z0-9 ,%()/-]{0,50}\bresidual sugar\b|\b(?:the )?(?:approximate )?level of residual sugar\b|\bresidual sugar\b[a-z0-9 ,()%-]{0,20}\b(?:g\/?l|grammes?|grams?)\b/i;
+
+// A sub-part that asks for a numeric READOUT of alcohol level / %abv, on the same verb-anchored basis.
+const ALCOHOL_VALUE_ASK_RE =
+  /\b(?:state|give|indicate|estimate|specify|identify|provide|report)\b[a-z0-9 ,%()/-]{0,50}\b(?:alcohol|abv)\b|\b(?:the )?(?:approximate )?(?:level|percentage) of alcohol\b|\balcohol\b[a-z0-9 ,()%-]{0,20}\b(?:%|abv)\b/i;
+
+/**
+ * Reject a Paper 3 sweet/fortified flight that omits the residual-sugar readout (and, when any wine is
+ * fortified, the alcohol readout). Returns hard MISSING_RS_ALCOHOL_ASK violations; an all-dry flight
+ * returns none (and must not gain the sub-part). The ask must appear as a SUB-PART — a stem that merely
+ * states "each has residual sugar" does not satisfy it.
+ */
+export function sweetFortifiedAskViolations(q: QuestionForAudit): Violation[] {
+  const wines = q.wines || [];
+  if (wines.length === 0) return [];
+
+  const flagged: string[] = [];
+  let anyFortified = false;
+  for (const w of wines) {
+    const c = keyedSweetness(w);
+    if (c.sweet || c.fortified) flagged.push(wineLabel(w));
+    if (c.fortified) anyFortified = true;
+  }
+  if (flagged.length === 0) return []; // an all-dry flight is unaffected
+
+  const subs = subPartsText(q.questionText);
+  const v: Violation[] = [];
+  if (!RS_VALUE_ASK_RE.test(subs)) {
+    v.push({
+      rule: "MISSING_RS_ALCOHOL_ASK",
+      severity: "hard",
+      detail: `flight contains sweet/fortified wine(s) (${flagged.join(
+        "; ",
+      )}) but no sub-part asks the candidate to state the approximate residual sugar in g/L — the real Paper 3 papers award 2–3 marks per wine for that readout. Add e.g. "State the approximate residual sugar in g/L. (${wines.length} x 2 marks)", taking the marks out of the identification budget so the per-wine total stays 25.`,
+    });
+  }
+  if (anyFortified && !ALCOHOL_VALUE_ASK_RE.test(subs)) {
+    v.push({
+      rule: "MISSING_RS_ALCOHOL_ASK",
+      severity: "hard",
+      detail: `flight contains fortified wine(s) (${flagged.join(
+        "; ",
+      )}) but no sub-part asks the candidate to state the alcohol level (% abv) — a further 2–3 marks per wine in real Paper 3 fortified flights. Add e.g. "State the alcohol level (% abv). (${wines.length} x 2 marks)", drawn from the identification budget.`,
+    });
+  }
+  return v;
+}
+
+// ---------------------------------------------------------------------------------------------------
 // FLIGHT COMPOSITION — banker / curveball balance (Mike's recurring bin cluster).
 //
 // A recurring reviewer verdict across 14 binned flights (papers 1–3) was, in the reviewer's own
@@ -4127,6 +4216,12 @@ export function validateQuestion(
     // sub-part edit; the banked corpus this must gate is all generated (stemIsAuthoritative === false),
     // so this still covers every question the feedback targets while sparing verbatim past-paper imports.
     violations.push(...validateScopeHeaderAsk(q));
+    // MISSING_RS_ALCOHOL_ASK — a sweet/fortified flight that never asks for the residual-sugar (and, for
+    // fortified, alcohol) numeric readout. Gated with the stem-shape rules because the fix is to ADD a
+    // sub-part (a question-text edit): on a verbatim past-paper import the sub-parts are fixed and the
+    // rule would be unsatisfiable, and all the banked questions this feedback targets are generated
+    // (stemIsAuthoritative === false), so gating here still covers every case the reviewers flagged.
+    violations.push(...sweetFortifiedAskViolations(q));
   }
   // POOL-ADMISSION ASYMMETRY, the same shape as R-COLOUR's `blockIndeterminate`.
   //

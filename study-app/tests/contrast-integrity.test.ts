@@ -67,7 +67,12 @@ describe("sweetness mechanism — flight-wide", () => {
   it("passes a two-wine flight of botrytis vs fortified (genuine contrast)", () => {
     const question = q(
       "Wines 1 and 2 are from two different countries. Both have residual sugar.\n\n" +
-        "b) Explain the mechanism by which the sweetness has been achieved. (2 x 10 marks)",
+        "For each wine:\n" +
+        "a) Identify the region of origin as closely as possible. (2 x 8 marks)\n" +
+        "b) State the approximate residual sugar in g/L. (2 x 2 marks)\n" +
+        "c) State the alcohol level (% abv). (2 x 2 marks)\n" +
+        "d) Explain the mechanism by which the sweetness has been achieved. (2 x 8 marks)\n" +
+        "e) Comment on quality and commercial position. (2 x 5 marks)",
       [
         { slot: 1, varieties: ["Sémillon"], region: "Sauternes", country: "France", style: "Sauternes", style_category: "Botrytis sweet" },
         { slot: 2, varieties: ["Muscat"], region: "Rutherglen", country: "Australia", style: "Rutherglen Muscat", style_category: "Fortified Muscat" },
