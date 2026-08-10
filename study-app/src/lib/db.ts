@@ -89,6 +89,11 @@ export interface GeneratedQuestion {
   answer_length_status: string | null;
   answer_word_count: number | null;
   answer_length: Record<string, unknown> | null;
+  // Question Review (migration 066), computed — not a table column. True when the question holds at
+  // least one live 'up' vote and no live 'down' vote in question_reviews: an expert approved it and
+  // nobody has rejected it. Populated only by the banked serve queries below, which sort and pick
+  // these first. Server-only — the banked route strips it before the payload leaves.
+  approved_clean?: boolean;
 }
 
 export interface UserAttempt {
@@ -1443,6 +1448,13 @@ export async function getBankCount(
 // from 550 to 309 and could starve a candidate mid-session, which is a worse failure than showing
 // an unvetted question. Retiring the fallback entirely is Phase 2 of
 // docs/plans/2026-08-07-generation-quality-and-cost.md, once the review backlog is cleared.
+//
+// APPROVED-FIRST (2026-08-09). The expert review pass (question_reviews, migration 066) now leads
+// the sort: a question with a live 'up' vote and no live 'down' vote — approved and never rejected —
+// outranks everything else, and the serve route additionally confines its random pick to that tier
+// while it lasts. review_status='kept' stays as the second-tier preference for rows the expert pass
+// hasn't reached. Superseded votes are ignored (they are carried-forward copies on repaired
+// questions, not rulings — see question-review.ts).
 export async function getEligibleBankedQuestions(
   userId: number,
   paper: number,
@@ -1452,7 +1464,15 @@ export async function getEligibleBankedQuestions(
   const sql = getDb();
   const fam = family && family !== "any" ? family : null;
   return (await sql`
-    SELECT q.* FROM generated_questions q
+    SELECT q.*,
+      (EXISTS (
+        SELECT 1 FROM question_reviews r
+        WHERE r.question_id = q.question_id AND r.verdict = 'up' AND r.superseded_at IS NULL
+      ) AND NOT EXISTS (
+        SELECT 1 FROM question_reviews r
+        WHERE r.question_id = q.question_id AND r.verdict = 'down' AND r.superseded_at IS NULL
+      )) AS approved_clean
+    FROM generated_questions q
     WHERE q.paper = ${paper}
       AND (${fam}::text IS NULL OR q.family = ${fam})
       AND q.invalid_reasons IS NULL
@@ -1467,9 +1487,120 @@ export async function getEligibleBankedQuestions(
         SELECT 1 FROM question_views v
         WHERE v.question_id = q.question_id AND v.user_id = ${userId}
       )
-    ORDER BY (q.review_status = 'kept') DESC, q.created_at DESC
+    ORDER BY approved_clean DESC, (q.review_status = 'kept') DESC, q.created_at DESC
     LIMIT ${limit}
   `) as GeneratedQuestion[];
+}
+
+// ── Replay: re-serving banked questions this user has already done ──────────────────────────────
+//
+// The acquire card no longer offers generation while unseen banked questions remain (2026-08-09:
+// generation quality is unproven while the reviewed bank is now deep, so the bank is the default and
+// generation is the fallback). When the unseen pool runs dry the candidate gets two choices:
+// generate fresh, or REPLAY — work back through questions they have already been served.
+//
+// Replay deliberately waives the question_views "never seen" gate and the 90-day flight-signature
+// serve window (re-serving seen material is the entire point, and the candidate opted in). What it
+// must NOT waive is rejection: a question this user down-voted on /review, or left negative feedback
+// on that was accepted/partial, stays excluded forever — same policy as
+// getUserExcludedFlightSignatures clause (ii).
+export async function getReplayableBankedQuestions(
+  userId: number,
+  paper: number,
+  family?: string,
+  limit = 20
+): Promise<GeneratedQuestion[]> {
+  const sql = getDb();
+  const fam = family && family !== "any" ? family : null;
+  // Order: approved-and-never-rejected first (same preference as the unseen pool), then the ones
+  // seen longest ago — so replay cycles through the whole set oldest-first instead of bouncing the
+  // same recent handful. The caller picks at random inside this window for variety.
+  return (await sql`
+    SELECT q.*,
+      (EXISTS (
+        SELECT 1 FROM question_reviews r
+        WHERE r.question_id = q.question_id AND r.verdict = 'up' AND r.superseded_at IS NULL
+      ) AND NOT EXISTS (
+        SELECT 1 FROM question_reviews r
+        WHERE r.question_id = q.question_id AND r.verdict = 'down' AND r.superseded_at IS NULL
+      )) AS approved_clean
+    FROM generated_questions q
+    WHERE q.paper = ${paper}
+      AND (${fam}::text IS NULL OR q.family = ${fam})
+      AND q.invalid_reasons IS NULL
+      AND q.review_state = 'kept'
+      AND q.is_retired IS NOT TRUE
+      AND q.scope = 'pool'
+      AND NOT EXISTS (
+        SELECT 1 FROM stem_answer_keys k
+        WHERE k.question_id = q.question_id AND k.validated = false
+      )
+      AND EXISTS (
+        SELECT 1 FROM question_views v
+        WHERE v.question_id = q.question_id AND v.user_id = ${userId}
+      )
+      AND NOT EXISTS (
+        SELECT 1 FROM question_reviews r
+        WHERE r.question_id = q.question_id AND r.reviewer_id = ${userId} AND r.verdict = 'down'
+      )
+      AND NOT EXISTS (
+        /* theory-mode-guard: all-modes -- a question this user rejected must stay out of the
+           replay pool no matter which mode surfaced the negative feedback; this reads only
+           accepted/partial feedback on the user's own attempts, never a mode-scoped aggregate. */
+        SELECT 1 FROM user_attempts a
+        WHERE a.question_id = q.question_id AND a.user_id = ${userId}
+          AND a.user_feedback IS NOT NULL AND length(trim(a.user_feedback)) > 0
+          AND a.feedback_status IN ('accepted', 'partial')
+      )
+    ORDER BY approved_clean DESC, (q.review_status = 'kept') DESC,
+      (SELECT MIN(v.first_seen_at) FROM question_views v
+        WHERE v.question_id = q.question_id AND v.user_id = ${userId}) ASC,
+      q.question_id
+    LIMIT ${limit}
+  `) as GeneratedQuestion[];
+}
+
+// How many banked questions this user could REPLAY for a paper (+ optional family): seen before,
+// still servable, never rejected by them. Must stay in lockstep with getReplayableBankedQuestions
+// above — the acquire card advertises this number on the replay button.
+export async function getReplayBankCount(
+  userId: number,
+  paper: number,
+  family?: string
+): Promise<number> {
+  const sql = getDb();
+  const fam = family && family !== "any" ? family : null;
+  const rows = (await sql`
+    SELECT COUNT(*)::int AS count
+    FROM generated_questions q
+    WHERE q.paper = ${paper}
+      AND (${fam}::text IS NULL OR q.family = ${fam})
+      AND q.invalid_reasons IS NULL
+      AND q.review_state = 'kept'
+      AND q.is_retired IS NOT TRUE
+      AND q.scope = 'pool'
+      AND NOT EXISTS (
+        SELECT 1 FROM stem_answer_keys k
+        WHERE k.question_id = q.question_id AND k.validated = false
+      )
+      AND EXISTS (
+        SELECT 1 FROM question_views v
+        WHERE v.question_id = q.question_id AND v.user_id = ${userId}
+      )
+      AND NOT EXISTS (
+        SELECT 1 FROM question_reviews r
+        WHERE r.question_id = q.question_id AND r.reviewer_id = ${userId} AND r.verdict = 'down'
+      )
+      AND NOT EXISTS (
+        /* theory-mode-guard: all-modes -- same rejection predicate as
+           getReplayableBankedQuestions above; the two must not drift apart. */
+        SELECT 1 FROM user_attempts a
+        WHERE a.question_id = q.question_id AND a.user_id = ${userId}
+          AND a.user_feedback IS NOT NULL AND length(trim(a.user_feedback)) > 0
+          AND a.feedback_status IN ('accepted', 'partial')
+      )
+  `) as { count: number }[];
+  return rows[0]?.count ?? 0;
 }
 
 // ── Fill the Bank: bulk generation + review gate (migration 022) ─────────────────────────────────
