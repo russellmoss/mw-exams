@@ -4169,7 +4169,16 @@ export function validateQuestion(
   violations.push(...crossCheckStemFacts(q));
   violations.push(...contrastIntegrityViolations(q));
   if (!stemFixed) violations.push(...partTaskRepertoireViolations(q));
-  violations.push(...validatePaperStyleMix(q.paper, q.wines));
+  // Paper style-mix demotes to SOFT on a verbatim past-paper stem, the same pool-admission logic as
+  // flight-composition above: the real 2018 P3 Q3 poured three still dry reds (Birichino Cinsault,
+  // Mustiguillo Garnacha, red Bandol), so p3-min-half-special hard-quarantines a flight shape the
+  // Institute itself set. Generated stems keep the hard gate — one corpus exception makes it a
+  // strong prior, not a law.
+  violations.push(
+    ...validatePaperStyleMix(q.paper, q.wines).map((v) =>
+      stemFixed ? { ...v, severity: "soft" as const } : v,
+    ),
+  );
   // R-COLOUR (Right Paper Check) runs here by DEFAULT, and that default is the whole point.
   //
   // It used to be excluded, on the grounds that some unit-test fixtures are keyed only for the rule

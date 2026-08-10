@@ -42,10 +42,24 @@ describe("Paper 3 admits still dry wines", () => {
   });
 
   it("rejects a flight made ENTIRELY of still dry wines", () => {
-    // 0 of 51 real P3 questions look like this — it is simply a Paper 1 or Paper 2 question.
+    // NOTE the header measurement has one known counterexample — 2018 P3 Q3 (Birichino Cinsault /
+    // Mustiguillo Garnacha / red Bandol, i.e. the BANDOL fixture above's own flight) — which is why
+    // stemIsAuthoritative below exists. For GENERATED stems the rule stays a hard gate.
     const r = validatePaperScope(3, [NUITS, RIESLING_TROCKEN, BANDOL]);
     expect(r.valid).toBe(false);
     expect(r.violations.join(" ")).toMatch(/Paper 1 or Paper 2 flight/i);
+  });
+
+  it("admits an all-still-dry flight when the stem is a verbatim past paper (2018 P3 Q3)", () => {
+    // The real 2018 P3 Q3: three still dry Rhône-variety reds on Paper 3. A historical import must
+    // be able to regenerate the flight the Institute actually set.
+    const r = validatePaperScope(3, [NUITS, RIESLING_TROCKEN, BANDOL], { stemIsAuthoritative: true });
+    expect(r.violations.join(" ")).not.toMatch(/Paper 1 or Paper 2 flight/i);
+  });
+
+  it("stemIsAuthoritative does NOT relax per-wine scope on Papers 1 and 2", () => {
+    const r = validatePaperScope(1, [FINO], { stemIsAuthoritative: true });
+    expect(r.valid).toBe(false);
   });
 
   it("does not flag the individual wines of an all-still-dry flight", () => {

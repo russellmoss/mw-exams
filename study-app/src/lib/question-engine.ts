@@ -606,7 +606,14 @@ export function bankedServeRejection(q: GeneratedQuestion): string | null {
     return `failed variety check: ${varietyCheck.violations[0]}`;
   }
 
-  const paperScopeCheck = validatePaperScope(q.paper, wines);
+  // Historical imports (verbatim past-paper stems) keep every per-wine scope check but stand down
+  // the flight-level P3 still-dry rule — the real 2018 P3 Q3 IS an all-still-dry P3 flight, and the
+  // serve gate must not refuse a question for matching the paper it was copied from.
+  const metadata =
+    typeof q.metadata === "string" ? (() => { try { return JSON.parse(q.metadata as string); } catch { return null; } })() : q.metadata;
+  const paperScopeCheck = validatePaperScope(q.paper, wines, {
+    stemIsAuthoritative: (metadata as { source?: string } | null)?.source === "historical_stem",
+  });
   if (!paperScopeCheck.valid) {
     return `failed paper scope: ${paperScopeCheck.violations[0]}`;
   }
@@ -1745,8 +1752,12 @@ ${repairContext.draft}`,
     // or any fortified. Mirrored here as a pre-selection filter so the generator rarely drafts a
     // rejectable flight, with validatePaperStyleMix in the audit as the authoritative gate. Pinned
     // (Live Tasting) skips it — the flight was fixed upstream by retail availability, not chosen here.
+    // Anchored (historical import) stands down too: p3-min-half-special is contradicted by the real
+    // 2018 P3 Q3 (three still dry reds — see validatePaperScope's still-dry note), and the audit
+    // demotes this rule to soft for stemIsAuthoritative rows for the same reason, so blocking here
+    // would reject a flight the pipeline downstream accepts.
     const paperStyleMixCheck = {
-      violations: pinned ? [] : validatePaperStyleMix(paper, auditWines).map((v) => v.detail),
+      violations: pinned || anchored ? [] : validatePaperStyleMix(paper, auditWines).map((v) => v.detail),
     };
     // R-COLOUR (Right Paper Check): Paper 1 still-white only, Paper 2 still-red only — unconditional,
     // and applied on EVERY path including pinned (a wrong-colour wine is never served). Blocking (not
@@ -1821,7 +1832,12 @@ ${repairContext.draft}`,
     // Shape first: if a slot holds reasoning rather than a wine, every variety/country/scope check
     // below is reading a paragraph of deliberation and its verdict means nothing.
     const wineShapeCheck = validateWineReferenceShape(candidate.wines);
-    const paperScopeCheck = validatePaperScope(paper, candidate.wines);
+    // Anchored (historical import) stands down the flight-level P3 still-dry rule only — the real
+    // 2018 P3 Q3 is an all-still-dry flight, so on a verbatim stem the rule vetoes the corpus.
+    // Per-wine colour/category checks inside validatePaperScope run unchanged.
+    const paperScopeCheck = validatePaperScope(paper, candidate.wines, {
+      stemIsAuthoritative: !!anchored,
+    });
     const varietyCheck = validateVarietyConsistency(candidate.questionText, candidate.wines);
     const markCheck = validateMarkAllocation(candidate.questionText, candidate.wines.length);
     const consistencyCheck = validateGenerationConsistency(candidate.generationReasoning, candidate.wines);
@@ -1846,9 +1862,16 @@ ${repairContext.draft}`,
     // Bank path (batchId present — Fill-the-Bank / generate / cron worker) needed early: it gates
     // both banker (below) and the OW/NW composition guard, which must not relax when we are BANKING.
     const bankPath = Boolean(saveOpts?.batchId);
+    // Anchored keeps the explicit different-varieties arm (a real stem declaring "different single
+    // grape varieties" must still be honoured) but allows same-origin variety OVERLAP: the real
+    // 2025 P2 Q2 poured Crozes-Hermitage AND Cornas — Syrah twice in one same-region flight — so on
+    // a verbatim stem the overlap heuristic vetoes the corpus (it blocked every hist_2025_p2_q2
+    // regeneration attempt, 2026-08-09).
     const originDiversityCheck = pinned || relaxImportant
       ? { valid: true, violations: [] }
-      : validateOriginDiversity(candidate.questionText, candidate.wines, candidate.family, candidate.subcategory);
+      : validateOriginDiversity(candidate.questionText, candidate.wines, candidate.family, candidate.subcategory, {
+          allowVarietyOverlap: !!anchored,
+        });
     const countryDiversityCheck = pinned
       ? { valid: true, violations: [] }
       : validateCountryDiversity(candidate.questionText, candidate.wines);
@@ -1909,8 +1932,15 @@ ${repairContext.draft}`,
     // Muscats in 2012 P3 Q4, Chinon + Spätburgunder + Pinotage + Lagrein in 2017 P2 Q3). As a bank-path
     // blocker that cost a real question: re-importing hist_2023_p3_q1 — a stem that FORBIDS Champagne
     // — failed all three attempts on "no anchor" after --redo had already deleted the row.
+    // Anchored (historical import) skips banker outright, joining anchor-pairing in the advisory
+    // camp for this path: the Institute genuinely sets bankerless flights (2023 P3 Q4 is Maury +
+    // Montsant Garnacha + Napa Grenache — an all-curveball same-variety trio; 2023 P1 Q3 is four
+    // South African whites), the audit already treats flight-composition as SOFT on existing
+    // questions for exactly that reason, and the never-relaxing bank-path arm blocked every
+    // hist_2023_p3_q4 regeneration attempt (2026-08-09) — the same failure shape as the
+    // hist_2023_p3_q1 re-import that anchor-pairing's demotion note records.
     const bankerViolations =
-      pinned || shouldRelaxBanker(attempt, bankPath)
+      pinned || anchored || shouldRelaxBanker(attempt, bankPath)
         ? []
         : flightCompositionViolations(auditWines).map((v) => v.detail);
     const bankerCheck = { valid: bankerViolations.length === 0, violations: bankerViolations };
@@ -2599,7 +2629,15 @@ export function validateWineReferenceShape(
   return { valid: violations.length === 0, violations };
 }
 
-export function validatePaperScope(paper: number, wines: { slot: number; fullText: string }[]): { valid: boolean; violations: string[] } {
+export function validatePaperScope(
+  paper: number,
+  wines: { slot: number; fullText: string }[],
+  opts?: {
+    /** The stem is a verbatim past-paper question (historical import). Stands down the flight-level
+     *  P3 still-dry rule ONLY — per-wine colour/category checks all still run. */
+    stemIsAuthoritative?: boolean;
+  }
+): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
   // Paper 3 wines that give a flight its Paper-3 character (sparkling / fortified / sweet / rosé /
   // oxidative / orange). Judged together below, never individually.
@@ -2672,7 +2710,14 @@ export function validatePaperScope(paper: number, wines: { slot: number; fullTex
   // was drawn repeatedly — and every such question was then rejected by this rule, which kept the
   // deficit at 2.8%. paperScope was joint-top blocker on P3 (16 of 40 attempts) while barely
   // registering on P1/P2.
-  if (paper === 3 && wines.length > 0 && p3Qualifying.length === 0) {
+  // The "entirely still dry .... 0" measurement above has a known counterexample: 2018 P3 Q3 poured
+  // Birichino Cinsault (Lodi), Mustiguillo Garnacha (Spain) and RED Bandol (Pibarnon 2013, 14%) —
+  // three still dry reds on Paper 3, zero qualifying styles. On a VERBATIM past-paper stem this rule
+  // therefore cannot be a hard gate: re-importing hist_2018_p3_q3 failed every attempt on it
+  // (2026-08-09) precisely because the model kept drafting the flight the real stem was set on.
+  // Generated stems are still held to it — one real exception in the corpus makes it a strong prior,
+  // not a law.
+  if (paper === 3 && wines.length > 0 && p3Qualifying.length === 0 && !opts?.stemIsAuthoritative) {
     violations.push(
       `No wine in this flight is sparkling, fortified, sweet, rosé, oxidative or orange — that is a Paper 1 or Paper 2 flight, ` +
         `not Paper 3. Paper 3 mixes styles: still dry wines are welcome (82% of real P3 questions ` +
@@ -2910,7 +2955,13 @@ function validateOriginDiversity(
   questionText: string,
   wines: { slot: number; fullText: string }[],
   family: string,
-  subcategory: string
+  subcategory: string,
+  opts?: {
+    /** Anchored (historical import): suppress the same-origin variety-OVERLAP heuristic — the real
+     *  exam repeats varieties in same-region flights (2025 P2 Q2: Crozes + Cornas, both Syrah).
+     *  The explicit "stem says different varieties" arm below still runs. */
+    allowVarietyOverlap?: boolean;
+  }
 ): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
   const combinedText = `${questionText}\n${subcategory}`.toLowerCase();
@@ -2928,7 +2979,7 @@ function validateOriginDiversity(
     .filter((wine) => wine.variety !== "unknown");
   const uniqueVarieties = new Set(knownVarieties.map((wine) => wine.variety));
 
-  if (knownVarieties.length >= 2 && uniqueVarieties.size < knownVarieties.length) {
+  if (!opts?.allowVarietyOverlap && knownVarieties.length >= 2 && uniqueVarieties.size < knownVarieties.length) {
     const repeated = [...uniqueVarieties].filter(
       (variety) => knownVarieties.filter((wine) => wine.variety === variety).length > 1
     );
