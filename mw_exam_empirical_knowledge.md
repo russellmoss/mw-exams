@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-10 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0187).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0185, EK-0186).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0183, EK-0184).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0182).**
@@ -1178,6 +1179,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #596 / analysis #235 (accept); EK-0097; EK-0029; EK-0179
 - **claim:** The banker requirement grows with the flight, it does not stay at one: a six-wine question consuming half a paper should carry roughly three to four wines the candidate knows cold and at most one to three genuine curveballs, consistent with the corpus's per-wine harder rate of ~21–27% and the fact that 54% of multi-wine flights are all-anchor (EK-0097). A six-country sweet flight of Baden Weissburgunder Spätlese, Bonnezeaux, Kracher Rosenmuskateller BA, Kiona Late Harvest Riesling and Moscadello di Montalcino leaves De Bortoli Noble One as the only anchor — five curveballs to one — and is out of distribution. Generation must count anchors against flight size, not merely check that one banker exists.
 
+### EK-0187 · Same-region pairs need a recognisable appellation anchor — Rully cannot carry a P1 same-origin premise
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #614 / analysis #252 (accept); EK-0029; EK-0170; EK-0174
+- **claim:** The banker rule bites on two-wine same-region flights as hard as on larger ones: if the stem pays marks for identifying the region, at least one wine must be an appellation a prepared candidate can reach blind. Attested same-region Burgundy white flights anchor on the Côte d'Or (Meursault, Puligny-Montrachet, Corton-Charlemagne, Chablis); the Côte Chalonnaise has never been the organising premise of a same-origin question, and a pair of Rully Blanc Premier Cru + Rully Aligoté leaves the candidate no anchor at all — the harder wine (Aligoté) is more obscure than the nominal banker. Serious Burgundian Aligoté appears in the corpus only as a named, recognisable appellation (Bouzeron) used as a winemaking contrast inside a larger flight, never as a stand-alone identification target. Redraw such a pair with a Côte d'Or or Chablis anchor, or drop the region-ID ask.
+
 ---
 
 ## §5 · Question generation rules
@@ -1491,6 +1497,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 577 | 217 | P3/F1 | accept | auto | same-variety stem premise false for two appellation-only sweet wines (Sauternes = Sémillon/SB, Coteaux du Layon = Chenin); variety checks need appellation→grape resolution (personal abuse in the submission ignored) | EK-0182, EK-0040, EK-0043, EK-0180 |
 | 581 | 220 | P3/F1 | accept | auto | 30 marks for a shared same-variety call on a P3 trio is double the attested 12–18 band, and the flight omitted P3's standard state-the-RS ask (personal abuse in the submission ignored) | EK-0183, EK-0184, EK-0165, EK-0154, EK-0037, EK-0018, EK-0166 |
 | 596 | 235 | P3/F4 | accept | auto | six-wine sweet flight had five curveballs to one anchor, repeated one mechanism (4x botrytis) under an RS-mechanism ask, and omitted P3's standard state-the-RS/ABV numeric sub-parts (personal abuse in the submission ignored) | EK-0185, EK-0186, EK-0029, EK-0097, EK-0039, EK-0080, EK-0184, EK-0037, EK-0018 |
+| 614 | 252 | P1/F2 | accept | auto | two-wine same-region P1 flight built entirely on Rully has no recognisable anchor; same-region Burgundy questions anchor on the Côte d'Or (personal abuse in the submission ignored) | EK-0187, EK-0029, EK-0170, EK-0174 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
