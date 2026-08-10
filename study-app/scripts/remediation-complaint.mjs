@@ -11,6 +11,8 @@
 // tests/remediation-complaint.test.ts imports them directly (same pattern as
 // close-fixed-bug-reports.mjs).
 
+import { checkWineReferenceShape } from "../src/lib/question-rules.mjs";
+
 /** The feedback-question entries on a quarantined row, tolerant of both jsonb shapes. */
 export function feedbackQuarantineEntries(invalidReasons) {
   let parsed = invalidReasons;
@@ -50,6 +52,43 @@ export function attemptIdsFromEntries(entries) {
  * entry, a cohort member carries one cohort entry plus at most its own — without letting a
  * pathological row flood the prompt.
  */
+/**
+ * Is a selected target still worth spending on, judged from a row re-read JUST before processing?
+ *
+ * main() selects its targets once at startup and then works through them over the better part of an
+ * hour, and two remediators can legitimately run at once — the nightly workflow and a hand-run
+ * `--only` batch. On 2026-08-09 both selected gen_p1_F2_1786306298953 while it was still flagged and
+ * both regenerated it, leaving two live replacements for one predecessor. The race window is
+ * selection-time-to-processing-time, so the close is to re-read the row immediately before any money
+ * is spent and stand down if another runner archived it or cleared its flags first.
+ *
+ * `fresh` is the re-read row — { archived, invalid_reasons, validated, wines } — or null/undefined
+ * if it vanished. Returns a human-readable reason to skip, or null to proceed. A flag-clean row is
+ * NOT automatically skippable: the malformed-wines selector in main() never sets a flag, so its
+ * targets are only skipped if the raw labels it matched on are also clean now.
+ *
+ * @param {{ archived?: string|null, invalid_reasons?: unknown, validated?: boolean|null, wines?: unknown }|null|undefined} fresh
+ * @returns {string|null}
+ */
+export function targetSkipReason(fresh) {
+  if (!fresh) return "row no longer exists";
+  if (fresh.archived === "true") return "already archived";
+  if (fresh.invalid_reasons !== null && fresh.invalid_reasons !== undefined) return null;
+  if (fresh.validated === false) return null;
+  let wines = fresh.wines;
+  if (typeof wines === "string") {
+    try {
+      wines = JSON.parse(wines);
+    } catch {
+      wines = [];
+    }
+  }
+  if ((Array.isArray(wines) ? wines : []).some((w) => !checkWineReferenceShape(w?.fullText).ok)) {
+    return null;
+  }
+  return "no longer flagged";
+}
+
 export function buildComplaintBlock(ctx) {
   if (!ctx) return "";
   const entries = Array.isArray(ctx.entries) ? ctx.entries : [];

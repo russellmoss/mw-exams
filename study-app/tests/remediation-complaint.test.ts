@@ -5,6 +5,7 @@ import {
   feedbackQuarantineEntries,
   attemptIdsFromEntries,
   buildComplaintBlock,
+  targetSkipReason,
 } from "../scripts/remediation-complaint.mjs";
 
 /**
@@ -87,6 +88,57 @@ describe("buildComplaintBlock", () => {
   });
 });
 
+describe("targetSkipReason", () => {
+  // Two remediators can legitimately run at once (the nightly workflow and a hand-run --only batch),
+  // and on 2026-08-09 they raced: both selected gen_p1_F2_1786306298953 at startup and both
+  // regenerated it. The helper judges a row RE-READ just before spending, so the second runner
+  // stands down instead of duplicating the first one's replacement.
+  const cleanWine = {
+    slot: 1,
+    fullText: "Domaine Leflaive, Puligny-Montrachet 1er Cru Les Pucelles 2020. Burgundy, France",
+  };
+
+  it("skips a row another runner archived, and one that vanished entirely", () => {
+    expect(targetSkipReason(undefined)).toMatch(/no longer exists/);
+    expect(
+      targetSkipReason({ archived: "true", invalid_reasons: [{ rule: "marks" }], validated: false, wines: [cleanWine] })
+    ).toMatch(/archived/);
+  });
+
+  it("proceeds while EITHER quarantine flag is still live", () => {
+    expect(
+      targetSkipReason({ archived: null, invalid_reasons: [{ rule: "marks" }], validated: true, wines: [cleanWine] })
+    ).toBeNull();
+    expect(
+      targetSkipReason({ archived: null, invalid_reasons: null, validated: false, wines: [cleanWine] })
+    ).toBeNull();
+  });
+
+  it("skips a row whose flags another runner cleared — validated true or absent both read as clean", () => {
+    expect(
+      targetSkipReason({ archived: null, invalid_reasons: null, validated: true, wines: [cleanWine] })
+    ).toMatch(/no longer flagged/);
+    // No stem_answer_keys row at all (LEFT JOIN null) is also not-flagged.
+    expect(
+      targetSkipReason({ archived: null, invalid_reasons: null, validated: null, wines: [cleanWine] })
+    ).toMatch(/no longer flagged/);
+  });
+
+  it("does NOT mistake a malformed-wines target for a cleared one — that selector never sets a flag", () => {
+    // main()'s third quarantine signal detects generator deliberation in wines[] directly from the
+    // raw labels, without writing invalid_reasons. Flag-cleanliness alone therefore proves nothing
+    // for these targets; only clean labels do.
+    const deliberation = { slot: 2, fullText: "Chambers Rosewood — wait, excluded. Let me correct." };
+    expect(
+      targetSkipReason({ archived: null, invalid_reasons: null, validated: true, wines: [cleanWine, deliberation] })
+    ).toBeNull();
+    // Same row serialized as a jsonb string — the tolerance every other reader of wines[] has.
+    expect(
+      targetSkipReason({ archived: null, invalid_reasons: null, validated: true, wines: JSON.stringify([deliberation]) })
+    ).toBeNull();
+  });
+});
+
 describe("remediate-questions.mjs — the wiring", () => {
   const src = read("scripts/remediate-questions.mjs");
   const remediateOne = src.slice(src.indexOf("async function remediateOne"), src.indexOf("// ── TIER 1"));
@@ -114,6 +166,22 @@ describe("remediate-questions.mjs — the wiring", () => {
     expect(gateAt).toBeGreaterThan(-1);
     expect(sliceAt).toBeGreaterThan(-1);
     expect(gateAt).toBeLessThan(sliceAt);
+  });
+
+  it("each target is re-read and re-judged INSIDE the loop, before tryRepair spends anything", () => {
+    // The anti-race check must run per-question at processing time — hoisted above the loop it
+    // would just be a second stale selection, and after tryRepair it would be after the spend.
+    const loopAt = main.indexOf("for (const old of targets)");
+    const recheckAt = main.indexOf("targetSkipReason(", loopAt);
+    const repairAt = main.indexOf("tryRepair(old)", loopAt);
+    expect(loopAt).toBeGreaterThan(-1);
+    expect(recheckAt).toBeGreaterThan(loopAt);
+    expect(repairAt).toBeGreaterThan(-1);
+    expect(recheckAt).toBeLessThan(repairAt);
+    // And it judges a FRESH row, not the startup selection: the re-read query sits with it.
+    const rereadAt = main.indexOf("SELECT g.invalid_reasons, g.metadata->>'archived'", loopAt);
+    expect(rereadAt).toBeGreaterThan(loopAt);
+    expect(rereadAt).toBeLessThan(recheckAt);
   });
 
   it("--only scopes the target set before the PR gate, and unknown ids are reported not guessed", () => {

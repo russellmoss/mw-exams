@@ -68,7 +68,7 @@ const { checkWineReferenceShape, checkStemShape } = await import("../src/lib/que
 // validate the replacement under the OLD rules.
 const { getBinLessonsBlock } = await import("../src/lib/bin-lessons.ts");
 const { carryReviewsForward } = await import("../src/lib/question-review.ts");
-const { feedbackQuarantineEntries, attemptIdsFromEntries, buildComplaintBlock } = await import("./remediation-complaint.mjs");
+const { feedbackQuarantineEntries, attemptIdsFromEntries, buildComplaintBlock, targetSkipReason } = await import("./remediation-complaint.mjs");
 
 const sql = neon(process.env.DATABASE_URL);
 const APPLY = process.argv.includes("--apply");
@@ -693,6 +693,23 @@ async function main() {
   for (const old of targets) {
     console.log(`▶ ${old.question_id} (P${old.paper} ${old.family})`);
 
+    // RE-READ BEFORE SPENDING. The targets were selected once, minutes-to-an-hour ago, and another
+    // remediator may have processed this row since — the nightly workflow and a hand-run --only
+    // batch raced exactly this way on 2026-08-09, both regenerating gen_p1_F2_1786306298953 and
+    // leaving two live replacements for one predecessor. If the row is now archived or no longer
+    // flagged, the other runner won; skip it rather than duplicate its work. (targetSkipReason
+    // documents the decision, including why a flag-clean malformed-wines target still proceeds.)
+    const fresh = (await sql`
+      SELECT g.invalid_reasons, g.metadata->>'archived' AS archived, g.wines, k.validated
+      FROM generated_questions g LEFT JOIN stem_answer_keys k USING (question_id)
+      WHERE g.question_id = ${old.question_id}`)[0];
+    const staleReason = targetSkipReason(fresh);
+    if (staleReason) {
+      console.log(`  – SKIPPED (${staleReason}) — another runner got here first\n`);
+      results.push({ old: old.question_id, ok: false, skipped: true });
+      continue;
+    }
+
     // TIER 1 FIRST, ALWAYS. Cheapest sufficient fix wins, and the validator decides whether it was
     // sufficient — so this can never be the reason a broken question returns to service. A question
     // whose wines are fine and whose marks are merely mis-split keeps its flight, its key, its model
@@ -765,14 +782,16 @@ async function main() {
   console.log("──────── REMEDIATION SUMMARY ────────");
   for (const r of results)
     console.log(
-      `  ${r.ok ? "✓" : r.deferred ? "–" : "✗"} ${r.old}` +
-        `${r.repaired ? " (repaired in place)" : r.new ? " → " + r.new : r.deferred ? " (deferred to regeneration)" : ""}`
+      `  ${r.ok ? "✓" : r.deferred || r.skipped ? "–" : "✗"} ${r.old}` +
+        `${r.repaired ? " (repaired in place)" : r.new ? " → " + r.new : r.deferred ? " (deferred to regeneration)" : r.skipped ? " (skipped — another runner got there first)" : ""}`
     );
   const okCount = results.filter((r) => r.ok).length;
   const deferred = results.filter((r) => r.deferred).length;
+  const skipped = results.filter((r) => r.skipped).length;
   console.log(
     `\n${okCount}/${results.length} fixed — ${repairedCount} repaired in place, ${okCount - repairedCount} regenerated` +
       `${deferred ? `, ${deferred} deferred to the regeneration pass` : ""}` +
+      `${skipped ? `, ${skipped} skipped (handled by another runner)` : ""}` +
       `${deferredForPr.length ? `, ${deferredForPr.length} awaiting a rule PR` : ""}.` +
       `${APPLY ? " Committed." : " (dry run — pass --apply to commit)"}`
   );
