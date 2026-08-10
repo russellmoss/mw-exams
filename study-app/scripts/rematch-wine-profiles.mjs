@@ -57,7 +57,21 @@ const { enrichWineProfiles } = await import("../src/lib/wine-enrichment.ts");
 const apply = process.argv.includes("--apply");
 const limitArg = process.argv.find((a) => a.startsWith("--limit="));
 const LIMIT = limitArg ? Number(limitArg.slice("--limit=".length)) : Infinity;
-const APIKEY = process.env.TAVILY_API_KEY;
+// --include-empty also repairs slots with source_method='none' (no research at all). OFF by default:
+// 256 such slots exist bank-wide for reasons unrelated to the matcher, and sweeping them up silently
+// would turn a scoped repair into a 250-enrichment bill. ON, it makes the script self-healing for a
+// run that died half way, since an interrupted repair leaves exactly that state.
+const includeEmpty = process.argv.includes("--include-empty");
+// --only=<question_id,...> restricts the run to named questions.
+const onlyIds = new Set(
+  (process.argv.find((a) => a.startsWith("--only=")) || "").slice("--only=".length).split(",").filter(Boolean)
+);
+// enrichWineProfiles' third parameter is the ANTHROPIC key — it builds `new Anthropic({ apiKey })`
+// for wine classification and grid extraction. Tavily is read from process.env internally, so both
+// keys are needed but only this one is passed. Getting this wrong does not fail loudly: every model
+// call 401s, each one is caught and falls back to a regex parse, and the run reports questions as
+// "repaired" while writing profiles with no researched content at all.
+const APIKEY = process.env.ANTHROPIC_API_KEY;
 
 const sql = neon(process.env.DATABASE_URL);
 
@@ -74,31 +88,43 @@ const rows = await sql`
 
 const parse = (v) => (typeof v === "string" ? JSON.parse(v) : v);
 
-let clean = 0, rematched = 0, orphaned = 0, skipped = 0;
+let clean = 0, rematched = 0, orphaned = 0, empty = 0, skipped = 0;
 const affected = new Map(); // question_id → { slots: number[], answerAtRisk: boolean }
 
+const flag = (r, w, kind, detail) => {
+  const prev = affected.get(r.question_id) || { slots: [], answerAtRisk: r.has_answer };
+  prev.slots.push(w.slot);
+  affected.set(r.question_id, prev);
+  console.log(`${kind} ${r.question_id} slot ${w.slot}\n           label: ${w.fullText}\n${detail}`);
+};
+
 for (const r of rows) {
+  if (onlyIds.size && !onlyIds.has(r.question_id)) continue;
   const wines = parse(r.wines);
   const profiles = parse(r.wine_profiles);
   if (!Array.isArray(wines) || !profiles) continue;
 
   for (const w of wines) {
     const p = profiles[String(w.slot)];
-    // Only bank_lookup profiles are in scope. An llm_enrichment profile was never matched against the
-    // bank, so the substring bug cannot have produced it — it has its own (separate) evidence problem.
+
+    // No research at all — never enriched, or left this way by an interrupted repair.
+    if (includeEmpty && (!p || p.source_method === "none")) {
+      empty++;
+      flag(r, w, "EMPTY   ", `           was:   — no profile —\n           now:   re-research`);
+      continue;
+    }
+
+    // Only bank_lookup profiles are in scope otherwise. An llm_enrichment profile was never matched
+    // against the bank, so the substring bug cannot have produced it — it has its own (separate)
+    // evidence problem, and re-running it here would spend without fixing that.
     if (!p || p.source_method !== "bank_lookup" || !p.bank_match) { skipped++; continue; }
 
     const match = lookupWine(w.fullText);
     if (match && match.entry.id === p.bank_match) { clean++; continue; }
 
     if (match) rematched++; else orphaned++;
-    const prev = affected.get(r.question_id) || { slots: [], answerAtRisk: r.has_answer };
-    prev.slots.push(w.slot);
-    affected.set(r.question_id, prev);
-
-    console.log(
-      `${match ? "REMATCH " : "ORPHAN  "} ${r.question_id} slot ${w.slot}\n` +
-      `           label: ${w.fullText}\n` +
+    flag(
+      r, w, match ? "REMATCH " : "ORPHAN  ",
       `           was:   ${p.bank_match}${p.colour ? ` (${p.colour})` : ""}\n` +
       `           now:   ${match ? match.entry.id : "— no bank entry —"}`
     );
@@ -110,7 +136,8 @@ console.log(`bank_lookup profiles checked: ${clean + rematched + orphaned}`);
 console.log(`  still resolve to same entry: ${clean}`);
 console.log(`  resolve to a DIFFERENT entry: ${rematched}`);
 console.log(`  no longer resolve at all:     ${orphaned}`);
-console.log(`profiles not in scope (llm/none): ${skipped}`);
+if (includeEmpty) console.log(`empty profiles picked up (--include-empty): ${empty}`);
+console.log(`profiles not in scope: ${skipped}`);
 console.log(`questions affected: ${affected.size}`);
 console.log(
   `  of which already carry a model answer written off the wrong bottle: ` +
@@ -122,10 +149,28 @@ if (!apply) {
   process.exit(0);
 }
 
-if (!APIKEY) {
-  console.error(`\nTAVILY_API_KEY is not set. Re-enrichment researches wines the bank does not hold;`);
-  console.error(`without it every orphaned slot would fail soft and be left with no profile at all.`);
+// PRE-FLIGHT, NOT A PRESENCE CHECK. Enrichment catches its own model errors and falls back to a
+// regex parse, so a key that is merely PRESENT and wrong produces a run that reports success while
+// writing empty profiles — which is exactly what happened on the first attempt at this repair
+// (the Tavily key was passed where the Anthropic key belongs; 11 questions were "repaired" into
+// nothing). Spend the one call to find out before spending ninety enrichments.
+if (!APIKEY || !process.env.TAVILY_API_KEY) {
+  console.error(`\nNeed BOTH ANTHROPIC_API_KEY (classification, grid extraction) and TAVILY_API_KEY`);
+  console.error(`(the research itself). Missing: ${[!APIKEY && "ANTHROPIC_API_KEY", !process.env.TAVILY_API_KEY && "TAVILY_API_KEY"].filter(Boolean).join(", ")}`);
   process.exit(1);
+}
+{
+  const probe = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "x-api-key": APIKEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+    body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 4, messages: [{ role: "user", content: "hi" }] }),
+  });
+  if (!probe.ok) {
+    console.error(`\nANTHROPIC_API_KEY rejected by the API (${probe.status}). Refusing to run —`);
+    console.error(`every enrichment would fail soft and overwrite good profiles with empty ones.`);
+    console.error((await probe.text()).slice(0, 200));
+    process.exit(1);
+  }
 }
 
 let repaired = 0, failed = 0;
