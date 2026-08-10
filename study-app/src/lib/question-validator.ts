@@ -758,9 +758,9 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
 // textbook benchmark expressions; every other wine — including any whose origin we cannot place — is
 // a CURVEBALL, so the rule fails SAFE (an unrecognised wine counts against the flight, never for it).
 //
-// Rule: a flight of 2+ wines must contain at least one banker, and the number of curveballs must not
-// exceed min(2, ceil(n/2)) — 2-wine flights allow 1 curveball, 3–6 wine flights allow 2. Rejections
-// name the curveball wines so the admin can see (and overrule) the call.
+// Rule: a flight of 2+ wines must contain at least one banker, and bankers must hold at least half
+// the flight — curveballs capped at max(1, floor(n/2)), so 2–3 wine flights allow 1, 4–5 allow 2,
+// 6 allow 3. Rejections name the curveball wines so the admin can see (and overrule) the call.
 //
 // THE LOOKUP ITSELF NOW LIVES IN data/banker_signals.json, not here. It is the one body of wine
 // knowledge in this file that a human expert routinely corrects — several of its entries were
@@ -838,8 +838,9 @@ function wineLabel(w: AuditWine): string {
 }
 
 /**
- * Flight-composition rule. Every flight of 2+ wines must have at least one banker, and the number of
- * curveballs must not exceed min(2, ceil(n/2)). Returns hard violations naming the curveball wines.
+ * Flight-composition rule. Every flight of 2+ wines must have at least one banker, and bankers must
+ * hold at least half the flight — curveballs capped at max(1, floor(n/2)). Returns hard violations
+ * naming the curveball wines.
  */
 export function flightCompositionViolations(wines: AuditWine[]): Violation[] {
   const flight = wines || [];
@@ -862,12 +863,18 @@ export function flightCompositionViolations(wines: AuditWine[]): Violation[] {
   // flight was held to the same budget as a four-wine one. Measured over the real exam that rejected
   // 27% of its flights; scaling with the flight instead takes it to 5%, while still rejecting 11% of
   // our generated flights — this rule, unlike id-mark-allocation, does have signal against the bank.
-  const maxCurveballs = Math.max(2, Math.ceil(n / 2));
+  //
+  // `max(2, ceil(n/2))` then let bankers be a MINORITY of small flights — 2 curveballs in a 3-wine
+  // flight passed — and the 2026-08 expert review rejected exactly those: 74 of 177 down-votes are
+  // ratio complaints ("in a six-wine flight I would expect three or four bankers and one to two
+  // curveballs", review #488 corpus). floor(n/2) is the reviewer's stated standard — bankers hold at
+  // least half the flight — with a floor of 1 so a 2-wine contrast pair may still carry one curveball.
+  const maxCurveballs = Math.max(1, Math.floor(n / 2));
   if (curveballs.length > maxCurveballs) {
     v.push({
       rule: "flight-composition",
       severity: "hard",
-      detail: `flight of ${n} wines has ${curveballs.length} curveballs but at most ${maxCurveballs} is expected (one, two at best): ${list}.`,
+      detail: `flight of ${n} wines has ${curveballs.length} curveballs but at most ${maxCurveballs} is expected — bankers must hold at least half the flight: ${list}.`,
     });
   }
 
