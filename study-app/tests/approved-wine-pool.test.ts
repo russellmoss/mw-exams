@@ -112,3 +112,24 @@ describe("generation wiring", () => {
     expect(engine.slice(poolAt - 800, poolAt + 800)).toMatch(/catch \(poolErr\)/);
   });
 });
+
+describe("remediation gets the pool too", () => {
+  // question-engine appends the pool inside generateFreshQuestion; remediate-questions.mjs assembles
+  // its OWN prompt and would silently have missed it — the same drift that left this script running
+  // Opus while the bank was built on Sonnet, and generating without the producer ban.
+  //
+  // It matters most here. Measured over 497 reviewer votes, questions this script regenerated were
+  // rejected 42.0% of the time against 35.9% for the originals they replaced: regeneration has been
+  // making the bank slightly worse, and wine choice is the reason.
+  const script = readFileSync(join(__dirname, "..", "scripts", "remediate-questions.mjs"), "utf-8");
+
+  it("appends the approved pool", () => {
+    expect(script).toMatch(/prompt\.system \+= buildApprovedPoolBlock\(pool\)/);
+  });
+
+  it("appends it after the producer exclusion, as the engine does", () => {
+    expect(script.indexOf("buildProducerExclusionBlock(excluded")).toBeLessThan(
+      script.indexOf("buildApprovedPoolBlock(pool)")
+    );
+  });
+});
