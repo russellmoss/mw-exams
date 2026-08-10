@@ -317,6 +317,12 @@ export async function saveGeneratedQuestion(q: {
   // Live Tasting (migration 041): 'live-tasting' rows belong to one user's session and are
   // excluded from every pool query (which all filter scope='pool'). Omitted → 'pool'.
   scope?: string;
+  // Recurring-archetype guard (feedback cluster). The banker-aware archetype key + anchor
+  // appellation the engine computed for this flight, stamped onto the row's metadata so the rolling
+  // recent-archetype window is a stored read. Omitted (other save paths) → a best-effort fallback is
+  // derived here so EVERY row carries a key.
+  archetypeKey?: string | null;
+  archetypeAnchor?: string | null;
 }): Promise<GeneratedQuestion> {
   const sql = getDb();
   // Tag Paper 3 questions with their style family at insert (pure code, no LLM) so the weighted
@@ -340,9 +346,19 @@ export async function saveGeneratedQuestion(q: {
   // insert time so the serve/generation exclusion is a stored read, not a re-derivation. Computed
   // over the exact wines being written; the ON CONFLICT re-save (background model answer) never
   // touches metadata, so the value from first insert holds. See computeFlightSignature.
+  // Recurring-archetype guard (feedback cluster): stamp the archetype key + anchor appellation on the
+  // row so the recent-archetype window is a stored read. Prefer the engine's banker-aware values; for
+  // a save path that supplied none, fall back to the (banker-free) derivation so no row is unkeyed.
+  const archetypeFallback = q.archetypeKey && q.archetypeAnchor ? null : fallbackFlightAnchor(q.wines);
+  const archetypeAnchor = q.archetypeAnchor ?? archetypeFallback!.region;
+  const archetypeKey =
+    q.archetypeKey ??
+    `p${q.paper}|n${parseWinesLoose(q.wines).length}|${deriveStemFamily(q.questionText)}|${archetypeFallback!.variety}|${archetypeFallback!.region}`;
   const metadataToStore = {
     ...(q.metadata || {}),
     flightSignatureKeyed: computeFlightSignature(q.paper, q.family, q.wines),
+    archetypeKey,
+    archetypeAnchor,
   };
   const rows = await sql`
     INSERT INTO generated_questions (
@@ -1276,6 +1292,110 @@ export async function getRecentFlightSizes(paper: number, limit = 20): Promise<n
     LIMIT ${limit}
   `) as { wines: unknown }[];
   return rows.map((r) => parseWinesLoose(r.wines).length).filter((n) => n > 0);
+}
+
+// ── Recurring-archetype guard (feedback cluster: same template + anchor recurs above exam frequency) ──
+//
+// Distinct from wine-level and flight-level duplication: the WINES differ but the STRUCTURE keeps
+// repeating — "a Soave Classico plus neutral Italian whites, same country / different regions" and
+// "a Riesling from Germany vs one from Australia" surface again and again, at a rate the reviewer
+// (Mike Juergens) says is disproportionate to real MW papers (fb_613/612/609/606/564/560/521).
+//
+// The guard keys on an ARCHETYPE = paper + wine count + stem-family id + the normalised
+// variety|region of the flight's highest-classicism (banker) wine. The banker-aware archetype key is
+// computed in question-engine.ts (which owns the banker signal layer) and STORED on the row's
+// metadata at save time (metadata.archetypeKey / metadata.archetypeAnchor), exactly as the flight
+// signature is — the migrations dir is out of this feature's scope, so the value rides on the
+// metadata JSON with a compute-on-the-fly fallback for any row generated before this feature.
+
+// The rolling window the guard judges an archetype against: the most recent N banked questions for a
+// paper. Exported so the engine's selection policy and its recent-archetype fetch share one number.
+export const ARCHETYPE_WINDOW = 40;
+
+// The four stem FAMILIES the reviewer's cluster spans, plus "other". Pure and dependency-free so the
+// archetype key can be computed identically in the engine (banker-aware anchor) and here (fallback
+// anchor for legacy rows). Priority order mirrors how the flagged stems read: a "same country /
+// different regions" flight is that family even when it ALSO says each wine is a different variety
+// (fb_612/606), because the recurring shape the reviewer objects to is the country/regions frame.
+export type StemFamily =
+  | "same-country/different-regions"
+  | "same-region/different-varieties"
+  | "different-countries/different-varieties"
+  | "same-variety/different-countries"
+  | "other";
+
+export function deriveStemFamily(stem: string): StemFamily {
+  const s = (stem || "").toLowerCase();
+  const sameCountry = /\bsame country\b/.test(s);
+  const sameRegion = /\bsame region\b/.test(s);
+  const sameVariety = /same (?:single )?grape variet|\bsame variet/.test(s);
+  const diffRegions = /different region/.test(s);
+  const diffCountries = /different countr/.test(s);
+  const diffVarieties = /different[^.]*?(?:single )?grape variet|different[^.]*?variet/.test(s);
+  if (sameCountry && diffRegions) return "same-country/different-regions";
+  if (sameRegion && diffVarieties) return "same-region/different-varieties";
+  if (diffCountries && diffVarieties) return "different-countries/different-varieties";
+  if (sameVariety) return "same-variety/different-countries";
+  return "other";
+}
+
+// Fallback archetype anchor for a row that has no stored, banker-aware anchor (every row generated
+// before this feature). Deliberately does NOT reach for the banker-signal layer (that lives in
+// question-validator.ts, which imports THIS module — importing it back would be a cycle): it picks
+// the most specific, deterministically-first variety|region across the flight. New rows never hit
+// this path — they carry the engine's banker-aware key/anchor on their metadata.
+function fallbackFlightAnchor(wines: unknown): { variety: string; region: string } {
+  const list = parseWinesLoose(wines);
+  const anchors = list
+    .map((w) => {
+      const full = typeof w.fullText === "string" ? w.fullText : "";
+      const variety = (detectPrimaryVariety(full) || "unknown").toLowerCase();
+      const region = wineRegionToken(full) || "unknown";
+      return { variety, region, key: `${variety}|${region}` };
+    })
+    .filter((a) => a.region !== "unknown" || a.variety !== "unknown");
+  if (anchors.length === 0) return { variety: "unknown", region: "unknown" };
+  anchors.sort((a, b) => a.key.localeCompare(b.key));
+  return anchors[0];
+}
+
+// The archetype key + anchor appellation for a stored question row: prefer the banker-aware values
+// stamped at save time, else derive a best-effort fallback (legacy rows). Format matches
+// computeArchetypeKey in question-engine.ts so a candidate's key compares equal to a recent row's.
+export function archetypeOfQuestion(q: {
+  paper: number;
+  question_text?: string | null;
+  wines: unknown;
+  metadata?: Record<string, unknown> | null;
+}): { archetypeKey: string; anchorAppellation: string } {
+  const meta = q.metadata || {};
+  const storedKey = typeof meta.archetypeKey === "string" ? (meta.archetypeKey as string) : null;
+  const storedAnchor = typeof meta.archetypeAnchor === "string" ? (meta.archetypeAnchor as string) : null;
+  if (storedKey && storedAnchor) return { archetypeKey: storedKey, anchorAppellation: storedAnchor };
+  const wines = parseWinesLoose(q.wines);
+  const anchor = fallbackFlightAnchor(wines);
+  const family = deriveStemFamily(q.question_text || "");
+  const key = storedKey ?? `p${q.paper}|n${wines.length}|${family}|${anchor.variety}|${anchor.region}`;
+  return { archetypeKey: key, anchorAppellation: storedAnchor ?? anchor.region };
+}
+
+// The archetype key + anchor appellation of the last `limit` questions for a paper, most-recent
+// first — the rolling window the engine's selection policy counts a candidate against. Reads the
+// stored values with a compute-on-the-fly fallback, mirroring getRecentFlightSignatures.
+export async function getRecentArchetypes(
+  paper: number,
+  limit = ARCHETYPE_WINDOW
+): Promise<{ archetypeKey: string; anchorAppellation: string }[]> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT paper, question_text, wines, metadata FROM generated_questions
+    WHERE paper = ${paper} AND scope = 'pool'
+    ORDER BY created_at DESC
+    LIMIT ${limit}
+  `) as { paper: number; question_text: string | null; wines: unknown; metadata: Record<string, unknown> | null }[];
+  return rows.map((r) =>
+    archetypeOfQuestion({ paper: r.paper, question_text: r.question_text, wines: r.wines, metadata: r.metadata })
+  );
 }
 
 export async function getUnansweredQuestions(
