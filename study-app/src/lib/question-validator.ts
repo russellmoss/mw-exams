@@ -2431,6 +2431,122 @@ export function validatePaperStyleMix(
 }
 
 // ---------------------------------------------------------------------------------------------------
+// P3 COMMON-AXIS COHERENCE — a Paper 3 flight must hang on ONE testable axis (fb_591 / fb_592 / fb_602).
+//
+// Three accepted/partial reviews rejected Paper 3 flights as "unclear what it's actually trying to
+// test": a sweet fortified Muscat vs a rosé vs a sweet Monastrell (fb_602); a sherry vs a rosé vs a
+// sparkling (fb_592); a vin jaune vs a Tokaji vs a manzanilla vs a Rutherglen (fb_591). In the
+// reviewer's words, a real P3 flight tests ONE thing — "you're either looking at rosé styles ... or
+// different methods of creating sugar ... or fortification methods", not "this random combination of
+// all things". Real P3 flights hang on a single axis: all sparkling, all rosé, all fortified, all
+// sweet, all oxidative/flor-aged, or one variety across origins.
+//
+// This rule maps each keyed wine to a top-level P3 category — {sparkling, rosé, fortified,
+// sweet-unfortified, oxidative/flor-aged, dry-still} — using the SAME classifyWineStyle() the P3
+// sampler and paper-style-mix use, then:
+//   • rejects (NO_COMMON_AXIS, hard) any multi-wine flight spanning THREE OR MORE distinct categories;
+//   • where EXACTLY TWO categories are present, requires the stem/sub-parts to name the comparison
+//     explicitly ("both are sweet wines", "compare the methods of fortification"); absent that, the
+//     two-axis flight has no stated axis either and is rejected with the same code.
+// A one-category flight always passes. Paper 3 ONLY — the other papers carry their own scope rules.
+//
+// WINE-side (the fix is "pick coherent wines" / "name the axis"), and — like R-OW-ANCHOR — it stays
+// HARD in every path: the reviewer's standard has no real-exam counter-example (a genuine P3 flight
+// always hangs on one axis), so there is no pool-admission exception to trade against.
+// ---------------------------------------------------------------------------------------------------
+
+/** The six top-level Paper 3 axes a flight can hang on. */
+export type P3Axis =
+  | "sparkling"
+  | "rosé"
+  | "fortified"
+  | "sweet-unfortified"
+  | "oxidative/flor-aged"
+  | "dry-still";
+
+/**
+ * Map ONE keyed wine to its top-level P3 axis. Fortification / sparkle / sweetness / oxidative
+ * handling win over the (dry) rosé bucket, because a rosé Champagne or a rosé Port is coherent WITHIN
+ * an all-sparkling or all-fortified flight — the cross-cutting rosé axis is only what a *still, dry*
+ * rosé sits on. Mirrors classifyWineStyle's own fortified > sweet > sparkling > oxidative priority.
+ */
+function p3AxisOf(w: AuditWine): P3Axis {
+  const { style, isRose } = wineStyleTags(w);
+  switch (style) {
+    case "fortified":
+      return "fortified";
+    case "sparkling":
+      return "sparkling";
+    case "sweet":
+      return "sweet-unfortified";
+    case "oxidative":
+      return "oxidative/flor-aged";
+    default:
+      return isRose ? "rosé" : "dry-still";
+  }
+}
+
+// Phrases that NAME an axis in the question text (stem or sub-parts), tested against normStem()'d text
+// (lower-cased, de-accented, punctuation flattened — so "rosé" reads "rose", "late-harvest" reads
+// "late harvest"). For a two-axis flight, the comparison is named when the text names EITHER of the
+// two present axes — e.g. a fortified+sweet-still pair is licensed by "both are sweet wines" (names
+// the shared sweetness axis) or by "compare the methods of fortification" (names the fortification axis).
+const P3_AXIS_STEM_CUES: Record<P3Axis, RegExp> = {
+  sparkling:
+    /\bsparkling\b|\bmethods? of production\b|\btraditional method\b|\bsecond(?:ary)? fermentation\b/,
+  "rosé": /\bros(?:e|es|ado|ato|at)\b|\bvin gris\b|\bblush\b/,
+  fortified: /\bfortif/,
+  "sweet-unfortified":
+    /\bsweet\b|\bsweetness\b|\bresidual sugar\b|\bbotrytis\b|\bnoble rot\b|\blate harvest\b|\bdessert wines?\b|\bsugar\b/,
+  "oxidative/flor-aged":
+    /\boxidat|\bflor\b|\bsous voile\b|\bvin jaune\b|\bbiologically aged\b|\bunder flor\b/,
+  "dry-still": /\bdry\b|\bstill wines?\b/,
+};
+
+/**
+ * Paper 3 common-axis coherence. Returns a single NO_COMMON_AXIS hard violation for a P3 flight that
+ * spans 3+ axes, or a two-axis flight whose text never names the comparison. Empty for every other
+ * paper, single-wine flights, one-axis flights, and named two-axis contrasts.
+ */
+export function p3CommonAxisViolations(q: QuestionForAudit): Violation[] {
+  if (q.paper !== 3) return [];
+  const wines = q.wines || [];
+  if (wines.length < 2) return [];
+
+  const perWine = wines.map((w) => ({ axis: p3AxisOf(w), label: wineLabel(w) }));
+  const distinct = [...new Set(perWine.map((p) => p.axis))];
+  if (distinct.length <= 1) return []; // one axis — the whole flight is testing one thing
+
+  const breakdown = perWine.map((p) => `${p.label} → ${p.axis}`).join("; ");
+
+  if (distinct.length >= 3) {
+    return [
+      {
+        rule: "NO_COMMON_AXIS",
+        severity: "hard",
+        detail: `Paper 3 flight spans ${distinct.length} distinct style axes (${distinct.join(
+          ", ",
+        )}) with no single testable axis: ${breakdown}. A P3 flight must hang on ONE axis — all sparkling, all rosé, all fortified, all sweet, all oxidative/flor-aged, or one variety across origins — not a grab-bag of styles.`,
+      },
+    ];
+  }
+
+  // Exactly two axes: legitimate ONLY when the text names the comparison the candidate is meant to make.
+  const stem = normStem(q.questionText);
+  const named = distinct.some((axis) => P3_AXIS_STEM_CUES[axis].test(stem));
+  if (named) return [];
+  return [
+    {
+      rule: "NO_COMMON_AXIS",
+      severity: "hard",
+      detail: `Paper 3 flight mixes two style axes (${distinct.join(
+        " + ",
+      )}) without naming the comparison: ${breakdown}. Either draw every wine from one axis, or state the shared axis explicitly (e.g. "both are sweet wines", "compare the methods of fortification").`,
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------------------------------
 // R-COLOUR — the unconditional colour/style contract (Right Paper Check).
 //
 // A hard rule alongside R1 (country diversity), R2 (same variety) and the mark-allocation validators.
@@ -4196,6 +4312,10 @@ export function validateQuestion(
       stemFixed ? { ...v, severity: "soft" as const } : v,
     ),
   );
+  // NO_COMMON_AXIS — a Paper 3 flight must hang on ONE testable axis (fb_591/592/602). WINE-side and,
+  // like R-OW-ANCHOR, HARD in every path: a genuine P3 flight always tests one thing, so there is no
+  // real-exam false positive to demote for. Scoped to Paper 3 inside the rule itself.
+  violations.push(...p3CommonAxisViolations(q));
   // R-COLOUR (Right Paper Check) runs here by DEFAULT, and that default is the whole point.
   //
   // It used to be excluded, on the grounds that some unit-test fixtures are keyed only for the rule
