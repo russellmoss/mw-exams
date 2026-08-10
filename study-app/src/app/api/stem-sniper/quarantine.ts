@@ -26,7 +26,23 @@
 // serve-time key checks; quarantined from the drill pool pending regeneration with a valid whole-mark
 // 50-total structure. (The submitter's personal remark about a third party is unrelated to question
 // validity and is disregarded.)
+//
+// gen_p1_F2_1786319324532 — rejected in direct bank review (M. Juergens). A same-region P1 F2 flight
+// built entirely around Rully (Côte Chalonnaise): a Rully Chardonnay against a Rully Aligoté. Neither
+// wine functions as a banker — the shape a same-origin flight consistently honours is at least one
+// wine the candidate can name from the glass alone (the corpus anchors same-region Burgundy flights on
+// Côte d'Or classics: Meursault, Corton-Charlemagne, Puligny-Montrachet, or a Chablis 1er Cru). Rully
+// has zero precedent as the ORGANISING PREMISE of a same-origin question, and both wines here sit at
+// medium-high identification difficulty (Rully Blanc reads as a range of Chalonnaise/Mâconnais whites;
+// Rully Aligoté is a high curveball in any practical context). That inverts the family's distribution:
+// the identification marks (8 for region + 2×5 for variety) rest on a call effectively unreachable by
+// most candidates. The answer-key derivation is a per-wine variety/origin artifact with no view of a
+// flight's banker provision or curveball density, so this fault is invisible to serve-time key checks;
+// quarantined from the drill pool pending regeneration with at least one clearly-anchored wine from a
+// better-mapped appellation. (The submitter's personal remark about a third party carries no
+// wine-content signal and is disregarded.)
 export const STEM_SNIPER_QUARANTINE: string[] = [
   "gen_p2_F2_1786071519959",
   "gen_p2_any_1780197953533",
+  "gen_p1_F2_1786319324532",
 ];
