@@ -4370,19 +4370,44 @@ export function validateNoveltyAgainstLatest(
       continue;
     }
 
-    // Structural/thematic repeat: same family, same flight size, and a near-identical concept
-    // fingerprint (same stem template + same pedagogical contrast axis). Fires even when the
-    // specific wines, countries, and varieties all differ — the case the original heuristic missed.
+    // Structural repeat: same family, same flight size, near-identical concept fingerprint — AND a
+    // flight built substantially from the same wines.
+    //
+    // THE WINE CONDITION IS THE FIX (2026-08-11). This rule used to fire on the stem signature alone,
+    // "even when the specific wines, countries, and varieties all differ". Measured against the 126
+    // real past-paper questions on the same window and flight-size condition, that rejects 11.9% of
+    // them — for scale, the anchor rule was reverted at 13.1%. The clearest case is a single real
+    // paper: 2013 P1 Q1 and Q2 are the SAME template word for word ("Wines 1 and 2 / Wines 3 and 4
+    // are from the same country, but from different regions and different single grape varieties"),
+    // same flight size, signature overlap 1.00. The IMW set it twice on purpose — the structure is
+    // the constant and the WINES are the variable — and this rule rejected the second one.
+    //
+    // The correct calibration was already in this file, forty lines up, applied only in targeted
+    // mode after the P2/F4 pilot generated 0 of 6 on 46 Opus calls: "Reusing a stem template is not
+    // actually the defect. The real papers reuse stem shapes across years — what must be new is the
+    // WINES." Untargeted generation had the old behaviour and paid the same price — a 38-attempt
+    // cohort run on 2026-08-11 produced 10 questions and fell back to a banked one 28 times, with
+    // this rule accounting for 40 of the attempt failures. Telemetry over 9 days: 259 of 3390 failed
+    // attempts (7.6%) cite this rule as their ONLY reason.
+    //
+    // So the stem signature now selects WHICH recent question to compare against, and the wine
+    // overlap decides whether it is a repeat. Exact-stem and exact-wine-set repeats above stay hard
+    // in every mode; those are the real defects and they are unaffected.
     const sameFamily = candidate.family === recent.family;
     const sameFlightSize = candidate.wines.length === recent.wines.length;
     const recentSig = stemStructureSignature(recent.question_text);
     const sigOverlap = jaccard(candidateSig, recentSig);
     if (
       i < STRUCTURAL_REPEAT_WINDOW &&
-      sameFamily && sameFlightSize && candidateSig.size >= 4 && recentSig.size >= 4 && sigOverlap >= 0.7
+      sameFamily && sameFlightSize && candidateSig.size >= 4 && recentSig.size >= 4 && sigOverlap >= 0.7 &&
+      // Same threshold targeted mode uses, deliberately: one number for "this flight is substantially
+      // the same wines", so the two paths cannot drift into disagreeing about what a repeat is.
+      wineOverlapRatio(candidate.wines, recent.wines) > TARGETED_MAX_WINE_OVERLAP
     ) {
       violations.push(
-        "Generated question reuses the same structural template and pedagogical contrast as a recent question (same family, flight size, stem shape, and tested concepts). Change the contrast axis or the wine archetypes so this is a genuinely new exam problem."
+        `Generated question reuses a recent question's structural template AND ${Math.round(
+          wineOverlapRatio(candidate.wines, recent.wines) * 100
+        )}% of its wines (same family, flight size and stem shape). Reusing the stem shape is fine — the real papers do it within one paper — but build it from different wines.`
       );
       break;
     }

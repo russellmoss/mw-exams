@@ -105,11 +105,31 @@ const filler = (n: number) =>
     w(3, `Producer ${n}c, Cuvée ${n}c, 2018. Region ${n}c, Country ${n}c. (13.5%)`),
   ]);
 
+// Two of FLIGHT_1's three wines, plus one new — 67% overlap, over the 50% bar. Same shape AND
+// substantially the same bottles is the genuine repeat the rule is for.
+const FLIGHT_1_MOSTLY_SHARED = [
+  w(1, "Domaine Leflaive, Puligny-Montrachet, 2019. Burgundy, France. (13.0%)"),
+  w(2, "Trimbach, Riesling Cuvée Frédéric Emile, 2016. Alsace, France. (12.5%)"),
+  w(3, "Álvaro Palacios, Les Terrasses, 2019. Priorat, Spain. (14.5%)"),
+];
+
 describe("structural repeat window is enforced", () => {
-  it("blocks a structural repeat inside the window", () => {
-    const r = validateNoveltyAgainstLatest(cand(STEM_A, FLIGHT_1), null, [prev(STEM_B, FLIGHT_2)]);
+  it("blocks a structural repeat inside the window when the wines also overlap", () => {
+    const r = validateNoveltyAgainstLatest(cand(STEM_A, FLIGHT_1_MOSTLY_SHARED), null, [prev(STEM_B, FLIGHT_1)]);
     expect(r.valid).toBe(false);
     expect(r.violations.join(" ")).toMatch(/structural template/i);
+  });
+
+  it("ALLOWS the same structure when every wine is different — the real papers do this", () => {
+    // This assertion was inverted until 2026-08-11, and the corpus says it was wrong. Measured over
+    // the 126 real past-paper questions on this same window and flight-size condition, rejecting on
+    // stem signature alone rejects 11.9% of them (the anchor rule was reverted at 13.1%). The
+    // unarguable case is one real paper: 2013 P1 Q1 and Q2 are the same template word for word
+    // ("Wines 1 and 2 / Wines 3 and 4 are from the same country, but from different regions and
+    // different single grape varieties"), same flight size, signature overlap 1.00 — set twice by the
+    // IMW on purpose, because the structure is the constant and the WINES are the variable.
+    const r = validateNoveltyAgainstLatest(cand(STEM_A, FLIGHT_1), null, [prev(STEM_B, FLIGHT_2)]);
+    expect(r.valid).toBe(true);
   });
 
   it("allows the same structure once it has fallen outside the window", () => {
