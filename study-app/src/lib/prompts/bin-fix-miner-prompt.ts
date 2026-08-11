@@ -25,7 +25,16 @@ export interface MinableBinRow {
 
 export interface ExistingProposalSummary {
   theme: string;
+  /**
+   * The OUTCOME label from proposal-outcomes.ts, not the raw DB status.
+   *
+   * A shipped proposal arrives here as "shipped — NOT VALIDATED" or "shipped — DID NOT HOLD, fault
+   * re-proposed as #N". The raw status alone read as a track record: twenty-one rows saying
+   * "[shipped]" while the measured reject rate over the same period went 34% -> 42%.
+   */
   status: string;
+  /** Proposal id, so a recurrence label can name the proposal that restated the fault. */
+  id?: string;
 }
 
 export function buildBinFixMinerPrompt(params: {
@@ -130,19 +139,27 @@ Raw JSON only — no markdown fences, no prose before or after:
 
   const proposalsBlock =
     params.existingProposals.length > 0
-      ? params.existingProposals.map((p) => `- [${p.status}] ${p.theme}`).join("\n")
+      ? params.existingProposals
+          .map((p) => `- [${p.status}]${p.id ? ` #${p.id}` : ""} ${p.theme}`)
+          .join("\n")
       : "(none)";
 
   const user = `## Signal ledger — reasoned bins + accepted user feedback still live in the prompt feeds
 ${rowsBlock}
 
 ## Existing proposals (do not duplicate; 'rejected' means declined — do not re-propose)
-SHIPPED DOES NOT MEAN IT WORKED. These statuses record what happened to the PR, not whether the fault
-went away. Measured over 497 reviewer votes, fifteen rules written this way moved the reject rate from
-34% to 42% — they made it worse — and one of them ended up rejecting 13.1% of REAL past-paper flights.
-So a long list of shipped proposals is not evidence the approach is working; if a fault keeps
-recurring after a fix shipped for it, the fix was aimed at the wrong layer, and re-proposing the same
-shape at the same layer will fail the same way.
+SHIPPED DOES NOT MEAN IT WORKED, and each row now carries what is actually known:
+- "shipped — NOT VALIDATED" — the PR merged; nothing has measured whether the fault stopped. This is
+  the honest default, not a pass. Measured over 497 reviewer votes, fifteen rules written this way
+  moved the reject rate from 34% to 42% — they made it WORSE — and one rejected 13.1% of REAL
+  past-paper flights. A long list of shipped rows is not a track record.
+- "shipped — DID NOT HOLD, fault re-proposed as #N" — the fault came back after the fix landed. Do
+  NOT re-propose the same shape at the same layer; it already failed once. Either target a different
+  layer (usually: prevent it at selection instead of rejecting it at validation) or leave it alone
+  and say why in a different cluster.
+Recurrence detection UNDER-REPORTS — it matches theme text, and you are told above not to repeat a
+theme, so the clearest evidence of failure is the thing this instruction suppresses. Treat "NOT
+VALIDATED" as unknown, never as working.
 ${proposalsBlock}
 
 Mine the clusters now and return the strict JSON.`;

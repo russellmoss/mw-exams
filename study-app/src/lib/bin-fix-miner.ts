@@ -35,6 +35,7 @@ import {
 } from "@/lib/db";
 import type { MinableBinRow } from "@/lib/prompts/bin-fix-miner-prompt";
 import { buildBinFixMinerPrompt } from "@/lib/prompts/bin-fix-miner-prompt";
+import { findRecurrences, outcomeLabel } from "@/lib/proposal-outcomes";
 import { dispatchRepositoryEvent } from "@/lib/github-dispatch";
 import { GEN_PATHS, VALIDATOR_PATHS } from "@/lib/apply-change";
 import { reconcileOpenPrs } from "@/lib/pr-status";
@@ -234,9 +235,33 @@ export async function mineBinFixProposals(opts: {
     lockHeld = true;
     const existing = await getBinFixProposals();
 
+    // OUTCOME, not raw status. Passing p.status alone showed the miner twenty-one rows reading
+    // "[shipped]" — which reads as a track record when nothing had ever measured whether one of
+    // those fixes made its fault go away. outcomeLabel says "NOT VALIDATED" for the ones nobody has
+    // checked and names the later proposal when a fault demonstrably came back.
+    const recurrences = findRecurrences(
+      existing.map((p) => ({
+        id: p.id,
+        theme: p.theme,
+        kind: p.kind,
+        status: p.status,
+        shippedAt: p.retiredAt,
+        createdAt: p.createdAt,
+      }))
+    );
     const prompt = buildBinFixMinerPrompt({
       rows,
-      existingProposals: existing.map((p) => ({ theme: p.theme, status: p.status })),
+      existingProposals: existing.map((p) => {
+        const row = {
+          id: p.id,
+          theme: p.theme,
+          kind: p.kind,
+          status: p.status,
+          shippedAt: p.retiredAt,
+          createdAt: p.createdAt,
+        };
+        return { theme: p.theme, status: outcomeLabel(row, recurrences), id: String(p.id) };
+      }),
     });
 
     const client = new Anthropic({ apiKey });
