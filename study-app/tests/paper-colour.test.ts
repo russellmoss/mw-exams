@@ -246,12 +246,69 @@ describe("persisted colour wins over inference", () => {
 describe("indeterminate colour is asymmetric by path", () => {
   const mystery = wine({ slot: 1, fullText: "Mystery Cuvée 2020." });
 
-  it("is exempt by default (serve time / audit) — never retire a banked wine on lack of evidence", () => {
+  it("is exempt by default (defensive serve-time backstop / Live Tasting) — never retire a banked wine on lack of evidence", () => {
     expect(validatePaperColour(1, [mystery])).toHaveLength(0);
   });
 
-  it("blocks when the caller asks (generation) — an alternative wine costs one redraft", () => {
+  it("blocks as colour_unknown when the caller asks (generation + the authoritative audit path)", () => {
     const v = validatePaperColour(1, [mystery], undefined, { blockIndeterminate: true });
-    expect(v.some((x) => x.rule === "wrong_colour_for_paper" && x.severity === "hard")).toBe(true);
+    expect(v.some((x) => x.rule === "colour_unknown" && x.severity === "hard")).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------------
+// R-COLOUR is now a HARD VALIDATION FAILURE, not merely a serve-time filter (fb_499/fb_502, reviewer
+// #502: a white Gewürztraminer kept reaching Paper 2 red flights because it was only serve-gated —
+// the bad question was still generated, validated and banked). validateQuestion is the one
+// authoritative gate, and it opts in to `blockIndeterminate`, so a wine with no derivable colour
+// fails HARD as colour_unknown rather than passing by default.
+// ---------------------------------------------------------------------------------------------------
+describe("Paper 2 rejects white wines at validation time (the recurring fault cluster)", () => {
+  const q = (wines: Partial<AuditWine>[]) => ({
+    questionId: "p2-colour",
+    paper: 2,
+    family: "F2",
+    questionText:
+      "Wines 5 and 6 are from the same country but from different regions. With reference to both wines: a) Identify the country.",
+    wines: wines.map((w, i) => ({ slot: i + 5, varieties: [], region: "", ...w })),
+  });
+
+  it("fails a Paper 2 flight containing a Gewürztraminer, naming the offending wine and its colour", () => {
+    const res = validateQuestion(
+      q([
+        { varieties: ["Nebbiolo"], region: "Barolo", country: "Italy", fullText: "Producer, Barolo, 2018. Piedmont, Italy." },
+        { varieties: ["Gewürztraminer"], region: "Alto Adige", country: "Italy", fullText: "Producer, Gewürztraminer, 2021. Alto Adige, Italy." },
+      ]),
+    );
+    const hit = res.violations.find(
+      (v) => v.rule === "wrong_colour_for_paper" && v.severity === "hard" && v.detail.includes("wine 6"),
+    );
+    expect(hit).toBeTruthy();
+    expect(hit!.detail).toContain("white");
+    expect(res.ok).toBe(false);
+  });
+
+  it("passes an all-red Paper 2 flight", () => {
+    const res = validateQuestion(
+      q([
+        { varieties: ["Nebbiolo"], region: "Barolo", country: "Italy", fullText: "Producer, Barolo, 2018. Piedmont, Italy." },
+        { varieties: ["Sangiovese"], region: "Chianti Classico", country: "Italy", fullText: "Producer, Chianti Classico, 2019. Tuscany, Italy." },
+      ]),
+    );
+    expect(res.violations.some((v) => v.rule === "wrong_colour_for_paper" || v.rule === "colour_unknown")).toBe(false);
+  });
+
+  it("fails a Paper 2 wine with no derivable colour as colour_unknown, naming the wine", () => {
+    const res = validateQuestion(
+      q([
+        { varieties: ["Nebbiolo"], region: "Barolo", country: "Italy", fullText: "Producer, Barolo, 2018. Piedmont, Italy." },
+        { fullText: "Mystery Cuvée 2020." },
+      ]),
+    );
+    const hit = res.violations.find(
+      (v) => v.rule === "colour_unknown" && v.severity === "hard" && v.detail.includes("wine 6"),
+    );
+    expect(hit).toBeTruthy();
+    expect(res.ok).toBe(false);
   });
 });

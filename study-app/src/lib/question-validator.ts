@@ -2835,7 +2835,9 @@ function stemColourConflict(
 /**
  * R-COLOUR. Paper 1 → every wine must be still white; Paper 2 → every wine must be still red; Paper 3
  * → no restriction. Emits `wrong_colour_for_paper` (hard) per offending wine, carrying the paper and
- * the detected colour, and `stem_colour_conflict` (hard) when the stem implies a forbidden colour.
+ * the detected colour; `colour_unknown` (hard) per wine whose colour cannot be derived from its keyed
+ * record when the caller sets `blockIndeterminate` (the authoritative audit path does); and
+ * `stem_colour_conflict` (hard) when the stem implies a forbidden colour.
  */
 export function validatePaperColour(
   paper: number,
@@ -2878,18 +2880,22 @@ export function validatePaperColour(
       continue;
     }
 
-    // INDETERMINATE. Asymmetric by design, and the asymmetry is the point: at GENERATION an
-    // alternative wine costs one redraft, so refusing to guess is cheap and we block. At SERVE time
-    // the wine is already banked, and rejecting on a LACK of evidence would retire a large slice of
-    // the pool (and re-create the Live Tasting starvation failure), so we skip and let the colour
-    // backfill convert these into resolved rows instead.
+    // INDETERMINATE → colour_unknown. A wine whose colour cannot be derived from its OWN keyed record
+    // (persisted colour, or the resolved grape variety) must not be admitted by default: an unkeyed
+    // wine is exactly how a white Gewürztraminer reached a Paper 2 red flight (fb_499/fb_502, reviewer
+    // #502) — the flight passed because nothing positively PROVED the wrong colour, so the bad question
+    // was generated, validated and banked. The authoritative audit path (validateQuestion) opts in with
+    // `blockIndeterminate`, so a missing colour is a HARD `colour_unknown` failure there rather than a
+    // silent pass. The lenient default is retained only for the defensive serve-time backstop and the
+    // Live Tasting brief, where the wine is already banked and refusing it on a lack of evidence would
+    // retire a slice of the pool (and re-create the Live Tasting starvation failure).
     if (!colour && opts?.blockIndeterminate) {
       v.push({
-        rule: "wrong_colour_for_paper",
+        rule: "colour_unknown",
         severity: "hard",
-        detail: `Paper ${paper} must serve ${allowedLabel} wine only, and ${wineLabel(
+        detail: `Paper ${paper} must serve ${allowedLabel} wine only, but the colour of ${wineLabel(
           w,
-        )} could not be positively resolved to a colour. Name the grape variety or use a wine whose colour is unambiguous.`,
+        )} is unknown — it could not be derived from the keyed wine record. An unkeyed wine cannot slip through: name the grape variety or key the wine's colour.`,
       });
     }
   }
@@ -4210,7 +4216,17 @@ export function validateQuestion(
   // that KNOWS its fixture is colour-incoherent opts out. tests/audit-paper-scope-default.test.ts pins
   // that no file under src/ or scripts/ passes `paperScope: false`.
   if (opts?.paperScope !== false) {
-    violations.push(...validatePaperColour(q.paper, q.wines, q.questionText));
+    // `blockIndeterminate` makes this the ONE authoritative colour gate: a wine whose colour cannot be
+    // derived from its keyed record fails HARD as `colour_unknown` here rather than passing by default
+    // and being caught (if at all) only by a serve-time filter. That serve-time R-COLOUR gate is now a
+    // defensive backstop (question-engine.ts bankedServeRejection), not the enforcement — so a
+    // wrong-colour or unkeyed wine can no longer be generated, validated and banked (fb_499/fb_502: a
+    // white Gewürztraminer in a Paper 2 red flight). See validatePaperColour.
+    violations.push(
+      ...validatePaperColour(q.paper, q.wines, q.questionText, {
+        blockIndeterminate: true,
+      }),
+    );
   }
   return {
     ok: !violations.some((x) => x.severity === "hard"),

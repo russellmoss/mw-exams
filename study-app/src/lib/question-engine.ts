@@ -619,18 +619,19 @@ export function bankedServeRejection(q: GeneratedQuestion): string | null {
     return `failed paper scope: ${paperScopeCheck.violations[0]}`;
   }
 
-  // R-COLOUR at serve time. validatePaperScope above only regexes the raw label, so it cannot see the
-  // colour of an appellation-only name — Hermitage, Châteauneuf-du-Pape, Viña Tondonia and Moulin-à-Vent
-  // all reached live Paper 1 flights through it. validatePaperColour resolves the appellation to its
-  // primary variety and reads the colour off that.
+  // R-COLOUR at serve time — now a DEFENSIVE BACKSTOP, not the authoritative rule. The one authoritative
+  // colour gate is validateQuestion → validatePaperColour with `blockIndeterminate`, which runs in the
+  // generation audit and the daily quarantine sweep: a wrong-colour or unkeyed wine is caught there and
+  // never banked, so it never reaches this point. This check stays as defence in depth for any row that
+  // predates the sweep, but it is no longer the thing standing between a white Gewürztraminer and a
+  // Paper 2 red flight (fb_499/fb_502) — that is fixed upstream at bank time.
   //
   // Indeterminate colour is intentionally NOT blocked here (no `blockIndeterminate`): these wines are
   // already banked, and refusing them on a LACK of evidence would retire a large slice of the pool.
-  // 44 Paper 1 wine slots currently resolve to no colour from the label alone; the wine_bank.colour
-  // backfill is what closes those, not a stricter serve gate.
-  // wine_profiles is stored on the same row and carries the colour the enrichment step resolved, when
-  // it could. Reading it here is what lifts the serve path to the audit path's strength: from the bare
-  // label alone, 44 Paper 1 wine slots resolve to no colour at all.
+  // validatePaperScope above only regexes the raw label, so it cannot see the colour of an
+  // appellation-only name; validatePaperColour resolves the appellation to its primary variety and
+  // reads the colour off that. wine_profiles is stored on the same row and carries the colour the
+  // enrichment step resolved, when it could — read here so the backstop is at the audit path's strength.
   const profiles = (q.wine_profiles ?? {}) as Record<string, { colour?: unknown } | undefined>;
   const resolvedColour = (slot: number): "white" | "red" | "rose" | "orange" | undefined => {
     const c = profiles[String(slot)]?.colour;

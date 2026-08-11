@@ -1,7 +1,7 @@
 // audit-questions.mjs — run the hard validator over every generated question.
 //   node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs            (dry run: report only)
 //   node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs --apply    (quarantine HARD violations)
-//   ... --apply --only=wrong_colour_for_paper,paper-style-mix                     (quarantine ONLY those rules)
+//   ... --apply --only=wrong_colour_for_paper,colour_unknown,paper-style-mix      (quarantine ONLY those rules)
 //
 // The ts-loader is mandatory: question-validator.ts imports "./tasting-validators" extensionless, which
 // plain `node` cannot resolve (ERR_MODULE_NOT_FOUND). Running this without it is how the nightly sweep
