@@ -15,6 +15,10 @@ import {
   getRecentWineIds,
   getRecentFlightSignatures,
   getRecentFlightSizes,
+  getRecentArchetypes,
+  deriveStemFamily,
+  wineRegionToken,
+  ARCHETYPE_WINDOW,
   flightSignature,
   computeFlightSignature,
   flightSignatureOfQuestion,
@@ -920,6 +924,84 @@ async function callGenerationModel(
 // generation fails with a clear error rather than emitting a bottle / shape the candidate just saw.
 export const MAX_DEDUP_REGENERATIONS = 3;
 
+// ── Recurring-archetype guard (feedback cluster: same template + anchor recurs above exam frequency) ──
+//
+// Mike Juergens rejected seven banked questions across P1/P2 (fb_613/612/609/606/564/560/521) for the
+// SAME reason: not that a wine repeated, but that a question SHAPE repeated far above the rate a real
+// MW paper would use it — "a Soave Classico against neutral Italian whites, same country / different
+// regions", and "a Riesling from Germany vs one from Australia", over and over. The flight- and
+// wine-level dedup guards above cannot see this: the wines differ, so every one is a "novel" flight.
+//
+// The archetype key captures the SHAPE: paper + wine count + stem-family id + the normalised
+// variety|region of the flight's highest-classicism (banker) wine. Two flights with different bottles
+// but the same country/regions frame anchored on Soave collide on it.
+export const ARCHETYPE_MAX_REPEATS = 2; // rejected once it ALREADY occurs MORE than twice in the window
+export const ANCHOR_MAX_PER_WINDOW = 3; // one anchor appellation may appear at most this many times
+export const MAX_ARCHETYPE_REGENERATIONS = 3; // redraws (different stem family / anchor) before giving up
+
+// The flight's highest-classicism (banker) anchor, as a normalised { variety, region }. Deterministic
+// across wine ORDER (test: archetypeKey is stable under permutation): among the flight's banker wines
+// — the classic benchmark expressions isBanker recognises — take the one whose "variety|region" sorts
+// first, so re-ordering the flight can never change the anchor. A flight with no banker falls back to
+// the same deterministic pick over ALL its wines, so the key is still well-defined.
+export function flightArchetypeAnchor(
+  wines: { slot: number; fullText: string }[]
+): { variety: string; region: string } {
+  const audit = winesFromText(wines).map((w) => ({ ...w, region: "" }));
+  const bankers = audit.filter((w) => isBanker(w));
+  const pool = bankers.length > 0 ? bankers : audit;
+  const anchors = pool
+    .map((w) => {
+      const full = w.fullText || "";
+      const keyed = (w.varieties || []).map(canonVariety).filter(Boolean)[0];
+      const variety = (keyed || detectPrimaryVariety(full) || "unknown").toLowerCase();
+      const region = wineRegionToken(full) || "unknown";
+      return { variety, region, key: `${variety}|${region}` };
+    })
+    .filter((a) => a.region !== "unknown" || a.variety !== "unknown");
+  if (anchors.length === 0) return { variety: "unknown", region: "unknown" };
+  anchors.sort((a, b) => a.key.localeCompare(b.key));
+  return anchors[0];
+}
+
+// The anchor appellation the per-anchor cap counts (e.g. "soave"): the region of the banker anchor.
+export function archetypeAnchorAppellation(wines: { slot: number; fullText: string }[]): string {
+  return flightArchetypeAnchor(wines).region;
+}
+
+// The archetype key for a freshly generated flight. Format MUST match archetypeOfQuestion in db.ts so
+// a candidate's key compares equal to a stored recent row's.
+export function computeArchetypeKey(
+  paper: number,
+  wines: { slot: number; fullText: string }[],
+  stem: string
+): string {
+  const anchor = flightArchetypeAnchor(wines);
+  return `p${paper}|n${wines.length}|${deriveStemFamily(stem)}|${anchor.variety}|${anchor.region}`;
+}
+
+// Selection policy (pure, unit-testable). A candidate is rejected when its archetype ALREADY occurs
+// more than twice in the rolling window, OR when its anchor appellation is already at its per-window
+// cap regardless of stem family (the Soave over-indexing the reviewer flagged crosses families and
+// wine counts, so the anchor cap is the broader net). Returns the reason, or null to accept.
+export function archetypeSelectionRejection(
+  candidate: { archetypeKey: string; anchorAppellation: string },
+  recent: { archetypeKey: string; anchorAppellation: string }[]
+): string | null {
+  const sameArchetype = recent.filter((r) => r.archetypeKey === candidate.archetypeKey).length;
+  if (sameArchetype > ARCHETYPE_MAX_REPEATS) {
+    return `archetype "${candidate.archetypeKey}" already occurs ${sameArchetype} times in the last ${ARCHETYPE_WINDOW} questions (max ${ARCHETYPE_MAX_REPEATS})`;
+  }
+  const anchor = candidate.anchorAppellation;
+  if (anchor && anchor !== "unknown") {
+    const sameAnchor = recent.filter((r) => r.anchorAppellation === anchor).length;
+    if (sameAnchor >= ANCHOR_MAX_PER_WINDOW) {
+      return `anchor appellation "${anchor}" already appears ${sameAnchor} times in the last ${ARCHETYPE_WINDOW} questions (cap ${ANCHOR_MAX_PER_WINDOW})`;
+    }
+  }
+  return null;
+}
+
 /**
  * Regenerate a flight until it is novel against BOTH dedup guards — the exact-wine cooldown and the
  * flight-signature dedup — or fail. Pure orchestration around a `generate` callback, so the dedup
@@ -1465,6 +1547,24 @@ ${saveOpts.paperStemsContext}` : ""}`;
   let dedupCollisions = 0;
   let dedupFailed = false;
 
+  // Recurring-archetype guard (feedback cluster). The archetype key + anchor appellation of the last
+  // ARCHETYPE_WINDOW banked questions for this paper, fetched ONCE. A draft whose SHAPE
+  // (paper + wine count + stem family + banker anchor) already over-occurs the window is redrafted
+  // with a different stem family / anchor rather than banked. Skipped in pinned mode (fixed upstream
+  // flight) and in anchored mode (a verbatim past-paper import IS the real exam frequency, so it must
+  // not be refused for matching itself). A lookup outage degrades to no guard rather than failing.
+  let recentArchetypes: { archetypeKey: string; anchorAppellation: string }[] = [];
+  if (!pinned && !anchored) {
+    try {
+      recentArchetypes = await getRecentArchetypes(paper, ARCHETYPE_WINDOW);
+    } catch (err) {
+      console.error("[archetype] recent-archetype fetch failed (non-fatal):", err);
+    }
+  }
+  let archetypeCollisions = 0;
+  // When set, a short steer appended to the NEXT draft's prompt naming the over-used shape to avoid.
+  let archetypeSteer = "";
+
   // Single-wine frequency cap (see singleWineFrequencyExceeded): the paper's live share of one-wine
   // flights, fetched ONCE. A draft that would push the projected share over 1-in-20 is rejected so
   // the model redraws with 2+ wines. Pinned mode (Live Tasting) keeps its own fixed flight, so it is
@@ -1520,7 +1620,7 @@ ${saveOpts.paperStemsContext}` : ""}`;
     // rebuilding the object without it would silently drop the breakpoint on exactly the attempts
     // that benefit most from it.
     const usedRepair = repairContext !== null;
-    const attemptPrompt = repairContext
+    let attemptPrompt = repairContext
       ? {
           cachedPrefix: prompt.cachedPrefix,
           system: prompt.system,
@@ -1540,6 +1640,12 @@ ${repairContext.violations.map((v) => `- ${v}`).join("\n")}
 ${repairContext.draft}`,
         }
       : prompt;
+    // Recurring-archetype guard: after an over-represented shape was refused, steer the fresh draw
+    // toward a DIFFERENT stem family / anchor wine. Appended to the user message only, so both cached
+    // system blocks stay byte-identical.
+    if (archetypeSteer) {
+      attemptPrompt = { ...attemptPrompt, user: `${attemptPrompt.user}\n\n${archetypeSteer}` };
+    }
     let message;
     let producedModel = model;
     let producedAb = attemptAb;
@@ -1727,6 +1833,49 @@ ${repairContext.draft}`,
           break;
         }
         emit?.({ type: "status", label: "Flight duplicated a recent one — redrafting…" });
+        continue;
+      }
+    }
+
+    // Recurring-archetype guard (feedback cluster). BEFORE the examiner validators — like dedup — so a
+    // shape that already over-occurs the rolling window is redrafted rather than graded. The wines may
+    // be novel (dedup passed) yet the STRUCTURE — same country/regions frame, same Soave anchor — keep
+    // recurring above real exam frequency; that is exactly what Mike flagged seven times. On rejection
+    // we clear the repair context (a fresh draw, not a patch of the refused shape) and steer the next
+    // draft toward a different stem family / anchor wine. After MAX_ARCHETYPE_REGENERATIONS redraws we
+    // stop retrying and fall through to the banked fallback (an existing valid question is fine here —
+    // unlike a dedup exhaustion, there is no risk of replaying a just-seen flight).
+    if (!pinned && !anchored) {
+      const candidateArchetypeKey = computeArchetypeKey(paper, candidate.wines, candidate.questionText);
+      const candidateAnchor = archetypeAnchorAppellation(candidate.wines);
+      const archReason = archetypeSelectionRejection(
+        { archetypeKey: candidateArchetypeKey, anchorAppellation: candidateAnchor },
+        recentArchetypes
+      );
+      if (archReason) {
+        archetypeCollisions++;
+        lastViolations = [`Over-represented archetype: ${archReason}`];
+        console.error(
+          `Generation attempt ${attempt}/${MAX_ATTEMPTS} over-represented archetype ` +
+            `(${archetypeCollisions}/${MAX_ARCHETYPE_REGENERATIONS} regenerations): ${archReason}`
+        );
+        recordAttempt(attempt, {
+          model: producedModel,
+          abGroup: producedAb,
+          passed: false,
+          rulesFired: ["archetypeOverrep"],
+          violations: { archetypeOverrep: lastViolations },
+          latencyMs: callMs,
+          isRepair: usedRepair,
+        });
+        repairContext = null;
+        archetypeSteer =
+          "OVER-USED QUESTION SHAPE — DO NOT REPEAT IT. The bank already holds too many questions of " +
+          `this exact shape (${archReason}). Choose a DIFFERENT stem family (e.g. same variety across ` +
+          "different countries, or different countries with different varieties) OR a different anchor/" +
+          "banker wine (a different classic benchmark appellation), so this is a genuinely new exam problem.";
+        if (archetypeCollisions > MAX_ARCHETYPE_REGENERATIONS) break;
+        emit?.({ type: "status", label: "That question shape is over-represented — trying a different one…" });
         continue;
       }
     }
@@ -2232,6 +2381,10 @@ ${repairContext.draft}`,
     questionText: parsed.questionText,
     wines: parsed.wines,
     totalMarks: parsed.totalMarks,
+    // Recurring-archetype guard (feedback cluster): stamp the banker-aware archetype key + anchor
+    // appellation so the next generation's rolling window is a stored read, not a re-derivation.
+    archetypeKey: computeArchetypeKey(paper, parsed.wines, parsed.questionText),
+    archetypeAnchor: archetypeAnchorAppellation(parsed.wines),
     // Provenance for the bank (migration 020). The pool is global regardless of whose key generated
     // it — this is recorded, never used to scope who a question is served to.
     createdByUserId: meta?.userId ?? null,
