@@ -1297,7 +1297,7 @@ ${saveOpts.paperStemsContext}` : ""}`;
   // independent draw with the same prompt, so the model happily repeated the same mark-allocation
   // mistake eight times. Set only on a validator failure (a parse failure has no usable draft, and
   // a dedup collision needs a genuinely FRESH flight, so both clear/skip it).
-  let repairContext: { draft: string; violations: string[] } | null = null;
+  let repairContext: { draft: string; violations: string[]; extraInstruction?: string } | null = null;
 
   // A/B model arm for question generation. Picked once: attempt 1 uses the selected arm
   // (Opus by default); retries always fall back to Sonnet (not part of the experiment).
@@ -1535,7 +1535,7 @@ stem. Do not introduce new violations while fixing these.
 
 ### Violations to fix
 ${repairContext.violations.map((v) => `- ${v}`).join("\n")}
-
+${repairContext.extraInstruction ? `\n### Recovery option\n${repairContext.extraInstruction}\n` : ""}
 ### Previous draft
 ${repairContext.draft}`,
         }
@@ -1932,6 +1932,22 @@ ${repairContext.draft}`,
     const priceCheck = pinned || relaxImportant
       ? { valid: true, violations: [] }
       : validatePriceSpread(candidate.questionText, candidate.family, candidate.wines);
+    // Flight spread (feedback cluster fb_566/fb_555/fb_545): a multi-origin flight must not repeat a
+    // country, and a 3+ wine non-same-country flight must span Old + New World. Like compositionCheck
+    // it NEVER relaxes on the bank path — an unbalanced set must not be banked — while interactively it
+    // relaxes at attempt 6 so a user on the spinner still gets a question. Anchored/pinned stand down:
+    // a verbatim past-paper stem is not the model's to rebalance (a real "Europe, but not France/Italy/
+    // Spain" stem is single-world by premise and legitimately repeats no world contrast).
+    const multiOriginSpreadCheck = pinned || anchored || (relaxImportant && !bankPath)
+      ? { valid: true, violations: [] as string[], reasons: [] as string[] }
+      : validateMultiOriginSpread(candidate.questionText, candidate.family, candidate.subcategory, candidate.wines);
+    if (multiOriginSpreadCheck.reasons.length > 0) {
+      // Bank-health visibility: name the reason code(s) so the admin can see WHY a multi-origin flight
+      // was refused, not just that generation redrafted.
+      console.log(
+        `[flight-spread] paper ${paper} attempt ${attempt}: rejected — ${multiOriginSpreadCheck.reasons.join(", ")}`
+      );
+    }
 
     // Nice-to-have validators (relax on attempt 4+)
     const relaxNiceToHave = attempt >= 4;
@@ -2058,6 +2074,9 @@ ${repairContext.draft}`,
       countryDiversity: countryDiversityCheck,
       markMix: markMixCheck,
       composition: compositionCheck,
+      // Multi-origin spread (fb_566/fb_555/fb_545): country-repeat + Old/New-World split. Blocking on
+      // every path (not in ADVISORY_RULES) so an unbalanced multi-origin set is never banked.
+      multiOriginSpread: multiOriginSpreadCheck,
       price: priceCheck,
       banker: bankerCheck,
       anchorPairing: anchorCheck,
@@ -2130,7 +2149,22 @@ ${repairContext.draft}`,
 
     console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS} failed:`, JSON.stringify(lastViolations));
     // Arm the next attempt as a REPAIR of this draft (see repairContext above).
-    repairContext = { draft: text, violations: lastViolations };
+    //
+    // Multi-origin spread failure (fb_566/fb_555/fb_545): rather than keep re-rolling an unbalanced
+    // flight — and risk falling back to a banked question — give the model explicit permission to DROP
+    // one wine. A smaller, balanced flight is always preferable to banking a country-repeat or a
+    // single-world set.
+    const spreadRejected =
+      multiOriginSpreadCheck.reasons.length > 0 &&
+      multiOriginSpreadCheck.violations.some((v) => lastViolations.includes(v));
+    repairContext = {
+      draft: text,
+      violations: lastViolations,
+      extraInstruction:
+        spreadRejected && candidate.wines.length >= 3
+          ? `If you cannot achieve the required spread at ${candidate.wines.length} wines — at most one wine per country, and both Old and New World represented — produce a SMALLER flight of ${candidate.wines.length - 1} wines that DOES satisfy it. A balanced ${candidate.wines.length - 1}-wine flight is strictly better than an unbalanced ${candidate.wines.length}-wine one. Re-total the marks to 25 × the new wine count.`
+          : undefined,
+    };
     // Only the COUNT, never the violation text: violations quote wine names and varieties, and
     // status labels are shown un-gated (the spoiler gate covers thinking, not status).
     emit?.({
@@ -3451,6 +3485,93 @@ export function validateCompositionBalance(
     }
   }
   return { valid: violations.length === 0, violations };
+}
+
+// ── FLIGHT SPREAD (feedback cluster: multi-origin flights lack country / Old-New World spread) ──────
+//
+// Three validated Paper 2 signals, one shape: a flight sold as "different origins / different
+// countries" that quietly repeats a country or a hemisphere. fb_566 poured TWO Chilean wines into a
+// four-wine "different origins" flight; fb_555 put TWO Portuguese blends inside a "Europe, but not
+// France/Italy/Spain" flight; fb_545 was FOUR southern-hemisphere wines with, in the reviewer's words,
+// "not enough contrast". Two rules close the cluster:
+//   1. country_repeat_in_multi_origin — when the stem sells the flight on different countries/origins
+//      (or names a broad region and carves out the obvious countries), cap the flight at one wine per
+//      country.
+//   2. no_old_new_world_split — a 3+ wine flight that is neither a same-country archetype nor pinned to
+//      a single world by its stem must carry at least one Old World AND one New World wine.
+// Both BLOCK (never advisory), so an unbalanced set is redrafted — or, via the repair loop's recovery
+// note, dropped to a smaller balanced flight — rather than being banked; the reason code is logged for
+// bank-health visibility.
+export const SPREAD_REASON_COUNTRY_REPEAT = "country_repeat_in_multi_origin";
+export const SPREAD_REASON_NO_WORLD_SPLIT = "no_old_new_world_split";
+
+// A stem that sells the flight on differing origin — either literally ("different countries / origins
+// / regions"), or by naming a continent and excluding the obvious countries ("from Europe, but not
+// France, Italy or Spain", fb_555), which the examiner does precisely to force a spread across the rest.
+export function stemAssertsMultiOrigin(questionText: string): boolean {
+  const t = questionText || "";
+  if (/\bdifferent\s+(?:countr(?:y|ies)|origins?|regions?)\b/i.test(t)) return true;
+  if (/\bfrom\s+europe\b/i.test(t) && /\bnot\b[^.]*\b(?:france|italy|spain|portugal|germany|austria|greece)\b/i.test(t))
+    return true;
+  return false;
+}
+
+// A stem that constrains the flight to a single world / hemisphere / continent legitimately cannot mix
+// Old and New World, so the world-split rule must stand down against it (real 2019 P2 Q3 "Europe, but
+// not France/Italy/Spain"; 2026 P1 Q3 "the Mediterranean").
+function stemPinsSingleWorld(questionText: string): boolean {
+  return /\b(?:europe(?:an)?|old world|new world|southern hemisphere|northern hemisphere|mediterranean)\b/i.test(
+    questionText || ""
+  );
+}
+
+export function validateMultiOriginSpread(
+  questionText: string,
+  family: string,
+  subcategory: string | undefined,
+  wines: { slot: number; fullText: string }[]
+): { valid: boolean; violations: string[]; reasons: string[] } {
+  const violations: string[] = [];
+  const reasons: string[] = [];
+  const text = questionText || "";
+
+  // Rule 1 — one wine per country when the flight is sold on different origins/countries.
+  if (stemAssertsMultiOrigin(text)) {
+    const counts = new Map<string, number>();
+    for (const w of wines) {
+      const c = detectCountryName(w.fullText);
+      if (c === "unknown") continue;
+      counts.set(c, (counts.get(c) ?? 0) + 1);
+    }
+    const repeated = [...counts.entries()].filter(([, n]) => n > 1);
+    if (repeated.length > 0) {
+      violations.push(
+        `Multi-origin flight repeats a country (${repeated
+          .map(([c, n]) => `${n} × ${c}`)
+          .join(", ")}). The stem sells these wines as coming from different origins/countries, so at most one wine per country belongs in the flight (fb_566: two Chilean wines; fb_555: two Portuguese blends). Replace the duplicate(s) with a wine from a country not yet in the flight.`
+      );
+      reasons.push(SPREAD_REASON_COUNTRY_REPEAT);
+    }
+  }
+
+  // Rule 2 — Old/New World split for a 3+ wine flight that is not a same-country archetype and whose
+  // stem does not pin a single world. Same family exclusions as validateCompositionBalance (F2 same-
+  // origin, F7); a subcategory naming a same-country/region premise is treated the same way.
+  const sameCountryArchetype =
+    family === "F2" || family === "F7" || /same[-_ ]?(?:country|region)/i.test(subcategory || "");
+  if (wines.length >= 3 && !sameCountryArchetype && !stemPinsSingleWorld(text)) {
+    const worlds = wines.map((w) => worldOf(w.fullText)).filter((x) => x !== "unknown");
+    if (worlds.length >= 3 && !(worlds.includes("old") && worlds.includes("new"))) {
+      const only = worlds[0] === "old" ? "Old-World" : "New-World";
+      const need = worlds[0] === "old" ? "New-World" : "Old-World";
+      violations.push(
+        `This ${wines.length}-wine flight is entirely ${only} — a flight sold on different origins carries too little contrast without an inter-world reference point (fb_545: four southern-hemisphere wines). Replace one wine with an ${need} example so the flight spans both Old and New World.`
+      );
+      reasons.push(SPREAD_REASON_NO_WORLD_SPLIT);
+    }
+  }
+
+  return { valid: violations.length === 0, violations, reasons };
 }
 
 // R9 (soft, coarse proxy): a wine label carries no price, so this only catches the EK-0028 failure mode
