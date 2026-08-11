@@ -18,6 +18,10 @@ import {
   flightSignature,
   computeFlightSignature,
   flightSignatureOfQuestion,
+  computeFlightFingerprint,
+  getBankedFlightFingerprints,
+  getRecentPaperFlightWineIds,
+  WINE_PAIR_COOCCUR_CAP,
   wineCooldownId,
   RECENT_WINE_WINDOW,
   RECENT_FLIGHT_WINDOW,
@@ -945,6 +949,32 @@ export function filterExcludedFlightSignatures(
   return pool.filter((q) => !excluded.has(flightSignatureOfQuestion(q)));
 }
 
+// Recurring two-wine sub-set cap (feedback: SA Pinotage/Wolftrap, Meiomi/Ocio pairs served
+// repeatedly, plus the accepted "you keep giving me the same question" reviews). The paper-wide
+// fingerprint catches a WHOLE-flight duplicate; this catches the smaller repeat — reject a candidate
+// flight if any unordered PAIR of its wines already co-occurs in >= `cap` banked flights for the paper
+// (the caller windows those flights to the last 90 days). Pure over the candidate's normalised wine
+// ids + the banked flights' wine-id sets, so the policy is pinned by a unit test without a database.
+export function winePairOverCap(
+  candidateWineIds: string[],
+  bankedFlightWineIdSets: string[][],
+  cap = WINE_PAIR_COOCCUR_CAP
+): boolean {
+  const ids = [...new Set(candidateWineIds.filter(Boolean))];
+  if (ids.length < 2) return false;
+  const bankedSets = bankedFlightWineIdSets.map((s) => new Set(s));
+  for (let i = 0; i < ids.length; i++) {
+    for (let j = i + 1; j < ids.length; j++) {
+      let cooccur = 0;
+      for (const s of bankedSets) {
+        if (s.has(ids[i]) && s.has(ids[j])) cooccur++;
+      }
+      if (cooccur >= cap) return true;
+    }
+  }
+  return false;
+}
+
 export function selectNovelFlight(
   generate: (attempt: number) => { fullText: string }[],
   recentWineIds: Set<string>,
@@ -1450,11 +1480,21 @@ ${saveOpts.paperStemsContext}` : ""}`;
   // generation.
   let recentWineIds = new Set<string>();
   let recentFlightSignatures = new Set<string>();
+  // Duplicate wine-set guards (feedback: duplicate flights banked, only caught by a post-hoc sweep):
+  //   • bankedFingerprints — every banked pool flight's byte-exact wine-set fingerprint for this paper,
+  //     so a candidate whose wine set is already banked is redrafted rather than written (the fault the
+  //     auto-sweep kept catching AFTER the row landed).
+  //   • recentPairFlights — the paper's live flights (wine-id sets) from the last 90 days, so a
+  //     candidate reusing a wine PAIR that already co-occurs in >= 2 banked flights is redrafted too.
+  let bankedFingerprints = new Set<string>();
+  let recentPairFlights: string[][] = [];
   if (!pinned) {
     try {
-      [recentWineIds, recentFlightSignatures] = await Promise.all([
+      [recentWineIds, recentFlightSignatures, bankedFingerprints, recentPairFlights] = await Promise.all([
         getRecentWineIds(paper, RECENT_WINE_WINDOW),
         getRecentFlightSignatures(paper, RECENT_FLIGHT_WINDOW),
+        getBankedFlightFingerprints(paper),
+        getRecentPaperFlightWineIds(paper),
       ]);
     } catch (err) {
       console.error("[dedup] recent wine/signature fetch failed (non-fatal):", err);
@@ -1694,18 +1734,41 @@ ${repairContext.draft}`,
       // wine-set) signature, so a rejected flight cannot come back through a fresh draw.
       const userFlightSig = computeFlightSignature(paper, candidate.family, candidate.wines);
       const userFlightCollision = excludedFlightSignatures?.has(userFlightSig) ?? false;
-      if (reusedWine || signatureCollision || userFlightCollision) {
+      // Paper-wide EXACT wine-set fingerprint: the wine set is already banked for this paper (the fault
+      // the post-hoc auto-sweep kept catching). Byte-exact and family-agnostic, so a differently-worded
+      // stem over the identical bottles collides here even when nothing else does.
+      const fingerprintCollision = bankedFingerprints.has(
+        computeFlightFingerprint(paper, candidate.wines)
+      );
+      // Recurring two-wine sub-set: an unordered PAIR of these wines already co-occurs in >= 2 banked
+      // flights for this paper within the last 90 days (SA Pinotage/Wolftrap, Meiomi/Ocio).
+      const pairOverCap = winePairOverCap(
+        candidate.wines.map((w) => wineCooldownId(w.fullText)),
+        recentPairFlights,
+        WINE_PAIR_COOCCUR_CAP
+      );
+      if (reusedWine || signatureCollision || userFlightCollision || fingerprintCollision || pairOverCap) {
         dedupCollisions++;
-        const ruleName = reusedWine
-          ? "dedupWine"
-          : userFlightCollision && !signatureCollision
-            ? "dedupUserFlight"
-            : "dedupSignature";
-        const reason = reusedWine
-          ? `reuses a wine seen within the last ${RECENT_WINE_WINDOW} questions for paper ${paper}`
-          : userFlightCollision && !signatureCollision
-            ? `recreates a flight this user was recently served or has rejected`
-            : `repeats the region/variety/style signature of a question within the last ${RECENT_FLIGHT_WINDOW} for paper ${paper}`;
+        // Structured skip reasons the retry loop redraws on: the two new duplicate-wine-set guards win
+        // the label so telemetry names the exact fault, then the pre-existing reasons.
+        const ruleName = fingerprintCollision
+          ? "duplicate_flight_fingerprint"
+          : pairOverCap
+            ? "wine_pair_over_cap"
+            : reusedWine
+              ? "dedupWine"
+              : userFlightCollision && !signatureCollision
+                ? "dedupUserFlight"
+                : "dedupSignature";
+        const reason = fingerprintCollision
+          ? `duplicate_flight_fingerprint: an identical wine set is already banked for paper ${paper}`
+          : pairOverCap
+            ? `wine_pair_over_cap: a pair of these wines already co-occurs in >= ${WINE_PAIR_COOCCUR_CAP} banked questions for paper ${paper} within the last 90 days`
+            : reusedWine
+              ? `reuses a wine seen within the last ${RECENT_WINE_WINDOW} questions for paper ${paper}`
+              : userFlightCollision && !signatureCollision
+                ? `recreates a flight this user was recently served or has rejected`
+                : `repeats the region/variety/style signature of a question within the last ${RECENT_FLIGHT_WINDOW} for paper ${paper}`;
         lastViolations = [`Duplicate flight: ${reason}`];
         console.error(
           `Generation attempt ${attempt}/${MAX_ATTEMPTS} duplicate flight (${dedupCollisions}/${MAX_DEDUP_REGENERATIONS} regenerations): ${reason}`
