@@ -52,9 +52,31 @@ describe("targeted mode allows what blocked the pilot", () => {
     expect(r.valid).toBe(true);
   });
 
-  it("is exactly the case untargeted mode still rejects — the rule change is real, not cosmetic", () => {
+  it("UNTARGETED mode now accepts it too — the asymmetry was the bug, not the feature", () => {
+    // This assertion was `valid: false` until 2026-08-11, pinning untargeted mode as the contrast
+    // case. The asymmetry was never justified: this file's own header already says "real papers do
+    // reuse stem shapes across years", and that is as true of untargeted generation as of a targeted
+    // fill. Measured over the 126 real past-paper questions, the untargeted rule rejected 11.9% of
+    // them — the anchor rule was reverted at 13.1% — and 2013 P1 Q1 and Q2 are the same template word
+    // for word in one real paper, signature overlap 1.00, different wines.
+    //
+    // Cost of the asymmetry, measured: a 38-attempt run on 2026-08-11 produced 10 questions and fell
+    // back to a banked one 28 times, this rule accounting for 40 of the attempt failures — the same
+    // shape as the P2/F4 pilot (46 calls, 0 banked) that prompted targeted mode in the first place.
     const r = validateNoveltyAgainstLatest(
       candidate(STEM_B, FLIGHT_2),
+      recent(STEM_A, FLIGHT_1),
+      [recent(STEM_A, FLIGHT_1)!],
+      { targeted: false }
+    );
+    expect(r.valid).toBe(true);
+  });
+
+  it("untargeted mode still blocks the same shape when the wines substantially overlap", () => {
+    // The rule still exists and still does work — three of four wines carried over, 75% > the 50% bar.
+    const mostlyShared = [FLIGHT_1[0], FLIGHT_1[1], FLIGHT_1[2], FLIGHT_2[3]];
+    const r = validateNoveltyAgainstLatest(
+      candidate(STEM_B, mostlyShared),
       recent(STEM_A, FLIGHT_1),
       [recent(STEM_A, FLIGHT_1)!],
       { targeted: false }
