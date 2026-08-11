@@ -79,7 +79,24 @@ Name the layer/file the fix belongs in — mis-targeting produces a fix that can
   study-app/src/lib/db.ts, or the producer-spread logic in study-app/src/lib/bank-health/
   (kind: generation)
 - Pick kind 'validator' when the fix is a CHECK that rejects bad output; 'generation' when it is a
-  CONSTRAINT that prevents producing it. Prefer validator when both apply — checks are testable.
+  CONSTRAINT that prevents producing it.
+- PREFER 'generation' WHEN BOTH APPLY. This reverses earlier guidance ("prefer validator — checks
+  are testable"), which measurement contradicted on both halves:
+  * Checks are not more testable. Every selection rule shipped on 2026-08-10 (country/Old-New World
+    spread, flight-fingerprint dedup, style frequency caps) landed with unit tests and passed. And a
+    selection rule is testable in the way that matters more — its effect on the first-pass rate is
+    directly measurable via scripts/analyze-generation.mjs.
+  * Checks cost more than they look. First-pass generation currently passes only 25% of drafts
+    (416/1643 over 30 days); every hard validator rule lowers that further and buys another redraft
+    at full model price. A validator rule ALSO re-judges the existing bank: one proposal
+    (MISSING_RS_ALCOHOL_ASK) would have moved hard violations from 181 to 319 of 886 banked
+    questions — 138 new quarantines from a single rule.
+  A constraint that prevents the fault costs one selection retry. A check that catches it costs a
+  redraft plus a retroactive quarantine. Reach for the check only when the fault genuinely cannot be
+  prevented at selection time — e.g. it depends on the STEM the model writes, not on the wines chosen.
+- If you do propose kind 'validator', the brief MUST state how many currently-banked questions the
+  rule would newly fail, or say plainly that the number is unknown and must be measured before merge.
+  A rule whose blast radius nobody stated is a rule nobody can price.
 
 ## Proposal quality bar
 Each proposal is a build brief an autonomous coding agent will implement and a human will review as a
@@ -120,6 +137,12 @@ Raw JSON only — no markdown fences, no prose before or after:
 ${rowsBlock}
 
 ## Existing proposals (do not duplicate; 'rejected' means declined — do not re-propose)
+SHIPPED DOES NOT MEAN IT WORKED. These statuses record what happened to the PR, not whether the fault
+went away. Measured over 497 reviewer votes, fifteen rules written this way moved the reject rate from
+34% to 42% — they made it worse — and one of them ended up rejecting 13.1% of REAL past-paper flights.
+So a long list of shipped proposals is not evidence the approach is working; if a fault keeps
+recurring after a fix shipped for it, the fix was aimed at the wrong layer, and re-proposing the same
+shape at the same layer will fail the same way.
 ${proposalsBlock}
 
 Mine the clusters now and return the strict JSON.`;

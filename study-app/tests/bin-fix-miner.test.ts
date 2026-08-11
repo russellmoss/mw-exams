@@ -306,3 +306,43 @@ describe("claimedEvidenceIds", () => {
     ).toEqual(new Set());
   });
 });
+
+// The miner used to be told "prefer validator when both apply — checks are testable". Measurement
+// contradicted both halves on 2026-08-10: selection rules ship with tests just as readily, and a
+// validator rule costs a redraft (first-pass is 25%) PLUS a retroactive quarantine of the banked
+// corpus (MISSING_RS_ALCOHOL_ASK measured 181 -> 319 hard violations of 886). These pin the reversal,
+// because it is one sentence and a future edit could silently flip it back.
+describe("buildBinFixMinerPrompt — layer doctrine prefers prevention over rejection", () => {
+  const prompt = buildBinFixMinerPrompt({
+    rows: [
+      {
+        itemId: "gen_p1_F2_1",
+        paper: 1,
+        tags: ["not_realistic"],
+        note: "same flight shape again",
+        stem: "Wines 1-3 are from the same country.",
+        binnedAt: "2026-08-09T12:00:00Z",
+      },
+    ],
+    existingProposals: [{ theme: "Some shipped fix", status: "shipped" }],
+  });
+
+  it("prefers generation over validator when both layers could carry the fix", () => {
+    expect(prompt.system).toMatch(/PREFER 'generation' WHEN BOTH APPLY/);
+  });
+
+  it("no longer tells the miner to prefer the validator", () => {
+    // The exact sentence that produced the validator-heavy backlog.
+    expect(prompt.system).not.toMatch(/Prefer validator when both apply/);
+  });
+
+  it("makes a validator proposal state its blast radius on the banked corpus", () => {
+    expect(prompt.system).toMatch(/how many currently-banked questions the\s*\n?\s*rule would newly fail/);
+  });
+
+  it("warns that a shipped proposal is not evidence the fault went away", () => {
+    // Without this the 21 shipped rows read as a track record, when the measured record is 34% -> 42%.
+    expect(prompt.user).toMatch(/SHIPPED DOES NOT MEAN IT WORKED/);
+    expect(prompt.user).toMatch(/34% to 42%/);
+  });
+});
