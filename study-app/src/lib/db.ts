@@ -340,10 +340,36 @@ export async function saveGeneratedQuestion(q: {
   // insert time so the serve/generation exclusion is a stored read, not a re-derivation. Computed
   // over the exact wines being written; the ON CONFLICT re-save (background model answer) never
   // touches metadata, so the value from first insert holds. See computeFlightSignature.
+  const flightFingerprint = computeFlightFingerprint(q.paper, q.wines);
   const metadataToStore = {
     ...(q.metadata || {}),
     flightSignatureKeyed: computeFlightSignature(q.paper, q.family, q.wines),
+    // Duplicate wine-set guard (feedback: duplicate flights banked, only caught by a post-hoc sweep):
+    // the byte-exact, paper-wide fingerprint of this flight's wine set, stamped at insert so the
+    // pre-insert dedup below and the next generation's lookup are stored reads, not re-derivations.
+    flightFingerprint,
   };
+  // Reject a fresh POOL insert whose wine set is byte-identical to a flight already banked for this
+  // paper — the exact fault the auto-sweep kept catching AFTER the row was written. The ON CONFLICT
+  // re-save of the SAME question_id (background model answer) is exempt: getBankedFlightFingerprints
+  // drops its own row, so it can only ever collide with a DIFFERENT question that shares its wine set.
+  // Live-tasting rows are session-private and deliberately reuse bottles, so they are not deduped.
+  // Best-effort on the lookup itself — a DB hiccup degrades to "no dedup" rather than failing a save;
+  // only a confirmed duplicate throws the structured FlightDedupError so generation can retry.
+  if ((q.scope ?? "pool") === "pool") {
+    let banked: Set<string> | null = null;
+    try {
+      banked = await getBankedFlightFingerprints(q.paper, q.questionId);
+    } catch (err) {
+      console.error(`[flight-dedup] fingerprint pre-check lookup failed for ${q.questionId} (non-fatal):`, err);
+    }
+    if (banked && flightFingerprintRejection(flightFingerprint, banked)) {
+      throw new FlightDedupError(
+        FLIGHT_FINGERPRINT_SKIP_REASON,
+        `${FLIGHT_FINGERPRINT_SKIP_REASON}: flight ${q.questionId} duplicates an already-banked wine set for paper ${q.paper}`
+      );
+    }
+  }
   const rows = await sql`
     INSERT INTO generated_questions (
       question_id, paper, family, family_label, subcategory,
@@ -1119,6 +1145,133 @@ export function flightSignatureOfQuestion(q: {
       : null;
   if (stored) return stored;
   return computeFlightSignature(q.paper, q.family, parseWinesLoose(q.wines));
+}
+
+// ── Paper-wide EXACT flight fingerprint (feedback: duplicate wine-set flights banked, only caught by
+//    a post-hoc sweep) ─────────────────────────────────────────────────────────────────────────────
+//
+// The recurring fault: the bank kept accumulating flights whose wine SET is byte-identical to an
+// already-banked flight (twelve auto-sweep bins in three days), plus recurring two-wine sub-sets that
+// users complained were "the same question again". The existing controls — a post-hoc sweep and a
+// per-wine recency cap — never PREVENTED the duplicate being written. This fingerprint does: it is the
+// byte-exact, PAPER-WIDE identity of a flight's wine set, checked at insert time so the duplicate is
+// rejected before it is banked (see saveGeneratedQuestion + question-engine's generation loop).
+//
+// Distinct from the two signatures above:
+//   • flightSignature()        — region/variety/style SHAPE, paper-recency dedup.
+//   • computeFlightSignature() — per-USER identity keyed on paper+family (recently-served / rejected).
+//   • computeFlightFingerprint — this one: paper-wide, family-agnostic, byte-exact wine SET.
+//
+// The fingerprint = FNV hash of (paper, sorted SET of normalised wine ids). wineCooldownId collapses
+// vintage + ABV so the same bottle in a different year reads as one wine, and the SET (dedup + sort)
+// makes wine ORDER and repeats irrelevant — two flights keying the identical set of bottles for the
+// same paper produce the identical fingerprint regardless of wine ordering or stem wording.
+
+/** The structured skip reason a duplicate-wine-set insert emits, so generation retries rather than banks. */
+export const FLIGHT_FINGERPRINT_SKIP_REASON = "duplicate_flight_fingerprint" as const;
+
+export function computeFlightFingerprint(
+  paper: number,
+  wines: { fullText?: string }[] | null | undefined
+): string {
+  const ids = [
+    ...new Set(
+      (wines || [])
+        .map((w) => (w && typeof w.fullText === "string" ? wineCooldownId(w.fullText) : ""))
+        .filter(Boolean)
+    ),
+  ].sort();
+  return stableHash(`p${paper}|${ids.join("+")}`);
+}
+
+// The fingerprint for a stored question row: prefer the value persisted at insert time, else derive it
+// from the wines (covers every row generated before this feature).
+export function flightFingerprintOfQuestion(q: {
+  paper: number;
+  wines: unknown;
+  metadata?: Record<string, unknown> | null;
+}): string {
+  const stored =
+    q.metadata && typeof q.metadata.flightFingerprint === "string"
+      ? (q.metadata.flightFingerprint as string)
+      : null;
+  if (stored) return stored;
+  return computeFlightFingerprint(q.paper, parseWinesLoose(q.wines));
+}
+
+// Pure insert-time decision, split out so it is unit-testable without a database: a candidate whose
+// fingerprint already exists among the paper's banked flights is a duplicate wine set and must be
+// rejected/skipped. Returns the structured skip reason, or null when the flight is novel.
+export function flightFingerprintRejection(
+  fingerprint: string,
+  bankedFingerprints: Set<string>
+): typeof FLIGHT_FINGERPRINT_SKIP_REASON | null {
+  return bankedFingerprints.has(fingerprint) ? FLIGHT_FINGERPRINT_SKIP_REASON : null;
+}
+
+// Thrown by saveGeneratedQuestion when a fresh POOL insert would bank a byte-identical wine set that
+// already exists for the paper. A distinct class so a caller can tell the deliberate dedup skip apart
+// from a genuine DB failure and retry with a different selection.
+export class FlightDedupError extends Error {
+  reason: typeof FLIGHT_FINGERPRINT_SKIP_REASON;
+  constructor(reason: typeof FLIGHT_FINGERPRINT_SKIP_REASON, message: string) {
+    super(message);
+    this.name = "FlightDedupError";
+    this.reason = reason;
+  }
+}
+
+// Every banked POOL flight fingerprint for a paper, so a fresh insert can be checked against them.
+// `excludeQuestionId` drops one row from the set — the background model-answer re-save of the SAME
+// question_id (ON CONFLICT) must never collide with itself. Fingerprints prefer the value stored on
+// each row's metadata, re-deriving from the wines for any row generated before this feature.
+export async function getBankedFlightFingerprints(
+  paper: number,
+  excludeQuestionId?: string
+): Promise<Set<string>> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT question_id, paper, wines, metadata FROM generated_questions
+    WHERE paper = ${paper} AND scope = 'pool'
+  `) as { question_id: string; paper: number; wines: unknown; metadata: Record<string, unknown> | null }[];
+  const out = new Set<string>();
+  for (const r of rows) {
+    if (excludeQuestionId && r.question_id === excludeQuestionId) continue;
+    out.add(flightFingerprintOfQuestion(r));
+  }
+  return out;
+}
+
+// ── Recurring two-wine sub-set cap (feedback: SA Pinotage/Wolftrap, Meiomi/Ocio pairs served
+//    repeatedly) ───────────────────────────────────────────────────────────────────────────────────
+//
+// The fingerprint above catches a WHOLE-flight duplicate; this window feeds the complementary guard in
+// question-engine — reject a candidate flight if any unordered PAIR of its wines already co-occurs in
+// >= WINE_PAIR_COOCCUR_CAP banked questions for the paper within the last 90 days.
+export const WINE_PAIR_COOCCUR_WINDOW_DAYS = 90;
+export const WINE_PAIR_COOCCUR_CAP = 2;
+
+// Normalised wine-id SETs for a paper's live (pool) flights created within `sinceDays`, one inner array
+// per flight. The pair-co-occurrence counting itself lives in question-engine (winePairOverCap) so it
+// stays DB-free and unit-testable; this is just the windowed read it counts over.
+export async function getRecentPaperFlightWineIds(
+  paper: number,
+  sinceDays = WINE_PAIR_COOCCUR_WINDOW_DAYS
+): Promise<string[][]> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT wines FROM generated_questions
+    WHERE paper = ${paper} AND scope = 'pool'
+      AND created_at >= NOW() - (${sinceDays} || ' days')::interval
+    ORDER BY created_at DESC
+  `) as { wines: unknown }[];
+  return rows.map((r) => [
+    ...new Set(
+      parseWinesLoose(r.wines)
+        .map((w) => (w && typeof w.fullText === "string" ? wineCooldownId(w.fullText) : ""))
+        .filter(Boolean)
+    ),
+  ]);
 }
 
 // A served flight stays on this user's exclusion list for this many days. A REJECTED flight has NO
