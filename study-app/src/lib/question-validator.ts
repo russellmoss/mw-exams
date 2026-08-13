@@ -40,6 +40,7 @@ import {
   WINE_RARITY_TIERS,
   FORTIFIED_CATEGORY_INTEGRITY,
   ZERO_PRECEDENT_ORIGINS,
+  BLEND_PERMITTING_APPELLATIONS,
   type WineRarityRule,
   type FortifiedCategoryIntegrity,
 } from "./db";
@@ -736,6 +737,52 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
           detail: `stem predicate "contrasting styles" is contradicted: all ${tagged.length} wines share the same style tag (${
             tagged[0].style_category || tagged[0].style
           }) — e.g. wines ${tagged.map((w) => w.slot).join(", ")}`,
+        });
+    }
+  }
+
+  // (8) BLEND-PERMITTING APPELLATION keyed as a SINGLE variety under a single-variety stem.
+  //
+  // The recurring Paper-2 cluster (Morellino di Scansano ×2, a standard Bordeaux blend, two GSMs, a
+  // non-dominant "Syrah", a generic "Cuvée Rosso"): a wine is keyed with exactly ONE grape and the
+  // flight therefore passes the stem-vs-key variety check, yet the wine's APPELLATION permits or
+  // typically involves blending, so the stem's "single grape variety" claim is factually false.
+  //
+  // Arm (3) above cannot catch these. It is scoped to the SINGULAR inflection only — deliberately, so
+  // the plural real-paper form ("different single grape varieties" over a genuinely varietal white
+  // Rioja keyed with NO variety) never reaches its appellation arm — and (3b) trusts a key that
+  // resolved one grape. This arm is DATA-BACKED instead: it fires only when the ORIGIN matches the
+  // curated BLEND_PERMITTING_APPELLATIONS registry (db.ts) AND the key resolved EXACTLY ONE grape (an
+  // unresolved key is never second-guessed, so the 2013 P1 Q1 white Rioja — keyed [] — is untouched),
+  // and each registry entry's `singleVarietyOk` stands the check down for the address's legitimately
+  // monovarietal expressions (white Rioja Viura, a dry white Bordeaux). Generated stems only: a
+  // verbatim past-paper import may pour a real blend under a real single-variety stem, and quarantining
+  // a printed paper is the one thing no wording rule may do.
+  const blendStemClaim =
+    !hedged &&
+    (/\bsingle grape variet(?:y|ies)\b/.test(stem) ||
+      /\bsingle variet(?:y|ies)\b/.test(stem) ||
+      /\bpredominantly\b[a-z ]{0,40}?\b(?:grape\s+)?variet(?:y|ies)\b/.test(stem) ||
+      /\bpredominantly from a different\b/.test(stem));
+  if (q.stemIsAuthoritative !== true && blendStemClaim && !subsetSplit) {
+    for (const w of wines) {
+      if ((w.varieties?.length || 0) !== 1) continue; // only a single-variety KEY is second-guessed
+      const keyedVariety = norm(canonVariety(w.varieties[0] || ""));
+      const hay = norm(
+        [w.fullText, w.region, w.country, w.style, ...(w.varieties || [])]
+          .filter(Boolean)
+          .join(" "),
+      );
+      const hit = BLEND_PERMITTING_APPELLATIONS.find(
+        (a) =>
+          a.match.test(hay) &&
+          !(a.singleVarietyOk && a.singleVarietyOk.test(keyedVariety)),
+      );
+      if (hit)
+        v.push({
+          rule: "blend-permitting-appellation-single-variety",
+          severity: "hard",
+          detail: `stem claims a single grape variety, but wine ${w.slot} is a ${hit.label} — keyed as ${w.varieties[0]} alone this is factually wrong, since the appellation permits blending. Drop the wine, or re-stem to "grape variety or varieties".`,
         });
     }
   }

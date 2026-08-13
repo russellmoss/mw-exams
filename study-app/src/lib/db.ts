@@ -965,6 +965,92 @@ export const ZERO_PRECEDENT_ORIGINS: ZeroPrecedentOrigin[] = [
   },
 ];
 
+// ── Blend-permitting appellations / styles (Paper 2 recurring cluster: 6 validated signals) ────────
+//
+// A recurring accepted complaint: a wine keyed as ONE grape is, by appellation rule or house style,
+// actually a blend — a standard Bordeaux blend, a Châteauneuf / GSM, Morellino di Scansano (twice),
+// red Rioja, a Douro / Portuguese red, a generic "Rosso" / "Cuvée" — so the flight passes the
+// stem-vs-key VARIETY check (the key really does name one grape) yet the stem's "different, single
+// grape variety" claim is factually false. The blind spot is the WINE DATA, not the stem comparison,
+// so the fix is this data-backed registry, read by blendPermittingSingleVarietyViolations in
+// question-validator.ts (arm 8 of crossCheckStemFacts).
+//
+// Keep this a SMALL, EXPLICIT list — do NOT try to infer blending from free text. Each `match` is
+// tested (case-insensitively, accents stripped — see the validator's haystack builder) against a
+// wine's combined fullText / region / country / style / variety descriptor. To EXTEND it, add an
+// appellation or style that PERMITS or TYPICALLY INVOLVES blending (never a genuinely monovarietal
+// one); where the SAME address also has a legitimate single-variety expression (white Rioja from
+// Viura, a dry white Bordeaux from Sauvignon Blanc / Sémillon), name those grapes in
+// `singleVarietyOk` so the check stands down for them — mirroring FORTIFIED_CATEGORY_INTEGRITY above.
+export interface BlendPermittingAppellation {
+  /** Stable id an admin can reference when retagging. */
+  id: string;
+  /** Human label naming the appellation/style, used in the rejection message. */
+  label: string;
+  /** Matched against the wine's combined, normalised descriptor. */
+  match: RegExp;
+  /**
+   * Grapes a key MAY legitimately list on their own for this address, so the single-variety check
+   * stands down. Tested against the wine's keyed (canonicalised) variety, NOT the whole descriptor —
+   * so a red Bordeaux keyed "Cabernet Sauvignon" is still caught while a white keyed "Sauvignon Blanc"
+   * is exempt.
+   */
+  singleVarietyOk?: RegExp;
+}
+
+export const BLEND_PERMITTING_APPELLATIONS: BlendPermittingAppellation[] = [
+  // A standard Bordeaux blend (fb_543). The red AOCs are Cabernet/Merlot-led blends by convention; a
+  // dry white Bordeaux is legitimately keyed to Sauvignon Blanc / Sémillon, so those stand down.
+  {
+    id: "bordeaux-red-blend",
+    label: "Bordeaux (a Cabernet/Merlot-led blend by AOC convention)",
+    match:
+      /\bbordeaux\b|\bhaut-?medoc\b|\bmedoc\b|\bpauillac\b|\bmargaux\b|saint-?julien|saint-?estephe|\bpomerol\b|saint-?emilion|\blistrac\b|\bmoulis\b|\bfronsac\b/,
+    singleVarietyOk: /sauvignon\s*blanc|\bsemillon\b|muscadelle/,
+  },
+  // Châteauneuf-du-Pape and GSM-style Rhône / Australian reds (fb_540, fb_527). Matched by the
+  // southern-Rhône appellation OR by an explicit Grenache-Syrah-Mourvèdre ("GSM") label — NOT by a
+  // region alone, so a genuinely monovarietal Barossa Shiraz or a Northern-Rhône Syrah is untouched.
+  {
+    id: "gsm-rhone-australia",
+    label: "Châteauneuf-du-Pape / GSM-style red (a Grenache-Syrah-Mourvèdre blend)",
+    match:
+      /chateauneuf|\bgigondas\b|\bvacqueyras\b|cotes?\s+du\s+rhone|\bg\.?\s?s\.?\s?m\.?\b|grenache[\s,/-]+(?:shiraz|syrah)|(?:shiraz|syrah)[\s,/-]+grenache|grenache[\s,/-]+mourvedre/,
+  },
+  // Morellino di Scansano (gen_p2_F2_1786072456006 / fb_510). Sangiovese only to the DOCG's 85% floor
+  // and routinely blended up with Ciliegiolo / Alicante; the exam anchors Sangiovese on Chianti/Brunello.
+  {
+    id: "morellino-di-scansano",
+    label: "Morellino di Scansano (Sangiovese to the DOCG 85% floor, routinely blended up)",
+    match: /\bmorellino\b/,
+  },
+  // Rioja. A Tempranillo-led blend (Garnacha / Graciano / Mazuelo) by regional convention; white Rioja
+  // is a legitimately monovarietal Viura, so the white grapes stand down (protects the 2013 P1 Q1
+  // López de Heredia Gravonia, a real past paper that is 100% Viura).
+  {
+    id: "rioja-red",
+    label: "Rioja (a Tempranillo-led blend with Garnacha/Graciano/Mazuelo)",
+    match: /\brioja\b/,
+    singleVarietyOk:
+      /\bviura\b|\bmacabeo\b|malvasia|garnacha\s*blanca|\bverdejo\b|tempranillo\s*blanco/,
+  },
+  // Douro / Dão / other Portuguese reds — field blends of Touriga Nacional/Franca, Tinta Roriz, etc.
+  // Portuguese white grapes (Alvarinho, Arinto, Encruzado, …) are legitimately monovarietal.
+  {
+    id: "portuguese-red-blend",
+    label: "Douro / Dão / Portuguese red (a field blend of Touriga Nacional, Tinta Roriz, etc.)",
+    match: /\bdouro\b|\bdao\b|\bbairrada\b|\balentejo\b/,
+    singleVarietyOk: /alvarinho|\barinto\b|encruzado|loureiro|\bavesso\b|fernao\s*pires/,
+  },
+  // A generic "Rosso" / "Cuvée Rosso" IGT (fb_512) — a blend NAME, not a variety. "Rosso di Montalcino"
+  // is excluded: it is 100% Sangiovese by law and is legitimately keyed to that single grape.
+  {
+    id: "generic-rosso-cuvee",
+    label: 'a generic "Rosso" / "Cuvée" red (a blend name, not a single variety)',
+    match: /\brosso\b(?!\s+di\s+montalcino)/,
+  },
+];
+
 export const RECENT_WINE_WINDOW = 20;
 export const RECENT_FLIGHT_WINDOW = 50;
 
